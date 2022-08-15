@@ -1,0 +1,690 @@
+<html>
+	<head>
+		<title>Fumen Utilities</title>
+	</head>
+	<body id="fumenutil">
+	<span style = "font-family:Montserrat;color:#cacccc">
+		<span style = "float: left; font-size: 30px; margin-bottom: 10px; width:50%; height:40px;"><b>Fumen Utilities</b> © Swng</span>
+		<div style="text-align: right;">
+			<span style = "float: right; font-size: 15px; height:40px;margin-bottom: 10px; width:50%;">
+				<button class="option panel-button" id="openSP" onclick="opensidepanel()" style="display:show;">
+					<span class="material-icons">menu_open</span>
+				</button>
+			</span>
+		</div>
+		<style>
+		h2{
+			font-family: Montserrat;
+			margin-top: 0px;
+			margin-bottom: -10px;
+			}
+		h3{
+			margin-bottom: -10px;
+			margin-top: 0px;
+			}
+		#fumenutil{
+			background: #313131;
+			margin: auto;
+			margin-top: 20px;
+			width: 900px;
+			}
+		textarea{
+			width: 100%;
+			height: 15%;
+			background: #6b6b6b88;
+			outline: #FFF;
+			margin: 2px;
+			border: 1.5px solid #c3c3c3;
+			color: white;
+			font-family: Courier New;
+			font-size: 1em;
+			resize: none;
+			}
+		button{
+			font-family: Verdana;
+			background: #cccccc;
+			padding-left: 10px;
+			padding-right: 10px;
+			}
+		*::-webkit-scrollbar{
+			width: 12px;
+			}
+		*::-webkit-scrollbar-track{
+			background:  #999b9b;
+			}
+		*::-webkit-scrollbar-thumb{
+			background-color: #6b6d6d;
+			}
+		input,select{
+			height: 1.5em;
+			font-size: 1em;
+			font-family: Montserrat;
+			background: #7a7e7e;
+			border: none;
+			color: #FFF;
+			margin: 2px;
+			text-align: center;
+			}
+		
+		input[type="number"]{
+			width: 4em;
+			}
+		input[type="value"]{
+			width: 4em;
+			}
+	    .column{
+		    float: left;
+		    }
+	   	.left{
+	   		float:left;
+		   	width: 30%;
+			margin-left: 10%;
+			margin-right: 10%;
+			}
+		.right{
+	   		float:left;
+		   	width: 30%;
+			align-items: left;
+			margin-left: 10%;
+			margin-right: 10%;
+			}
+		.row:after{
+			content: "";
+			display: table;
+			clear: both;
+			}
+		input[type="checkbox"]{
+			color: #323333;
+    		accent-color: #6e706f;
+			background-color: #2e3030;
+    		height: 20px;
+			width: 20px;
+			vertical-align: middle;
+			}
+		#board{
+			width: 240px;
+			margin: 0;
+			padding-left: 18px;
+			padding-right: 18px;
+		}
+		#b{
+			background: #00000088;
+		}
+		#fumenSection{
+			font-family: Montserrat;
+			color: #ffffff;
+			background: #00000033;
+			position: relative;
+			padding-top: 20px;
+			padding-bottom: 20px;
+			display: flex;
+			text-align: center;
+			align-items:flex-start;
+			display:none;
+		}
+		#fumenSidebar{
+			font-family: Montserrat;
+			color: #ffffff;
+			background: #0e0e0ecc;
+			position: relative;
+			padding-top: 20px;
+			padding-bottom: 20px;
+			display: show;
+			text-align: center;
+			align-items:flex-start;
+			justify-content: space-around;
+			height: 100%; /* Full-height: remove this if you want "auto" height */
+    	    position: fixed; /* Fixed Sidebar (stay in place on scroll) */
+        	top: 0; /* Stay at the top */
+        	right: 0; /* Stick to the right*/
+			padding-top: 60px;
+			box-shadow: -5px 0px 2px #0e0e0ecc;
+			width: 50%;
+		}
+		/* .left-panel{
+			flex:2;
+			background: rgb(32, 32, 32);
+			margin-right: 20px;
+			margin-left: 20px;
+		}
+		.middle-panel{
+			flex:1;
+		}
+		.right-panel{
+			background: rgb(32, 32, 32);
+			flex:3;
+			margin-left: 20px;
+			margin-right: 20px;
+		} */
+		#boardOutput{
+			width:220px;
+			height:50px;
+		}
+		#commentBox{
+			width:220px;
+			height:25px;
+		}
+		.io {
+			display: inline-flex;
+			flex-direction: column;
+		}
+		.option, .ibtn {
+			background-color: rgb(214, 214, 214);
+			border: 1px solid #b4b4b4da;
+			padding-left: 6px;
+			padding-right: 6px;
+			color: rgb(32, 32, 32);
+			font-family: Montserrat;
+			text-align: center;
+			display: inline-block;
+			font-size: 14px;
+			margin: 4px 2px;
+			transition-duration: 0.2s;
+			cursor: pointer;
+			border-radius: 2px;
+		}
+		.option:hover, .ibtn:hover {
+			background-color: #969696;
+			margin: 4px 2px;
+		}
+		.options{
+			display: flex;
+			justify-content: space-around;
+		}
+		input[type='radio'] {
+			display: none;
+		}
+		#container{
+			min-height: 100%;
+		}
+		footer {
+			width: 100%;
+		}
+		.pagePosition {
+			text-align: center;
+			padding-bottom: 5px;
+			}
+		.pager {
+			display: inline-block;
+			vertical-align: middle;
+			}
+		#positionDisplay{
+			width: 40px;
+			height: 30px;
+			text-align: right;
+			border-top-left-radius: 2px;
+			border-bottom-left-radius: 2px;
+			margin-right: -2px;
+			background:#c9c9c9;
+			color: rgb(32, 32, 32);
+			font-family: monospace;
+			font-size: x-large;
+		}
+		#positionDisplay:focus{
+			outline-width: 0;
+		}
+		#positionDisplayOver{
+			width: 55px;
+			height: 30px;
+			text-align: left;
+			border-top-right-radius: 2px;
+			border-bottom-right-radius: 2px;
+			margin-left: -3px;
+			background:#c9c9c9;
+			color: rgb(32, 32, 32);
+			font-family: monospace;
+			font-size: x-large;
+		}
+		.pageButton{
+			width: 30px;
+			height: 25px;
+			text-align: center;
+			vertical-align: middle;
+			border-radius: 2px;
+			border: none;
+		}
+		.pageButton .material-icons{
+			width: 20px;
+			height: 20px;
+			overflow: hidden;
+			margin-left: -7px;
+			margin-bottom: 6px;
+		}
+		.paint-bucket {
+			background: #1c1c1c;
+			display: flex;
+			flex-wrap: wrap;
+			padding: 2px;
+			border-radius: 10px;
+			justify-content: center;
+			width: 18rem;
+			margin-bottom: 5px;
+		}
+
+		.paint-bucket input[class='paintbucket'] + *::before {
+			content: '';
+			display: inline-block;
+			width: 1rem;
+			height: 1rem;
+			margin: 0.3rem;
+			border-radius: 10%;
+			border-style:inset;
+			border-width: 0.2rem;
+			filter: brightness(60%);
+			padding: 2px;
+		}
+
+		.paint-bucket input[class='paintbucket']:hover + *::before {
+			border-color: white;
+		}
+
+		.paint-bucket input[class='paintbucket']:checked + *::before {
+			border-color: white;
+			filter: brightness(150%);
+		}
+
+		.paint-bucket input[id='X'] + *::before {
+			color: #999999;
+			background: #999999;
+		}
+		.paint-bucket input[id='I'] + *::before {
+			color: #0BF;
+			background: #0BF;
+		}
+		.paint-bucket input[id='J'] + *::before {
+			color: #05F;
+			background: #05F;
+		}
+		.paint-bucket input[id='S'] + *::before {
+			color: #0F0;
+			background: #0F0;
+		}
+		.paint-bucket input[id='O'] + *::before {
+			color: #FF0;
+			background: #FF0;
+		}
+		.paint-bucket input[id='Z'] + *::before {
+			color: #F00;
+			background: #F00;
+		}
+		.paint-bucket input[id='L'] + *::before {
+			color: #F80;
+			background: #F80;
+		}
+		.paint-bucket input[id='T'] + *::before {
+			color: #C3F;
+			background: #C3F;
+		}
+		</style>
+<br><br>
+<center><hr style="border-style:solid;height:4px;"></center>
+	<div id="fumenUtil">
+		<h3><b>Input</b></h3>
+		<br>
+		<center>
+		<textarea id="input" name="input"></textarea>
+		<br>
+		</center>
+		<button class="ibtn" onclick="glueFumen()"><b>Glue</button>
+		<button class="ibtn" onclick="unglueFumen()"><b>Unglue</b></button>
+		<button class="ibtn" onclick="mirrorFumen()"><b>Mirror</b></button>
+		<button class="ibtn" onclick="combineFumen()"><b>Combine</b></button>
+		<button class="ibtn" onclick="splitFumen()"><b>Split</b></button>
+        <button class="ibtn" onclick="removeComments()"><b>Remove Comments</b></button>
+		<button class="ibtn" onclick="fumencanvas()"><b>FOUR Render</b></button>
+        <button class="ibtn" onclick="fumenrender()"><b>Fumen Render</b></button>
+        <button class="ibtn" onclick="toggleSettings()"><b>Toggle Settings</b></button>
+		<div class="row" id="settings" style="display:none;">
+		<center><hr class="solid"></center>
+		<b><h2>Settings</h2></b><br>
+
+			<div class="column left"><center><b>Render Settings</b><br></center>
+			<input id="cellSize" type="number" value=22></input>
+			<label for="cellSize">Cell Size</label><br>
+
+			<input id="width" type="number" value=10 min=1 max=10></input>
+			<label for="width">Width</label><br>
+
+			<input id="height" type="number" value=4 min=1 max=20></input>
+			<label for="height">Height</label>
+
+			<label id="autoheightlabel">
+			<input id="autoheight" type="checkbox" checked="checked">
+			<span class="checkmark"></span>Auto
+			</label><br>
+
+			<input id="transparency" type="checkbox" checked="checked" onclick="togglebgselect()"></input>
+			<label for="transparency">Transparency</label><br>
+
+				<div id="bgselect" style="display:none;">
+				<input id="bg" type="color" value="#f3f3ed" style="width:100px;padding:0px;"></input>
+				<label for="transparency">BG Color</label><br>
+				</div>
+
+			</div>
+			<div class="column right">
+				<center><b>GIF Settings</b><br></center>
+				<input id="delay" type="value" value=500></input>
+				<label for="delay">GIF Delay (ms)</label>
+				<br>
+				<center><b>Download Settings</b><br></center>
+				<input id="downloadOutput" type="checkbox" onclick="toggledownloadsettings()"></input>
+				<label for="downloadOutput">Download on Render?</label><br>
+				<div id="downloadSettings" style="display:none;">
+				<select id="naming" name="Name">
+					<option value="index">Index (1, 2, ...)</option>
+					<option value="fumen">Fumen Code</option>
+				</select>
+				<label for="naming">Output Name</label>
+				</div>
+			</div>
+		</div>
+
+<center><hr class="solid"></center>
+		<h3><b>Output</b></h3><br>
+		<center>
+		<textarea id="output" name="output"></textarea>
+		<br>
+		</center>
+		<button class="ibtn" onclick="navigator.clipboard.writeText(document.getElementById('output').value)"><b>Copy</b></button>
+		<br>
+		<center><div id="container"></div></center>
+	</span>
+</div>
+	<br>
+<!--	<center><hr class="solid"></center>
+		<div id="fumenSection">
+			<div class="import-export left-panel">
+				<div class="io">
+					<h3>Export</h3>
+					<br>
+					<button class="option" onclick="this.blur(); exportFumen()"><b>Fumen</b></button>
+					<button class="option" onclick="this.blur(); exportFullFumen()"><b>Full Fumen</b></button>
+				</div>
+					<br><br>
+				<div class="io">
+					<h3>Import</h3>
+					<br>
+					<button class="option" onclick="this.blur(); importFumen()"><b>Fumen</b></button>
+					<button class="option" onclick="this.blur(); importFullFumen()"><b>Full Fumen</b></button>
+				</div>
+				<div>
+					<textarea id="boardOutput"></textarea>
+				</div>
+			</div>
+
+			<div id="board" class="middle-panel"><canvas id="b"></canvas></div>
+
+			<div class="options right-panel">
+
+				<form class="paint-bucket" name="paintbucket">
+					<label for="I">
+						<input type="radio" name="paintbucket" class="paintbucket" id="I" value="I" />
+						<span></span>
+					</label>
+					<label for="L">
+						<input type="radio" name="paintbucket" class="paintbucket" id="L" value="L" />
+						<span></span>
+					</label>
+					<label for="O">
+						<input type="radio" name="paintbucket" class="paintbucket" id="O" value="O" />
+						<span></span>
+					</label>
+					<label for="Z">
+						<input type="radio" name="paintbucket" class="paintbucket" id="Z" value="Z" />
+						<span></span>
+					</label>
+					<label for="T">
+						<input type="radio" name="paintbucket" class="paintbucket" id="T" value="T" />
+						<span></span>
+					</label>
+					<label for="J">
+						<input type="radio" name="paintbucket" class="paintbucket" id="J" value="J" />
+						<span></span>
+					</label>
+					<label for="S">
+						<input type="radio" name="paintbucket" class="paintbucket" id="S" value="S" />
+						<span></span>
+					</label>
+					<label for="X">
+						<input type="radio" name="paintbucket" class="paintbucket" id="X" value="X" checked />
+						<span></span>
+					</label>
+				</form>
+
+				<h3>Options</h3><br/>
+				<button class="option" onclick="this.blur(); mirror()"><b>Mirror</b></button>
+				<br>
+				<button class="option" onclick="this.blur(); fullMirror()"><b>Full Mirror</b></button>
+
+
+				<div style="display:none;"><input type="checkbox" id="autocolor" /> <label for="autocolor">autocolor</label></div>
+				<div style="display:none;"><input type="checkbox" id="grav" /> <label for="grav">gravity</label></div>
+				<p></p>
+			</div>
+		</div> -->
+
+		<div id="fumenSidebar" style="display:show;">
+			<div style="text-align: right;">
+				<span style = "position:fixed; top: 20px; right:24px; font-size: 15px; height:15px;margin-bottom: 10px;">
+					<button class="option panel-button" id="closeSP" onclick="closesidepanel()">
+						<span class="material-icons">close</span>
+					</button>
+				</span>
+			</div>
+		<hr width="80%">
+			<!-- PAINT BUCKET CHOICES -->
+			<div class="options">
+				<form class="paint-bucket" name="paintbucket">
+					<label for="I">
+						<input type="radio" name="paintbucket" class="paintbucket" id="I" value="I" />
+						<span></span>
+					</label>
+					<label for="L">
+						<input type="radio" name="paintbucket" class="paintbucket" id="L" value="L" />
+						<span></span>
+					</label>
+					<label for="O">
+						<input type="radio" name="paintbucket" class="paintbucket" id="O" value="O" />
+						<span></span>
+					</label>
+					<label for="Z">
+						<input type="radio" name="paintbucket" class="paintbucket" id="Z" value="Z" />
+						<span></span>
+					</label>
+					<label for="T">
+						<input type="radio" name="paintbucket" class="paintbucket" id="T" value="T" />
+						<span></span>
+					</label>
+					<label for="J">
+						<input type="radio" name="paintbucket" class="paintbucket" id="J" value="J" />
+						<span></span>
+					</label>
+					<label for="S">
+						<input type="radio" name="paintbucket" class="paintbucket" id="S" value="S" />
+						<span></span>
+					</label>
+					<label for="X">
+						<input type="radio" name="paintbucket" class="paintbucket" id="X" value="X" checked />
+						<span></span>
+					</label>
+				</form>
+			</div>
+
+			<!-- PAGES BUTTON AND DISPLAY-->
+			<div class="pagePosition">
+				<div class="pager"><button class="positionsub pagebutton" onclick="firstPage()">
+					<span class="material-icons">keyboard_double_arrow_left</span>
+				</button></div>
+				<div class="pager"><button class="positionsub pagebutton" onclick="subPage()">
+					<span class="material-icons">navigate_before</span>
+				</button></div>
+				<div class="pager"><input id="positionDisplay" inputmode="numeric" value="1"/></div>
+				<div class="pager"><input id="positionDisplayOver" value="/1" disabled/></div>
+				<div class="pager"><button class="positionadd pagebutton" onclick="addPage()">
+					<span class="material-icons">navigate_next</span>
+				</button></div>
+				<div class="pager"><button class="positionadd pagebutton" onclick="lastPage()">
+					<span class="material-icons">keyboard_double_arrow_right</span>
+				</button></div>
+			</div>
+
+			<!-- THE BOARD -->
+			<center><div id="board"><canvas id="b"></canvas></div></center>
+
+			<!-- THE COMMENT BOX -->
+			<div>
+				<textarea id="commentBox"></textarea>
+			</div>
+			<hr width="80%">
+			<!-- THE OPTIONS -->
+			<div class="import-export">
+				<div class="io">
+					<button class="option" onclick="this.blur(); exportFumen()"><b>Export Page</b></button>
+					<button class="option" onclick="this.blur(); exportFullFumen()"><b>Export Full</b></button>
+				</div>
+
+				<div class="io">
+					<button class="option" onclick="this.blur(); importFumen()"><b>Import Page</b></button>
+					<button class="option" onclick="this.blur(); importFullFumen()"><b>Import Full</b></button>
+				</div>
+
+				<div class="extraio">
+					<div class="extraioitems">
+						<input id="autoEncode" type="checkbox" onclick="toggleAutoEncoding()"></input>
+						<label for="autoEncode">Auto-Encode</label>
+					</div>
+					<div class="extraioitems" id="autoEncodeOptions" style="display:none;">
+						<select id="encodingType" name="encodingTypes">
+							<option value="fullFumen">Full Fumen</option>
+							<option value="currentFumen">Current Page</option>
+						</select>
+					</div>
+				</div>
+
+			<!-- THE OUTPUT BOX -->
+				<div>
+					<textarea id="boardOutput"></textarea>
+				</div>
+			</div>
+
+			<!-- ""ADD ONS"""-->
+			<hr width="80%">
+			<div class="options">
+				<button class="option" onclick="this.blur(); mirror()"><b>Mirror</b></button>
+				<br>
+				<button class="option" onclick="this.blur(); fullMirror()"><b>Full Mirror</b></button>
+			</div>
+		</div>
+		</body>
+
+		<footer>
+			<br>
+			<br>
+			<center><hr style="border-style:solid;height:4px;color:#cacccc"></center>
+			<br>
+		</footer>
+
+<!--EXTERNAL SCRIPTS-->
+	<script src="./Fumen Utils_files/tetris-fumen.js"></script>
+	<script src="./Fumen Utils_files/modified-glueFumen.js"></script>
+	<script src="./Fumen Utils_files/modified-unglueFumen.js"></script>
+	<script src="./Fumen Utils_files/modified-mirrorFumen.js"></script>
+	<script src="./Fumen Utils_files/modified-combineFumen.js"></script>
+	<script src="./Fumen Utils_files/modified-splitFumen.js"></script>
+	<script src="./Fumen Utils_files/modified-removeComments.js"></script>
+	<script type="text/javascript" src="./Fumen Utils_files/LZWEncoder.js"></script>
+	<script type="text/javascript" src="./Fumen Utils_files/NeuQuant.js"></script>
+	<script type="text/javascript" src="./Fumen Utils_files/GIFEncoder.js"></script>
+	<script type="text/javascript" src="./Fumen Utils_files/b64.js"></script>
+	<script src="./Fumen Utils_files/modified-fumen-canvas.js"></script>
+	<script src="./Fumen Utils_files/modified-fumen-render.js"></script>
+	<script src="./Fumen Utils_files/jszip.js"></script>
+	<script src="./Fumen Utils_files/jszip.min.js"></script>
+	<script src="./Fumen Utils_files/jszip-utils.js"></script>
+	<script src="./Fumen Utils_files/jszip-utils.min.js"></script>
+	<script src="./Fumen Utils_files/FileSaver.js"></script>
+	<script src="./Fumen Utils_files/FileSaver.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+	<script src="io.js"></script>
+	<script src="utils.js"></script>
+	<script src="tetris-fumen.js"></script>
+	<script defer src="base.js"></script>
+<!--STYLES-->
+	<link rel="stylesheet" type="text/css" href="styles/paint_bucket.css" />
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
+<!--IN DOCUMENT SCRIPTS-->
+	<script>
+		function toggleSettings() {
+		  var x = document.getElementById("settings");
+		  if (x.style.display === "none") {
+		    x.style.display = "block";
+		  } else {
+		    x.style.display = "none";
+		  }
+		}
+
+		function togglebgselect() {
+		  var x = document.getElementById("bgselect");
+		  if (x.style.display === "none") {
+		    x.style.display = "block";
+		  } else {
+		    x.style.display = "none";
+		  }
+		}
+
+		function toggledownloadsettings() {
+		  var x = document.getElementById("downloadSettings");
+		  if (x.style.display === "none") {
+			x.style.display = "block";
+		  } else {
+			x.style.display = "none";
+		  }
+		}
+
+		function toggleAutoEncoding() {
+		  var x = document.getElementById("autoEncodeOptions");
+		  if (x.style.display === "none") {
+			x.style.display = "block";
+		  } else {
+			x.style.display = "none";
+		  }
+		}
+
+		function opensidepanel() {
+		  document.getElementById("fumenSidebar").style.display = "block";
+		}
+
+		function closesidepanel() {
+		  document.getElementById("fumenSidebar").style.display = "none";
+		}
+
+		function addPage() {
+			if(document.getElementById('positionDisplay').value == hist.length){
+			document.getElementById('positionDisplay').value = parseFloat(document.getElementById('positionDisplay').value)+1;
+			document.getElementById("positionDisplayOver").value = "/"+(parseFloat(hist.length+1));
+			} else {
+			document.getElementById('positionDisplay').value = parseFloat(document.getElementById('positionDisplay').value)+1;
+			}
+			nextPage();
+		}
+
+		function subPage() {
+			if(document.getElementById('positionDisplay').value != 1){
+			document.getElementById('positionDisplay').value = parseFloat(document.getElementById('positionDisplay').value)-1;
+			};
+			prevPage()
+		}
+
+		function firstPage() {
+			document.getElementById('positionDisplay').value = 1;
+			startPage();
+		}
+
+		function lastPage() {
+			document.getElementById('positionDisplay').value = hist.length;
+			endPage();
+		}
+	</script>
+</html>
