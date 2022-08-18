@@ -203,6 +203,7 @@ function shift(direction){
 function editComment() {
 	position = document.getElementById("positionDisplay").value-1;
 	hist[position]['comment'] = document.getElementById("commentBox").value;
+	autoEncode();
 }
 
 function updateComment() {
@@ -212,7 +213,6 @@ function updateComment() {
 	} else {
 		document.getElementById("commentBox").value = hist[position]['comment'];
 	}
-
 }
 
 function prevPage() {
@@ -223,6 +223,7 @@ function prevPage() {
 	};
 	window.requestAnimationFrame(render);
 	updateComment();
+	autoEncode();
 }
 
 function nextPage() {
@@ -231,11 +232,11 @@ function nextPage() {
 		board = JSON.parse(hist[histPos]['board']);
 	} else {
 		hist[histPos] = {board: JSON.stringify(board),};
-		autoEncode();
 	}
 	document.getElementById("positionDisplayOver").value = "/"+(hist.length);
 	window.requestAnimationFrame(render);
 	updateComment();
+	autoEncode();
 }
 
 function startPage(){
@@ -243,12 +244,14 @@ function startPage(){
 	board = JSON.parse(hist[histPos]['board']);
 	window.requestAnimationFrame(render);
 	updateComment();
+	autoEncode();
 }
 
 function endPage(){
 	board = JSON.parse(hist[hist.length-1]['board']);
 	window.requestAnimationFrame(render);
 	updateComment();
+	autoEncode();
 }
 
 function restart(){

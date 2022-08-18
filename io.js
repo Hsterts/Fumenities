@@ -96,23 +96,59 @@ function fullDecode(fumen) {
     return newHist;
 };
 
-function encode(board) {
-    pages = [];
-    pages.push(toPage(board));
-    fumen = encoder.encode(pages);
-    return fumen;
+function encode() {
+	histPost = document.getElementById("positionDisplay").value-1
+	pages = [];
+	page = [];
+	i = histPos
+	field = toPage(JSON.parse(hist[i]['board']));
+	flags = {
+		rise: false,
+		mirror: false,
+		colorize: true,
+		comment: hist[i]['comment'],
+		lock: true,
+		piece: undefined,
+	}
+		page = {
+			comment: hist[i]['comment'],
+			operation: undefined,
+			field,
+			flags: flags,
+			index: i,
+		}
+	pages.push(page);
+	var result = encoder.encode(pages);
+	document.getElementById("boardOutput").value = result;
+	console.log(result);
+}
+
+function fullEncode() {
+	pages = [];
+for (var i = 0; i < hist.length; i++){
+	page = [];
+	field = toPage(JSON.parse(hist[i]['board']));
+	flags = {
+		rise: false,
+		mirror: false,
+		colorize: true,
+		comment: hist[i]['comment'],
+		lock: true,
+		piece: undefined,
+	}
+		page = {
+			comment: hist[i]['comment'],
+			operation: undefined,
+			field,
+			flags: flags,
+			index: i,
+		}
+	pages.push(page);
 };
-
-function fullEncode(hist) {
-    pages = [];
-    for (let i = 0; i < hist.length; i++) {
-        pages.push(toPage(JSON.parse(hist[i]['board'])));
-    }
-    fumen = encoder.encode(pages);
-    return fumen;
-};
-
-
+	var result = encoder.encode(pages);
+	document.getElementById("boardOutput").value = result;
+	console.log(result);
+}
 
 // MAIN IO
 async function exportFumen() {
