@@ -7,7 +7,9 @@ function toPage(board) {
             } else FieldString += '_';
         }
     }
-    return Field.create(FieldString);
+    return {
+        field: Field.create(FieldString),
+    };
 }
 
 function decode(fumen) {
