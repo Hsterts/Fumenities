@@ -22,7 +22,7 @@
 		<h3><b>Input</b></h3>
 		<br>
 		<center>
-		<textarea id="input" name="input">v115@AhQ4IeR4IeQ4GezhNeAgH</textarea>
+		<textarea id="input" name="input"></textarea>
 		<br>
 		</center>
 		<button class="ibtn" onclick="glueFumen()"><b>Glue</button>
@@ -107,8 +107,9 @@
 				</span>
 			</div>
 		<hr width="90%">
-<!-- PAINT BUCKET CHOICES -->
-			<div class="options">
+		<div class="fumen-header">
+		<!-- PAINT BUCKET CHOICES -->
+			<div class="color-options top-panel">
 				<form class="paint-bucket" name="paintbucket">
 					<label for="I">
 						<input type="radio" name="paintbucket" class="paintbucket" id="I" value="I" />
@@ -144,7 +145,13 @@
 					</label>
 				</form>
 			</div>
-
+		<!-- MINO MODE OPTION-->
+			<div class="minoMode top-panel tooltip">
+				<input id="minoModeOption" type="checkbox" onclick="toggleMinoMode()"></input>
+				<label for="minoModeOption">Mino Mode</label>
+				<span class="tooltiptext">"Enable drawing <b>four minos</b> to dictate a piece placement.</span>
+			</div>
+		</div>
 <!-- PAGES BUTTON AND DISPLAY-->
 			<!-- THE BOARD -->
 		<div class="fumen-body">
@@ -201,10 +208,9 @@
 							<button class="fumen-option" onclick="this.blur(); restart()"><b>Clear</b></button>
 							<hr width = "99%">
 							<button class="fumen-option" onclick="this.blur(); importFumen()"><b>Insert</b></button>
-							<button class="fumen-option" onclick="this.blur(); exportFumen()"><b>Export Page</b></button>
+							<button class="fumen-option" onclick="this.blur(); encode()"><b>Export Page</b></button>
 							<button class="fumen-option" onclick="this.blur(); importFullFumen()"><b>Import</b></button>
-							<button class="fumen-option" onclick="this.blur(); exportFullFumen()"><b>Export</b></button>
-							<button class="fumen-option" onclick="testEncode()">Test</button>
+							<button class="fumen-option" onclick="this.blur(); fullEncode()"><b>Export</b></button>
 						</div>
 					</div>
 				</div>
@@ -223,16 +229,13 @@
 						</div>
 					</div>
 			<!-- THE OUTPUT BOX -->
-					<div><textarea id="boardOutput">v115@9gwhRpilDewhRpglAtEewhRpBtR4i0whRpAtR4Ceg0?JeAg0eAlEvXEhoo2APoo2AT7STASoVRASo42AOeuRAyfAAA?9gQ4xwi0DeQ4xwg0AtEeQ4xwBtxhilQ4xwAtxhCeglJeAAt?AADhzhEeywR4PewwR4KeAAA9gF8ywAtE8ywBtP8xwAtA8Je?AAA9gF8wwilE80wP8wwglwwA8JeAAA9gF8wwilE8xwglR4P?8wwR4A8JeAAA9gF8wwh0AtE8xwg0BtP8wwg0AtA8JeAAA9g?F8wwg0R4E8xwi0P8wwR4A8JeAAA9gF8R4RpE8R4wwRpP8yw?A8JeAAA9gF8wwR4AtE8ywBtP8R4AtA8JeAAA9gF8wwRpglE?8xwilP8wwRpA8JeAAA9gF8BtRpE8ywRpP8wwBtA8JeAAA9g?F8wwi0E8ywglg0P8ilA8JeAAA9gF8zhE8BtywP8BtwwA8Je?AAA9gF8wwi0E8xwRpg0P8wwRpA8JeAAAvhAAAA</textarea></div>
+					<div><textarea id="boardOutput"></textarea></div>
 				</div>
 			</div>
 		</div>
 
 <!-- ""ADD ONS"""-->
 			<hr width="90%">
-			<div class="options">
-
-			</div>		  
 		</div>
 	</div>
 		</body>

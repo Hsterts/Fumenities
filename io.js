@@ -1,4 +1,4 @@
-function toPage(board) {
+function toField(board) {
     FieldString = '';
     for (let row = 0; row < board.length; row++) {
         for (let col = 0; col < 10; col++) {
@@ -7,9 +7,7 @@ function toPage(board) {
             } else FieldString += '_';
         }
     }
-    return {
-        field: Field.create(FieldString),
-    };
+    return Field.create(FieldString);
 }
 
 function decode(fumen) {
@@ -99,37 +97,37 @@ function fullDecode(fumen) {
 };
 
 function encode() {
-	histPost = document.getElementById("positionDisplay").value-1
+	histPos = document.getElementById("positionDisplay").value-1
 	pages = [];
+
 	page = [];
-	i = histPos
-	field = toPage(JSON.parse(hist[i]['board']));
+	field = toField(JSON.parse(hist[histPos]['board']));
 	flags = {
 		rise: false,
 		mirror: false,
 		colorize: true,
-		comment: hist[i]['comment'],
+		comment: hist[histPos]['comment'],
 		lock: true,
 		piece: undefined,
 	}
-		page = {
-			comment: hist[i]['comment'],
-			operation: undefined,
-			field,
-			flags: flags,
-			index: i,
-		}
+	page = {
+		comment: hist[histPos]['comment'],
+		operation: undefined,
+		field,
+		flags: flags,
+		index: histPos,
+	}
 	pages.push(page);
+
 	var result = encoder.encode(pages);
-	document.getElementById("boardOutput").value = result;
-	console.log(result);
+	return result;
 }
 
 function fullEncode() {
 	pages = [];
 for (var i = 0; i < hist.length; i++){
 	page = [];
-	field = toPage(JSON.parse(hist[i]['board']));
+	field = toField(JSON.parse(hist[i]['board']));
 	flags = {
 		rise: false,
 		mirror: false,
@@ -149,20 +147,10 @@ for (var i = 0; i < hist.length; i++){
 };
 	var result = encoder.encode(pages);
 	document.getElementById("boardOutput").value = result;
-	console.log(result);
+	return result;
 }
 
 // MAIN IO
-async function exportFumen() {
-	fumen = encode(board);
-	document.getElementById("boardOutput").value = fumen;
-}
-
-async function exportFullFumen() {
-	fumen = fullEncode(hist);
-	document.getElementById("boardOutput").value = fumen;
-}
-
 async function importFumen() {
 	histPos = parseFloat(document.getElementById("positionDisplay").value)-1;
 	try {
