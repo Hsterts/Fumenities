@@ -1,3 +1,119 @@
+function toPage(board) {
+    FieldString = '';
+    for (let row = 0; row < board.length; row++) {
+        for (let col = 0; col < 10; col++) {
+            if (board[row][col]['t'] == 1 && board[row][col]['c'] != '') {
+                FieldString += board[row][col]['c'];
+            } else FieldString += '_';
+        }
+    }
+    return Field.create(FieldString);
+}
+
+function decode(fumen) {
+    histPos = document.getElementById('positionDisplay').value-1
+    pages = decoder.decode(fumen);
+    input = pages[0]['_field']['field']['pieces'];
+    board = [];
+    for (rowIndex = 0; rowIndex < 20; rowIndex++) {
+        let row = [];
+        for (colIndex = 0; colIndex < 10; colIndex++) {
+            index = (20 - rowIndex - 1) * 10 + colIndex;
+            colorIndex = input[index];
+            if (colorIndex == 0) row.push({ t: 0, c: '' });
+            else {
+                letter = ' ILOZTJSX'[colorIndex];
+                row.push({ t: 1, c: letter });
+            }
+        }
+        board.push(row);
+    }
+    comment = pages[0]['comment'];
+    page = {
+        board, 
+        comment: comment
+    }
+    return page;
+};
+
+function fullDecode(fumen) {
+    pages = decoder.decode(fumen);
+    console.log(pages);
+    newHist = [];
+    for (i = 0; i < pages.length; i++) {
+        input = pages[i]['_field']['field']['pieces'];
+        let tempBoard = [];
+        for (rowIndex = 0; rowIndex < 20; rowIndex++) {
+            let row = [];
+            for (colIndex = 0; colIndex < 10; colIndex++) {
+                index = (20 - rowIndex - 1) * 10 + colIndex;
+                colorIndex = input[index];
+                if (colorIndex == 0) row.push({ t: 0, c: '' });
+                else {
+                    letter = ' ILOZTJSX'[colorIndex];
+                    row.push({ t: 1, c: letter });
+                }
+            }
+            tempBoard.push(row);
+        }
+
+        currHist = {
+            board: JSON.stringify(tempBoard),
+            comment: pages[i]['comment'],
+        };
+
+        if (pages[i]['flags']['quiz'] && comment.substring(0, 3) == '#Q=') {
+            bracketStart = comment.indexOf('[');
+            bracketEnd = comment.indexOf(']');
+            if (bracketStart >= 0 && bracketEnd == bracketStart + 2 && 'SZLJIOT'.includes(comment[bracketStart + 1])) {
+                currHist['hold'] = comment[bracketStart + 1];
+            } else currHist['hold'] = '';
+
+            bracketStart = comment.indexOf('(');
+            bracketEnd = comment.indexOf(')');
+            if (bracketStart >= 0 && bracketEnd == bracketStart + 2 && 'SZLJIOT'.includes(comment[bracketStart + 1])) {
+                currHist['piece'] = comment[bracketStart + 1];
+            }
+
+            currQueue = comment.substring(bracketEnd + 1);
+            temp = [];
+            for (j = 0; j < currQueue.length; j++) {
+                //sanitization
+                if ('SZLJIOT'.includes(currQueue[j])) temp.push(currQueue[j]);
+            }
+            temp.push('|');
+            while (temp.length < 10) {
+                var shuf = names.shuffle();
+                shuf.map((p) => temp.push(p));
+                temp.push('|');
+            }
+            currHist['queue'] = JSON.stringify(temp);
+
+        }
+
+        newHist.push(currHist);
+    }
+    return newHist;
+};
+
+function encode(board) {
+    pages = [];
+    pages.push(toPage(board));
+    fumen = encoder.encode(pages);
+    return fumen;
+};
+
+function fullEncode(hist) {
+    pages = [];
+    for (let i = 0; i < hist.length; i++) {
+        pages.push(toPage(JSON.parse(hist[i]['board'])));
+    }
+    fumen = encoder.encode(pages);
+    return fumen;
+};
+
+
+
 // MAIN IO
 async function exportFumen() {
 	fumen = encode(board);
