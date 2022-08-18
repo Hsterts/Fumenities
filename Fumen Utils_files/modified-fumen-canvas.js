@@ -151,7 +151,7 @@ start = 0;
 end = undefined;
 
 function fumencanvas() {
-	var container = document.getElementById('container');
+	var container = document.getElementById('imageOutputs');
 	while (container.firstChild) {
 		container.removeChild(container.firstChild);
 	}
@@ -161,12 +161,11 @@ function fumencanvas() {
 	if(document.getElementById('autoheight').checked){
 		var height = undefined
 		}else{
-		console.log(document.getElementById('height').value)
-		console.log(1+document.getElementById('height').value)
 		var height = 1+parseFloat(document.getElementById('height').value)
 	};
 
 	var fumenCodes = [];
+	var fumenComments = [];
 	results = [];
 	resultURLs = [];
 
@@ -181,25 +180,47 @@ function fumencanvas() {
             if (pages.length == 1) {
                 canvas = draw(pages[0], cellSize, height, transparency_four);
 
-				documentCanvas = document.createElement('canvas');
-				documentCanvas.style.padding = '0px';
-				documentCanvas.style.background = '#383838';
-				documentCanvas.style.margin = '1px';
-				documentCanvas.style.class = 'fumenOutput';
+				// documentCanvas = document.createElement('canvas');
+				// documentCanvas.style.padding = '0px';
+				// documentCanvas.style.background = '#383838';
+				// documentCanvas.style.margin = '1px';
+				// documentCanvas.style.class = 'fumenOutput';
 				
-				container.appendChild(documentCanvas);
+				// container.appendChild(documentCanvas);
 				
-				var ctx = documentCanvas.getContext('2d');
-				documentCanvas.height = canvas.height;
-				documentCanvas.width = canvas.width;
+				// var ctx = documentCanvas.getContext('2d');
+				// documentCanvas.height = canvas.height;
+				// documentCanvas.width = canvas.width;
 				
-				results.push(canvas);
+				// results.push(canvas);
+				// resultURLs.push(canvas.toDataURL("image/png"));
+				
+				// ctx.drawImage(canvas, 0, 0);
+				
+				// documentCanvas.style.outline  = '2px solid #585b5b';
+				var img = document.createElement('img');
+				var figure = document.createElement('figure');
+				var	pageComment = pages[0]['comment'];
+				var commentBox = document.createElement('figcaption');
+				var textBox = document.createElement('textarea')
+				textBox.value = pageComment;
+				textBox.style.width = canvas.width+4;
+				textBox.className = 'commentBox';
+
+                img.src = canvas.toDataURL("image/png");
+				img.className = 'imageOutput';
+
+                container.appendChild(figure);
+				figure.appendChild(img);
+				if(document.getElementById('displayMode').checked){
+				figure.appendChild(commentBox);
+					commentBox.appendChild(textBox);
+				};
+				figure.style.width = canvas.width + 2;
+                results.push(canvas);
 				resultURLs.push(canvas.toDataURL("image/png"));
-				
-				ctx.drawImage(canvas, 0, 0);
-				
-				documentCanvas.style.outline  = '2px solid #585b5b';
-            }
+
+			}
             if (pages.length > 1) {
                 gif = drawFumens(pages, cellSize, height, start, end, transparency_four);
 
@@ -209,34 +230,31 @@ function fumencanvas() {
                 img.style.padding = '0px';
 				img.style.background = '#383838';
                 img.src = data_url;
-
                 img.style.margin = '1px';
                 img.style.outline = '2px solid #585b5b';
                 container.appendChild(img);
                 results.push(gif);
+				resultURLs.push(data_url);
             }
         } catch (error) { console.log(code, error); }
 	}
 	
-	var downloadBool = document.getElementById('downloadOutput').checked
-	var naming = document.getElementById('naming').value
-
+	var downloadBool = document.getElementById('downloadOutput').checked;
+	var naming = document.getElementById('naming').value;
 	if(downloadBool){
 		var zip = new JSZip();
 		for (let x = 0; x < resultURLs.length; x++){
-			
+			let filetype = "."+resultURLs[x].substring(resultURLs[x].indexOf("/") + 1, resultURLs[x].indexOf(";"));
 			JSZipUtils.getBinaryContent(resultURLs[x], function (err, data){
 				if(err) {
 					console.log(err);
 				} else {
-					if( naming == "index"){
-						var filename = (x+1)+".png"
+					if(naming == "index"){
+						var filename = (x+1)+filetype
 					} else {
-						var filename = fumenCodes[x]+".png";
+						var filename = fumenCodes[x]+filetype;
 					}
 				zip.file(filename, data, {base64:true});
-				console.log(filename);
-				console.log(data);
 				if(x == resultURLs.length-1){
 					zip.generateAsync({type:'blob'}).then(function(base64){
 						saveAs(base64, "output.zip");

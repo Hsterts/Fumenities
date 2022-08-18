@@ -1,140 +1,4 @@
-(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
-    const { decoder, encoder, Page, Field } = require('tetris-fumen');
-
-    function toPage(board) {
-        FieldString = '';
-        for (let row = 20; row < board.length; row++) {
-            for (let col = 0; col < 10; col++) {
-                if (board[row][col]['t'] == 1 && board[row][col]['c'] != '') {
-                    FieldString += board[row][col]['c'];
-                } else FieldString += '_';
-            }
-        }
-        return {
-            field: Field.create(FieldString),
-        };
-    }
-
-    window.decode = function decode(fumen) {
-        pages = decoder.decode(fumen);
-        input = pages[0]['_field']['field']['pieces'];
-
-        let board = new Array(17).fill(new Array(10).fill({ t: 0, c: '' })); // empty top 17 rows
-        for (rowIndex = 0; rowIndex < 23; rowIndex++) {
-            let row = [];
-            for (colIndex = 0; colIndex < 10; colIndex++) {
-                index = (23 - rowIndex - 1) * 10 + colIndex;
-                colorIndex = input[index];
-                if (colorIndex == 0) row.push({ t: 0, c: '' });
-                else {
-                    letter = ' ILOZTJSX'[colorIndex];
-                    row.push({ t: 1, c: letter });
-                }
-            }
-            board.push(row);
-        }
-        return board;
-    };
-
-    window.fullDecode = function fullDecode(fumen, oldHist) {
-        pages = decoder.decode(fumen);
-        newHist = [];
-        for (i = 0; i < pages.length; i++) {
-            input = pages[i]['_field']['field']['pieces'];
-            let tempBoard = new Array(17).fill(new Array(10).fill({ t: 0, c: '' })); // empty top 17 rows
-            for (rowIndex = 0; rowIndex < 23; rowIndex++) {
-                let row = [];
-                for (colIndex = 0; colIndex < 10; colIndex++) {
-                    index = (23 - rowIndex - 1) * 10 + colIndex;
-                    colorIndex = input[index];
-                    if (colorIndex == 0) row.push({ t: 0, c: '' });
-                    else {
-                        letter = ' ILOZTJSX'[colorIndex];
-                        row.push({ t: 1, c: letter });
-                    }
-                }
-                tempBoard.push(row);
-            }
-
-            currHist = {
-                board: JSON.stringify(tempBoard),
-                queue: oldHist['queue'],
-                hold: oldHist['hold'],
-                piece: oldHist['piece'],
-            };
-
-            comment = pages[i]['comment'];
-
-            if (pages[i]['flags']['quiz'] && comment.substring(0, 3) == '#Q=') {
-                bracketStart = comment.indexOf('[');
-                bracketEnd = comment.indexOf(']');
-                if (bracketStart >= 0 && bracketEnd == bracketStart + 2 && 'SZLJIOT'.includes(comment[bracketStart + 1])) {
-                    currHist['hold'] = comment[bracketStart + 1];
-                } else currHist['hold'] = '';
-
-                bracketStart = comment.indexOf('(');
-                bracketEnd = comment.indexOf(')');
-                if (bracketStart >= 0 && bracketEnd == bracketStart + 2 && 'SZLJIOT'.includes(comment[bracketStart + 1])) {
-                    currHist['piece'] = comment[bracketStart + 1];
-                }
-
-                currQueue = comment.substring(bracketEnd + 1);
-                temp = [];
-                for (j = 0; j < currQueue.length; j++) {
-                    //sanitization
-                    if ('SZLJIOT'.includes(currQueue[j])) temp.push(currQueue[j]);
-                }
-                temp.push('|');
-                while (temp.length < 10) {
-                    var shuf = names.shuffle();
-                    shuf.map((p) => temp.push(p));
-                    temp.push('|');
-                }
-                currHist['queue'] = JSON.stringify(temp);
-
-            }
-
-            newHist.push(currHist);
-        }
-        return newHist;
-    };
-
-    window.encode = function encode(board) {
-        pages = [];
-        pages.push(toPage(board));
-        fumen = encoder.encode(pages);
-        return fumen;
-    };
-
-    window.fullEncode = function fullEncode(hist) {
-        pages = [];
-        for (let i = 0; i < hist.length; i++) {
-            pages.push(toPage(JSON.parse(hist[i]['board'])));
-        }
-        fumen = encoder.encode(pages);
-        return fumen;
-    };
-
-    },{"tetris-fumen":2}],2:[function(require,module,exports){
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var decoder_1 = require("./lib/decoder");
-    var encoder_1 = require("./lib/encoder");
-    var field_1 = require("./lib/field");
-    exports.Field = field_1.Field;
-    exports.Mino = field_1.Mino;
-    exports.decoder = {
-        decode: function (data) {
-            return decoder_1.decode(data);
-        },
-    };
-    exports.encoder = {
-        encode: function (data) {
-            return "v115@" + encoder_1.encode(data);
-        },
-    };
-
-    },{"./lib/decoder":6,"./lib/encoder":8,"./lib/field":9}],3:[function(require,module,exports){
+require=(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
     "use strict";
     var __assign = (this && this.__assign) || function () {
         __assign = Object.assign || function(t) {
@@ -148,11 +12,12 @@
         return __assign.apply(this, arguments);
     };
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.createActionEncoder = exports.createActionDecoder = void 0;
     var defines_1 = require("./defines");
     function decodeBool(n) {
         return n !== 0;
     }
-    exports.createActionDecoder = function (width, fieldTop, garbageLine) {
+    var createActionDecoder = function (width, fieldTop, garbageLine) {
         var fieldMaxHeight = fieldTop + garbageLine;
         var numFieldBlocks = fieldMaxHeight * width;
         function decodePiece(n) {
@@ -249,23 +114,23 @@
                     colorize: isColor,
                     comment: isComment,
                     lock: isLock,
-                    piece: __assign(__assign({}, coordinate), { type: type,
-                        rotation: rotation }),
+                    piece: __assign(__assign({}, coordinate), { type: type, rotation: rotation }),
                 };
             },
         };
     };
+    exports.createActionDecoder = createActionDecoder;
     function encodeBool(flag) {
         return flag ? 1 : 0;
     }
-    exports.createActionEncoder = function (width, fieldTop, garbageLine) {
+    var createActionEncoder = function (width, fieldTop, garbageLine) {
         var fieldMaxHeight = fieldTop + garbageLine;
         var numFieldBlocks = fieldMaxHeight * width;
         function encodePosition(operation) {
             var type = operation.type, rotation = operation.rotation;
             var x = operation.x;
             var y = operation.y;
-            if (!defines_1.isMinoPiece(type)) {
+            if (!(0, defines_1.isMinoPiece)(type)) {
                 x = 0;
                 y = 22;
             }
@@ -301,7 +166,7 @@
         }
         function encodeRotation(_a) {
             var type = _a.type, rotation = _a.rotation;
-            if (!defines_1.isMinoPiece(type)) {
+            if (!(0, defines_1.isMinoPiece)(type)) {
                 return 0;
             }
             switch (rotation) {
@@ -338,10 +203,12 @@
             },
         };
     };
-
-    },{"./defines":7}],4:[function(require,module,exports){
+    exports.createActionEncoder = createActionEncoder;
+    
+    },{"./defines":5}],2:[function(require,module,exports){
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.Buffer = void 0;
     var ENCODE_TABLE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
     var Buffer = /** @class */ (function () {
         function Buffer(data) {
@@ -380,7 +247,7 @@
             get: function () {
                 return this.values.length;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Buffer.prototype.get = function (index) {
@@ -402,13 +269,14 @@
     function encodeFromValue(index) {
         return ENCODE_TABLE[index];
     }
-
-    },{}],5:[function(require,module,exports){
+    
+    },{}],3:[function(require,module,exports){
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.createCommentParser = void 0;
     var COMMENT_TABLE = ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~';
     var MAX_COMMENT_CHAR_VALUE = COMMENT_TABLE.length + 1;
-    exports.createCommentParser = function () {
+    var createCommentParser = function () {
         return {
             decode: function (v) {
                 var str = '';
@@ -425,10 +293,12 @@
             },
         };
     };
-
-    },{}],6:[function(require,module,exports){
+    exports.createCommentParser = createCommentParser;
+    
+    },{}],4:[function(require,module,exports){
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.decode = exports.extract = exports.Page = void 0;
     var inner_field_1 = require("./inner_field");
     var buffer_1 = require("./buffer");
     var defines_1 = require("./defines");
@@ -450,9 +320,9 @@
                 return new field_1.Field(this._field.copy());
             },
             set: function (field) {
-                this._field = inner_field_1.createInnerField(field);
+                this._field = (0, inner_field_1.createInnerField)(field);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Page.prototype.mino = function () {
@@ -533,7 +403,7 @@
             return result;
         };
         var pageIndex = 0;
-        var prevField = inner_field_1.createNewInnerField();
+        var prevField = (0, inner_field_1.createNewInnerField)();
         var store = {
             repeatCount: -1,
             refIndex: {
@@ -544,8 +414,8 @@
             lastCommentText: '',
         };
         var pages = [];
-        var actionDecoder = action_1.createActionDecoder(FieldConstants.Width, fieldTop, FieldConstants.GarbageLine);
-        var commentDecoder = comments_1.createCommentParser();
+        var actionDecoder = (0, action_1.createActionDecoder)(FieldConstants.Width, fieldTop, FieldConstants.GarbageLine);
+        var commentDecoder = (0, comments_1.createCommentParser)();
         while (!buffer.isEmpty()) {
             // Parse field
             var currentFieldObj = void 0;
@@ -613,7 +483,7 @@
             if (store.quiz !== undefined) {
                 quiz = true;
                 if (store.quiz.canOperate() && action.lock) {
-                    if (defines_1.isMinoPiece(action.piece.type)) {
+                    if ((0, defines_1.isMinoPiece)(action.piece.type)) {
                         try {
                             var nextQuiz = store.quiz.nextIfEnd();
                             var operation = nextQuiz.getOperation(action.piece.type);
@@ -648,8 +518,8 @@
                 field = { ref: store.refIndex.field };
             }
             pages.push(new Page(pageIndex, currentFieldObj.field, currentPiece !== undefined ? field_1.Mino.from({
-                type: defines_1.parsePieceName(currentPiece.type),
-                rotation: defines_1.parseRotationName(currentPiece.rotation),
+                type: (0, defines_1.parsePieceName)(currentPiece.type),
+                rotation: (0, defines_1.parseRotationName)(currentPiece.rotation),
                 x: currentPiece.x,
                 y: currentPiece.y,
             }) : undefined, comment.text !== undefined ? comment.text : store.lastCommentText, {
@@ -669,7 +539,7 @@
             // );
             pageIndex += 1;
             if (action.lock) {
-                if (defines_1.isMinoPiece(action.piece.type)) {
+                if ((0, defines_1.isMinoPiece)(action.piece.type)) {
                     currentFieldObj.field.fill(action.piece);
                 }
                 currentFieldObj.field.clearLine();
@@ -684,10 +554,11 @@
         }
         return pages;
     }
-
-    },{"./action":3,"./buffer":4,"./comments":5,"./defines":7,"./field":9,"./inner_field":10,"./quiz":11}],7:[function(require,module,exports){
+    
+    },{"./action":1,"./buffer":2,"./comments":3,"./defines":5,"./field":7,"./inner_field":8,"./quiz":9}],5:[function(require,module,exports){
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.parseRotation = exports.parseRotationName = exports.Rotation = exports.parsePiece = exports.parsePieceName = exports.isMinoPiece = exports.Piece = void 0;
     var Piece;
     (function (Piece) {
         Piece[Piece["Empty"] = 0] = "Empty";
@@ -725,7 +596,7 @@
             case Piece.Empty:
                 return '_';
         }
-        throw new Error("Unknown piece: " + piece);
+        throw new Error("Unknown piece: ".concat(piece));
     }
     exports.parsePieceName = parsePieceName;
     function parsePiece(piece) {
@@ -752,7 +623,7 @@
             case 'EMPTY':
                 return Piece.Empty;
         }
-        throw new Error("Unknown piece: " + piece);
+        throw new Error("Unknown piece: ".concat(piece));
     }
     exports.parsePiece = parsePiece;
     var Rotation;
@@ -773,7 +644,7 @@
             case Rotation.Reverse:
                 return 'reverse';
         }
-        throw new Error("Unknown rotation: " + rotation);
+        throw new Error("Unknown rotation: ".concat(rotation));
     }
     exports.parseRotationName = parseRotationName;
     function parseRotation(rotation) {
@@ -787,11 +658,11 @@
             case 'reverse':
                 return Rotation.Reverse;
         }
-        throw new Error("Unknown rotation: " + rotation);
+        throw new Error("Unknown rotation: ".concat(rotation));
     }
     exports.parseRotation = parseRotation;
-
-    },{}],8:[function(require,module,exports){
+    
+    },{}],6:[function(require,module,exports){
     "use strict";
     var __assign = (this && this.__assign) || function () {
         __assign = Object.assign || function(t) {
@@ -805,6 +676,7 @@
         return __assign.apply(this, arguments);
     };
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.encode = void 0;
     var inner_field_1 = require("./inner_field");
     var buffer_1 = require("./buffer");
     var defines_1 = require("./defines");
@@ -837,15 +709,16 @@
         };
         var lastRepeatIndex = -1;
         var buffer = new buffer_1.Buffer();
-        var prevField = inner_field_1.createNewInnerField();
-        var actionEncoder = action_1.createActionEncoder(FieldConstants.Width, 23, FieldConstants.GarbageLine);
-        var commentParser = comments_1.createCommentParser();
+        var prevField = (0, inner_field_1.createNewInnerField)();
+        var actionEncoder = (0, action_1.createActionEncoder)(FieldConstants.Width, 23, FieldConstants.GarbageLine);
+        var commentParser = (0, comments_1.createCommentParser)();
         var prevComment = '';
         var prevQuiz = undefined;
         var innerEncode = function (index) {
             var currentPage = pages[index];
+            currentPage.flags = currentPage.flags ? currentPage.flags : {};
             var field = currentPage.field;
-            var currentField = field !== undefined ? inner_field_1.createInnerField(field) : prevField.copy();
+            var currentField = field !== undefined ? (0, inner_field_1.createInnerField)(field) : prevField.copy();
             // πâòπéúπâ╝πâ½πâëπü«µ¢┤µû░
             updateField(prevField, currentField);
             // πéóπé»πé╖πâºπâ│πü«µ¢┤µû░
@@ -853,8 +726,8 @@
                 ? ((index !== 0 || currentPage.comment !== '') ? currentPage.comment : undefined)
                 : undefined;
             var piece = currentPage.operation !== undefined ? {
-                type: defines_1.parsePiece(currentPage.operation.type),
-                rotation: defines_1.parseRotation(currentPage.operation.rotation),
+                type: (0, defines_1.parsePiece)(currentPage.operation.type),
+                rotation: (0, defines_1.parseRotation)(currentPage.operation.rotation),
                 x: currentPage.operation.x,
                 y: currentPage.operation.y,
             } : {
@@ -895,7 +768,7 @@
                 prevQuiz = undefined;
             }
             if (prevQuiz !== undefined && prevQuiz.canOperate() && currentPage.flags.lock) {
-                if (defines_1.isMinoPiece(piece.type)) {
+                if ((0, defines_1.isMinoPiece)(piece.type)) {
                     try {
                         var nextQuiz = prevQuiz.nextIfEnd();
                         var operation = nextQuiz.getOperation(piece.type);
@@ -946,7 +819,7 @@
             }
             // σ£░σ╜óπü«µ¢┤µû░
             if (action.lock) {
-                if (defines_1.isMinoPiece(action.piece.type)) {
+                if ((0, defines_1.isMinoPiece)(action.piece.type)) {
                     currentField.fill(action.piece);
                 }
                 currentField.clearLine();
@@ -1018,8 +891,8 @@
             values: buffer,
         };
     }
-
-    },{"./action":3,"./buffer":4,"./comments":5,"./defines":7,"./inner_field":10,"./quiz":11}],9:[function(require,module,exports){
+    
+    },{"./action":1,"./buffer":2,"./comments":3,"./defines":5,"./inner_field":8,"./quiz":9}],7:[function(require,module,exports){
     "use strict";
     var __assign = (this && this.__assign) || function () {
         __assign = Object.assign || function(t) {
@@ -1033,6 +906,7 @@
         return __assign.apply(this, arguments);
     };
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.Mino = exports.Field = void 0;
     var inner_field_1 = require("./inner_field");
     var defines_1 = require("./defines");
     function toMino(operationOrMino) {
@@ -1074,7 +948,7 @@
             if (!force && !this.canFill(mino)) {
                 throw Error('Cannot fill piece on field');
             }
-            this.field.fillAll(mino.positions(), defines_1.parsePiece(mino.type));
+            this.field.fillAll(mino.positions(), (0, defines_1.parsePiece)(mino.type));
             return mino;
         };
         Field.prototype.put = function (operation) {
@@ -1095,10 +969,10 @@
             this.field.clearLine();
         };
         Field.prototype.at = function (x, y) {
-            return defines_1.parsePieceName(this.field.getNumberAt(x, y));
+            return (0, defines_1.parsePieceName)(this.field.getNumberAt(x, y));
         };
         Field.prototype.set = function (x, y, type) {
-            this.field.setNumberAt(x, y, defines_1.parsePiece(type));
+            this.field.setNumberAt(x, y, (0, defines_1.parsePiece)(type));
         };
         Field.prototype.copy = function () {
             return new Field(this.field.copy());
@@ -1139,7 +1013,7 @@
             return new Mino(operation.type, operation.rotation, operation.x, operation.y);
         };
         Mino.prototype.positions = function () {
-            return inner_field_1.getBlockXYs(defines_1.parsePiece(this.type), defines_1.parseRotation(this.rotation), this.x, this.y).sort(function (a, b) {
+            return (0, inner_field_1.getBlockXYs)((0, defines_1.parsePiece)(this.type), (0, defines_1.parseRotation)(this.rotation), this.x, this.y).sort(function (a, b) {
                 if (a.y === b.y) {
                     return a.x - b.x;
                 }
@@ -1156,8 +1030,8 @@
         };
         Mino.prototype.isValid = function () {
             try {
-                defines_1.parsePiece(this.type);
-                defines_1.parseRotation(this.rotation);
+                (0, defines_1.parsePiece)(this.type);
+                (0, defines_1.parseRotation)(this.rotation);
             }
             catch (e) {
                 return false;
@@ -1173,15 +1047,16 @@
         return Mino;
     }());
     exports.Mino = Mino;
-
-    },{"./defines":7,"./inner_field":10}],10:[function(require,module,exports){
+    
+    },{"./defines":5,"./inner_field":8}],8:[function(require,module,exports){
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.getPieces = exports.getBlocks = exports.getBlockXYs = exports.getBlockPositions = exports.PlayField = exports.InnerField = exports.createInnerField = exports.createNewInnerField = void 0;
     var defines_1 = require("./defines");
     var FieldConstants = {
         Width: 10,
         Height: 23,
-        PlayBlocks: 23 * 10,
+        PlayBlocks: 23 * 10, // Height * Width
     };
     function createNewInnerField() {
         return new InnerField({});
@@ -1192,7 +1067,7 @@
         for (var y = -1; y < FieldConstants.Height; y += 1) {
             for (var x = 0; x < FieldConstants.Width; x += 1) {
                 var at = field.at(x, y);
-                innerField.setNumberAt(x, y, defines_1.parsePiece(at));
+                innerField.setNumberAt(x, y, (0, defines_1.parsePiece)(at));
             }
         }
         return innerField;
@@ -1333,7 +1208,7 @@
             var field = length !== undefined ? new PlayField({ length: length }) : new PlayField({});
             for (var index = 0; index < len; index += 1) {
                 var block = blocks[index];
-                field.set(index % 10, Math.floor((len - index - 1) / 10), defines_1.parsePiece(block));
+                field.set(index % 10, Math.floor((len - index - 1) / 10), (0, defines_1.parsePiece)(block));
             }
             return field;
         };
@@ -1426,7 +1301,7 @@
             get: function () {
                 return this.pieces.length;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         PlayField.prototype.copy = function () {
@@ -1510,10 +1385,11 @@
     function rotateReverse(positions) {
         return positions.map(function (current) { return [-current[0], -current[1]]; });
     }
-
-    },{"./defines":7}],11:[function(require,module,exports){
+    
+    },{"./defines":5}],9:[function(require,module,exports){
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.Quiz = void 0;
     var defines_1 = require("./defines");
     var Operation;
     (function (Operation) {
@@ -1534,7 +1410,7 @@
                 }
                 return name;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Quiz.isQuizComment = function (comment) {
@@ -1543,7 +1419,7 @@
         Quiz.create = function (first, second) {
             var create = function (hold, other) {
                 var parse = function (s) { return s ? s : ''; };
-                return new Quiz("#Q=[" + parse(hold) + "](" + parse(other[0]) + ")" + parse(other.substring(1)));
+                return new Quiz("#Q=[".concat(parse(hold), "](").concat(parse(other[0]), ")").concat(parse(other.substring(1))));
             };
             return second !== undefined ? create(first, second) : create(undefined, first);
         };
@@ -1555,7 +1431,7 @@
                 var index = this.quiz.indexOf(')');
                 return this.quiz.substr(index + 1);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Quiz.prototype, "current", {
@@ -1567,7 +1443,7 @@
                 }
                 return name;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Quiz.prototype, "hold", {
@@ -1579,7 +1455,7 @@
                 }
                 return name;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Quiz.prototype, "leastAfterNext2", {
@@ -1590,11 +1466,11 @@
                 }
                 return this.quiz.substr(index + 2);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Quiz.prototype.getOperation = function (used) {
-            var usedName = defines_1.parsePieceName(used);
+            var usedName = (0, defines_1.parsePieceName)(used);
             var current = this.current;
             if (usedName === current) {
                 return Operation.Direct;
@@ -1614,7 +1490,7 @@
                     return Operation.Direct;
                 }
             }
-            throw new Error("Unexpected hold piece in quiz: " + this.quiz);
+            throw new Error("Unexpected hold piece in quiz: ".concat(this.quiz));
         };
         Object.defineProperty(Quiz.prototype, "leastInActiveBag", {
             get: function () {
@@ -1626,7 +1502,7 @@
                 }
                 return quiz.substr(index + 2);
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Quiz.verify = function (quiz) {
@@ -1635,34 +1511,34 @@
                 return quiz;
             }
             if (!replaced.match(/^#Q=\[[TIOSZJL]?]\([TIOSZJL]?\)[TIOSZJL]*;?.*$/i)) {
-                throw new Error("Current piece doesn't exist, however next pieces exist: " + quiz);
+                throw new Error("Current piece doesn't exist, however next pieces exist: ".concat(quiz));
             }
             return replaced;
         };
         Quiz.prototype.direct = function () {
             if (this.current === '') {
                 var least = this.leastAfterNext2;
-                return new Quiz("#Q=[" + this.hold + "](" + least[0] + ")" + least.substr(1));
+                return new Quiz("#Q=[".concat(this.hold, "](").concat(least[0], ")").concat(least.substr(1)));
             }
-            return new Quiz("#Q=[" + this.hold + "](" + this.next + ")" + this.leastAfterNext2);
+            return new Quiz("#Q=[".concat(this.hold, "](").concat(this.next, ")").concat(this.leastAfterNext2));
         };
         Quiz.prototype.swap = function () {
             if (this.hold === '') {
-                throw new Error("Cannot find hold piece: " + this.quiz);
+                throw new Error("Cannot find hold piece: ".concat(this.quiz));
             }
             var next = this.next;
-            return new Quiz("#Q=[" + this.current + "](" + next + ")" + this.leastAfterNext2);
+            return new Quiz("#Q=[".concat(this.current, "](").concat(next, ")").concat(this.leastAfterNext2));
         };
         Quiz.prototype.stock = function () {
             if (this.hold !== '' || this.next === '') {
-                throw new Error("Cannot stock: " + this.quiz);
+                throw new Error("Cannot stock: ".concat(this.quiz));
             }
             var least = this.leastAfterNext2;
             var head = least[0] !== undefined ? least[0] : '';
             if (1 < least.length) {
-                return new Quiz("#Q=[" + this.current + "](" + head + ")" + least.substr(1));
+                return new Quiz("#Q=[".concat(this.current, "](").concat(head, ")").concat(least.substr(1)));
             }
-            return new Quiz("#Q=[" + this.current + "](" + head + ")");
+            return new Quiz("#Q=[".concat(this.current, "](").concat(head, ")"));
         };
         Quiz.prototype.operate = function (operation) {
             switch (operation) {
@@ -1683,7 +1559,7 @@
             var current = quiz.current;
             var hold = quiz.hold;
             if (current === '' && hold !== '') {
-                return new Quiz("#Q=[](" + hold + ")" + quiz.least);
+                return new Quiz("#Q=[](".concat(hold, ")").concat(quiz.least));
             }
             if (current === '') {
                 var least = quiz.least;
@@ -1694,7 +1570,7 @@
                 if (head === ';') {
                     return new Quiz(least.substr(1));
                 }
-                return new Quiz("#Q=[](" + head + ")" + least.substr(1));
+                return new Quiz("#Q=[](".concat(head, ")").concat(least.substr(1)));
             }
             return quiz;
         };
@@ -1706,7 +1582,7 @@
             if (name === undefined || name === '' || name === ';') {
                 return defines_1.Piece.Empty;
             }
-            return defines_1.parsePiece(name);
+            return (0, defines_1.parsePiece)(name);
         };
         Quiz.prototype.getNextPieces = function (max) {
             if (!this.canOperate()) {
@@ -1720,7 +1596,7 @@
                 if (name === undefined || name === ' ' || name === ';') {
                     return defines_1.Piece.Empty;
                 }
-                return defines_1.parsePiece(name);
+                return (0, defines_1.parsePiece)(name);
             });
         };
         Quiz.prototype.toString = function () {
@@ -1742,5 +1618,255 @@
         return Quiz;
     }());
     exports.Quiz = Quiz;
-
-    },{"./defines":7}]},{},[1]);
+    
+    },{"./defines":5}],"hashmap":[function(require,module,exports){
+    /**
+     * HashMap - HashMap Class for JavaScript
+     * @author Ariel Flesler <aflesler@gmail.com>
+     * @version 2.4.0
+     * Homepage: https://github.com/flesler/hashmap
+     */
+    
+    (function(factory) {
+        if (typeof define === 'function' && define.amd) {
+            // AMD. Register as an anonymous module.
+            define([], factory);
+        } else if (typeof module === 'object') {
+            // Node js environment
+            var HashMap = module.exports = factory();
+            // Keep it backwards compatible
+            HashMap.HashMap = HashMap;
+        } else {
+            // Browser globals (this is window)
+            this.HashMap = factory();
+        }
+    }(function() {
+    
+        function HashMap(other) {
+            this.clear();
+            switch (arguments.length) {
+                case 0: break;
+                case 1: {
+                    if ('length' in other) {
+                        // Flatten 2D array to alternating key-value array
+                        multi(this, Array.prototype.concat.apply([], other));
+                    } else { // Assumed to be a HashMap instance
+                        this.copy(other);
+                    }
+                    break;
+                }
+                default: multi(this, arguments); break;
+            }
+        }
+    
+        var proto = HashMap.prototype = {
+            constructor:HashMap,
+    
+            get:function(key) {
+                var data = this._data[this.hash(key)];
+                return data && data[1];
+            },
+    
+            set:function(key, value) {
+                // Store original key as well (for iteration)
+                var hash = this.hash(key);
+                if ( !(hash in this._data) ) {
+                    this.size++;
+                }
+                this._data[hash] = [key, value];
+            },
+    
+            multi:function() {
+                multi(this, arguments);
+            },
+    
+            copy:function(other) {
+                for (var hash in other._data) {
+                    if ( !(hash in this._data) ) {
+                        this.size++;
+                    }
+                    this._data[hash] = other._data[hash];
+                }
+            },
+    
+            has:function(key) {
+                return this.hash(key) in this._data;
+            },
+    
+            search:function(value) {
+                for (var key in this._data) {
+                    if (this._data[key][1] === value) {
+                        return this._data[key][0];
+                    }
+                }
+    
+                return null;
+            },
+    
+            delete:function(key) {
+                var hash = this.hash(key);
+                if ( hash in this._data ) {
+                    this.size--;
+                    delete this._data[hash];
+                }
+            },
+    
+            type:function(key) {
+                var str = Object.prototype.toString.call(key);
+                var type = str.slice(8, -1).toLowerCase();
+                // Some browsers yield DOMWindow or Window for null and undefined, works fine on Node
+                if (!key && (type === 'domwindow' || type === 'window')) {
+                    return key + '';
+                }
+                return type;
+            },
+    
+            keys:function() {
+                var keys = [];
+                this.forEach(function(_, key) { keys.push(key); });
+                return keys;
+            },
+    
+            values:function() {
+                var values = [];
+                this.forEach(function(value) { values.push(value); });
+                return values;
+            },
+    
+            entries:function() {
+                var entries = [];
+                this.forEach(function(value, key) { entries.push([key, value]); });
+                return entries;
+            },
+    
+            // TODO: This is deprecated and will be deleted in a future version
+            count:function() {
+                return this.size;
+            },
+    
+            clear:function() {
+                // TODO: Would Object.create(null) make any difference
+                this._data = {};
+                this.size = 0;
+            },
+    
+            clone:function() {
+                return new HashMap(this);
+            },
+    
+            hash:function(key) {
+                switch (this.type(key)) {
+                    case 'undefined':
+                    case 'null':
+                    case 'boolean':
+                    case 'number':
+                    case 'regexp':
+                        return key + '';
+    
+                    case 'date':
+                        return 'ΓÖú' + key.getTime();
+    
+                    case 'string':
+                        return 'ΓÖá' + key;
+    
+                    case 'array':
+                        var hashes = [];
+                        for (var i = 0; i < key.length; i++) {
+                            hashes[i] = this.hash(key[i]);
+                        }
+                        return 'ΓÖÑ' + hashes.join('Γü₧');
+    
+                    default:
+                        // TODO: Don't use expandos when Object.defineProperty is not available?
+                        if (!key.hasOwnProperty('_hmuid_')) {
+                            key._hmuid_ = ++HashMap.uid;
+                            hide(key, '_hmuid_');
+                        }
+    
+                        return 'ΓÖª' + key._hmuid_;
+                }
+            },
+    
+            forEach:function(func, ctx) {
+                for (var key in this._data) {
+                    var data = this._data[key];
+                    func.call(ctx || this, data[1], data[0]);
+                }
+            }
+        };
+    
+        HashMap.uid = 0;
+    
+        // Iterator protocol for ES6
+        if (typeof Symbol !== 'undefined' && typeof Symbol.iterator !== 'undefined') {
+            proto[Symbol.iterator] = function() {
+                var entries = this.entries();
+                var i = 0;
+                return {
+                    next:function() {
+                        if (i === entries.length) { return { done: true }; }
+                        var currentEntry = entries[i++];
+                        return {
+                            value: { key: currentEntry[0], value: currentEntry[1] },
+                            done: false
+                        };
+                    }
+                };
+            };
+        }
+    
+        //- Add chaining to all methods that don't return something
+    
+        ['set','multi','copy','delete','clear','forEach'].forEach(function(method) {
+            var fn = proto[method];
+            proto[method] = function() {
+                fn.apply(this, arguments);
+                return this;
+            };
+        });
+    
+        //- Backwards compatibility
+    
+        // TODO: remove() is deprecated and will be deleted in a future version
+        HashMap.prototype.remove = HashMap.prototype.delete;
+    
+        //- Utils
+    
+        function multi(map, args) {
+            for (var i = 0; i < args.length; i += 2) {
+                map.set(args[i], args[i+1]);
+            }
+        }
+    
+        function hide(obj, prop) {
+            // Make non iterable if supported
+            if (Object.defineProperty) {
+                Object.defineProperty(obj, prop, {enumerable:false});
+            }
+        }
+    
+        return HashMap;
+    }));
+    
+    },{}],"tetris-fumen":[function(require,module,exports){
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.encoder = exports.decoder = exports.Mino = exports.Field = void 0;
+    var decoder_1 = require("./lib/decoder");
+    var encoder_1 = require("./lib/encoder");
+    var field_1 = require("./lib/field");
+    Object.defineProperty(exports, "Field", { enumerable: true, get: function () { return field_1.Field; } });
+    Object.defineProperty(exports, "Mino", { enumerable: true, get: function () { return field_1.Mino; } });
+    exports.decoder = {
+        decode: function (data) {
+            return (0, decoder_1.decode)(data);
+        },
+    };
+    exports.encoder = {
+        encode: function (data) {
+            return "v115@".concat((0, encoder_1.encode)(data));
+        },
+    };
+    
+    },{"./lib/decoder":4,"./lib/encoder":6,"./lib/field":7}]},{},[]);
+    

@@ -319,3 +319,5 @@ function glueFumen() {
     console.log(allFumens.join(' '));
     document.getElementById("output").value = allFumens.join(delimiter);
 }
+
+//LSZ JAWS, JSZ SHOE, 4p LEGS, ILSO HILL, ANTIPCO+J, TUB 3p, Dragon, Elephant, Cradle

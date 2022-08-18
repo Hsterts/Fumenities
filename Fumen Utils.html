@@ -1,0 +1,353 @@
+<html>
+	<head>
+		<title>Fumen Utilities</title>
+<!--STYLES-->
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+	rel="stylesheet">
+  	<link href="main.css" rel="stylesheet">
+	</head>
+	<body id="fumenutil">
+	<span style = "font-family:Montserrat;color:#cacccc">
+		<span style = "float: left; font-size: 30px; margin-bottom: 10px; width:50%; height:40px;"><b>Fumen Utilities</b> © Swng</span>
+		<div style="text-align: right;">
+			<span style = "float: right; font-size: 15px; height:40px;margin-bottom: 10px; width:50%;">
+				<button class="option panel-button" id="openSP" onclick="opensidepanel()" style="display:show;">
+					<span class="material-icons">menu_open</span>
+				</button>
+			</span>
+		</div>
+<br><br>
+<center><hr style="border-style:solid;height:4px;"></center>
+	<div id="fumenUtil">
+		<h3><b>Input</b></h3>
+		<br>
+		<center>
+		<textarea id="input" name="input">v115@AhQ4IeR4IeQ4GezhNeAgH</textarea>
+		<br>
+		</center>
+		<button class="ibtn" onclick="glueFumen()"><b>Glue</button>
+		<button class="ibtn" onclick="unglueFumen()"><b>Unglue</b></button>
+		<button class="ibtn" onclick="mirrorFumen()"><b>Mirror</b></button>
+		<button class="ibtn" onclick="combineFumen()"><b>Combine</b></button>
+		<button class="ibtn" onclick="splitFumen()"><b>Split</b></button>
+        <button class="ibtn" onclick="removeComments()"><b>Remove Comments</b></button>
+		<button class="ibtn" onclick="renderImages()"><b>Output Image</b></button>
+        <button class="ibtn" onclick="toggleSettings()"><b>Toggle Settings</b></button>
+		<div class="row" id="settings" style="display:none;">
+		<center><hr class="solid"></center>
+		<b><h2>Settings</h2></b><br>
+			<div class="column left"><center><b>Render Settings</b><br></center>
+				<div id="styleOptions">
+					<select id="renderStyle" onchange="renderImages()">
+						<option value="four">FOUR</option>
+						<option value="fumen">Fumen</option>
+					</select>
+					<label for="renderStyle">Render Style</label>
+				</div>
+
+				<input id="cellSize" type="number" value=22></input>
+				<label for="cellSize">Cell Size</label><br>
+
+				<input id="width" type="number" value=10 min=1 max=10></input>
+				<label for="width">Width</label><br>
+
+				<input id="height" type="number" value=4 min=1 max=20></input>
+				<label for="height">Height</label>
+
+				<label id="autoheightlabel">
+				<input id="autoheight" type="checkbox" checked="checked">
+				<span class="checkmark"></span>Auto
+				</label><br>
+
+				<input id="transparency" type="checkbox" checked="checked" onclick="togglebgselect()"></input>
+				<label for="transparency">Transparency</label><br>
+
+					<div id="bgselect" style="display:none;">
+					<input id="bg" type="color" value="#f3f3ed" style="width:100px;padding:0px;"></input>
+					<label for="transparency">BG Color</label><br>
+					</div>
+
+				<input id="displayMode" type="checkbox" onclick="fumencanvas()"></input>
+				<label for="displayMode">Display Comments?</label><br>
+			</div>
+			<div class="column right">
+				<center><b>GIF Settings</b><br></center>
+				<input id="delay" type="value" value=500></input>
+				<label for="delay">GIF Delay (ms)</label>
+				<br><br>
+				<center><b>Download Settings</b><br></center>
+				<input id="downloadOutput" type="checkbox" onclick="toggledownloadsettings()"></input>
+				<label for="downloadOutput">Download on Render?</label><br>
+				<div id="downloadSettings" style="display:none;">
+				<select id="naming" name="Name">
+					<option value="index">Index (1, 2, ...)</option>
+					<option value="fumen">Fumen Code</option>
+				</select>
+				<label for="naming">Output Name</label>
+				</div>
+			</div>
+		</div>
+<center><hr class="solid"></center>
+		<h3><b>Output</b></h3><br>
+		<center>
+		<textarea id="output" name="output"></textarea>
+		<br>
+		</center>
+		<button class="ibtn" onclick="navigator.clipboard.writeText(document.getElementById('output').value)"><b>Copy</b></button>
+		<br>
+		<center><div id="imageOutputs"></div></center>
+	</span>
+	<br>
+		<div id="fumenSidebar" style="display:show;">
+			<div style="text-align: right;">
+				<span style = "position:fixed; top: 20px; right:24px; font-size: 15px; height:15px;margin-bottom: 10px;">
+					<button class="option panel-button" id="closeSP" onclick="closesidepanel()">
+						<span class="material-icons">close</span>
+					</button>
+				</span>
+			</div>
+		<hr width="90%">
+<!-- PAINT BUCKET CHOICES -->
+			<div class="options">
+				<form class="paint-bucket" name="paintbucket">
+					<label for="I">
+						<input type="radio" name="paintbucket" class="paintbucket" id="I" value="I" />
+						<span></span>
+					</label>
+					<label for="L">
+						<input type="radio" name="paintbucket" class="paintbucket" id="L" value="L" />
+						<span></span>
+					</label>
+					<label for="O">
+						<input type="radio" name="paintbucket" class="paintbucket" id="O" value="O" />
+						<span></span>
+					</label>
+					<label for="Z">
+						<input type="radio" name="paintbucket" class="paintbucket" id="Z" value="Z" />
+						<span></span>
+					</label>
+					<label for="T">
+						<input type="radio" name="paintbucket" class="paintbucket" id="T" value="T" />
+						<span></span>
+					</label>
+					<label for="J">
+						<input type="radio" name="paintbucket" class="paintbucket" id="J" value="J" />
+						<span></span>
+					</label>
+					<label for="S">
+						<input type="radio" name="paintbucket" class="paintbucket" id="S" value="S" />
+						<span></span>
+					</label>
+					<label for="X">
+						<input type="radio" name="paintbucket" class="paintbucket" id="X" value="X" checked />
+						<span></span>
+					</label>
+				</form>
+			</div>
+
+<!-- PAGES BUTTON AND DISPLAY-->
+			<!-- THE BOARD -->
+		<div class="fumen-body">
+			<div class="left-fumen-panel">
+				<div class="pagePosition">
+					<div class="pager"><button class="positionsub pagebutton" onclick="firstPage()">
+						<span class="material-icons">keyboard_double_arrow_left</span>
+					</button></div>
+					<div class="pager"><button class="positionsub pagebutton" onclick="subPage()">
+						<span class="material-icons">navigate_before</span>
+					</button></div>
+					<div class="pager"><input id="positionDisplay" inputmode="numeric" value="1"/></div>
+					<div class="pager"><input id="positionDisplayOver" value="/1" disabled/></div>
+					<div class="pager"><button class="positionadd pagebutton" onclick="addPage()">
+						<span class="material-icons">navigate_next</span>
+					</button></div>
+					<div class="pager"><button class="positionadd pagebutton" onclick="lastPage()">
+						<span class="material-icons">keyboard_double_arrow_right</span>
+					</button></div>
+				</div>
+	
+				<center><div id="board"><canvas id="b"></canvas></div></center>
+
+				<!-- THE COMMENT BOX -->
+				<div>
+					<textarea id="commentBox" onchange="editComment()"></textarea>
+				</div>
+			</div>
+			<!-- THE OPTIONS -->
+<!-- IMPORT-EXPORT -->
+			<div class="right-fumen-panel">
+				<div class="top-right-fumen-panel">	
+					<div class="pagePosition">
+						<div class="shifter"><button class="shiftleft pagebutton" onclick="shift('left')">
+							<span class="material-icons">keyboard_arrow_left</span>
+						</button></div>
+						<div class="shifter"><button class="shiftup pagebutton" onclick="shift('up')">
+							<span class="material-icons">keyboard_arrow_up</span>
+						</button></div>
+						<div class="shifter"><button class="shiftdown pagebutton" onclick="shift('down')">
+							<span class="material-icons">keyboard_arrow_down</span>
+						</button></div>
+						<div class="shifter"><button class="shiftright pagebutton" onclick="shift('right')">
+							<span class="material-icons">keyboard_arrow_right</span>
+						</button></div>
+					</div>
+					<div class="import-export">
+						<div class="io">
+							<button class="fumen-option" onclick="this.blur(); mirror()"><b>Mirror Page</b></button>
+							<button class="fumen-option" onclick="this.blur(); fullMirror()"><b>Mirror</b></button>
+							<button class="fumen-option" onclick="this.blur(); dupliPage()"><b>Clone Page</b></button>
+							<button class="fumen-option" onclick="this.blur(); clearPage()"><b>Clear Page</b></button>
+							<button class="fumen-option" onclick="this.blur(); deletePage()"><b>Delete Page</b></button>
+							<button class="fumen-option" onclick="this.blur(); restart()"><b>Clear</b></button>
+							<hr width = "99%">
+							<button class="fumen-option" onclick="this.blur(); importFumen()"><b>Insert</b></button>
+							<button class="fumen-option" onclick="this.blur(); exportFumen()"><b>Export Page</b></button>
+							<button class="fumen-option" onclick="this.blur(); importFullFumen()"><b>Import</b></button>
+							<button class="fumen-option" onclick="this.blur(); exportFullFumen()"><b>Export</b></button>
+							<button class="fumen-option" onclick="testEncode()">Test</button>
+						</div>
+					</div>
+				</div>
+		<!-- AUTO ENCODING -->
+				<div class="bottom-right-fumen-panel">	
+					<div class="autoEncodingInputs">
+						<div class="autoEncoding">
+							<input id="autoEncode" type="checkbox" onclick="toggleAutoEncoding()"></input>
+							<label for="autoEncode">Auto-Encode</label>
+						</div>
+						<div class="autoEncoding" id="autoEncodeOptions" style="display:none;">
+							<select id="encodingType" name="encodingTypes" style= "width: 200px;" onchange="autoEncode()">
+								<option value="fullFumen">Full Fumen</option>
+								<option value="currentFumen">Current Page</option>
+							</select>
+						</div>
+					</div>
+			<!-- THE OUTPUT BOX -->
+					<div><textarea id="boardOutput">v115@9gwhRpilDewhRpglAtEewhRpBtR4i0whRpAtR4Ceg0?JeAg0eAlEvXEhoo2APoo2AT7STASoVRASo42AOeuRAyfAAA?9gQ4xwi0DeQ4xwg0AtEeQ4xwBtxhilQ4xwAtxhCeglJeAAt?AADhzhEeywR4PewwR4KeAAA9gF8ywAtE8ywBtP8xwAtA8Je?AAA9gF8wwilE80wP8wwglwwA8JeAAA9gF8wwilE8xwglR4P?8wwR4A8JeAAA9gF8wwh0AtE8xwg0BtP8wwg0AtA8JeAAA9g?F8wwg0R4E8xwi0P8wwR4A8JeAAA9gF8R4RpE8R4wwRpP8yw?A8JeAAA9gF8wwR4AtE8ywBtP8R4AtA8JeAAA9gF8wwRpglE?8xwilP8wwRpA8JeAAA9gF8BtRpE8ywRpP8wwBtA8JeAAA9g?F8wwi0E8ywglg0P8ilA8JeAAA9gF8zhE8BtywP8BtwwA8Je?AAA9gF8wwi0E8xwRpg0P8wwRpA8JeAAAvhAAAA</textarea></div>
+				</div>
+			</div>
+		</div>
+
+<!-- ""ADD ONS"""-->
+			<hr width="90%">
+			<div class="options">
+
+			</div>		  
+		</div>
+	</div>
+		</body>
+
+		<footer>
+			<center><hr style="border-style:solid;height:4px;color:#cacccc"></center>
+		</footer>
+
+<!--EXTERNAL SCRIPTS-->
+	<script src="tetris-fumen.js"></script>
+	<script src="./Fumen Utils_files/tetris-fumen.js"></script>
+	<script src="./Fumen Utils_files/modified-glueFumen.js"></script>
+	<script src="./Fumen Utils_files/modified-unglueFumen.js"></script>
+	<script src="./Fumen Utils_files/modified-mirrorFumen.js"></script>
+	<script src="./Fumen Utils_files/modified-combineFumen.js"></script>
+	<script src="./Fumen Utils_files/modified-splitFumen.js"></script>
+	<script src="./Fumen Utils_files/modified-removeComments.js"></script>
+	<script type="text/javascript" src="./Fumen Utils_files/LZWEncoder.js"></script>
+	<script type="text/javascript" src="./Fumen Utils_files/NeuQuant.js"></script>
+	<script type="text/javascript" src="./Fumen Utils_files/GIFEncoder.js"></script>
+	<script type="text/javascript" src="./Fumen Utils_files/b64.js"></script>
+	<script src="./Fumen Utils_files/modified-fumen-canvas.js"></script>
+	<script src="./Fumen Utils_files/modified-fumen-render.js"></script>
+	<!-- <script src="./Fumen Utils_files/jszip.js"></script> -->
+	<script src="./Fumen Utils_files/jszip.min.js"></script>
+	<!-- <script src="./Fumen Utils_files/jszip-utils.js"></script> -->
+	<script src="./Fumen Utils_files/jszip-utils.min.js"></script>
+	<!-- <script src="./Fumen Utils_files/FileSaver.js"></script> -->
+	<script src="./Fumen Utils_files/FileSaver.min.js"></script>
+	<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> -->
+	<script src="io.js"></script>
+	<script defer src="base.js"></script>
+<!--IN DOCUMENT SCRIPTS-->
+	<script>
+		function toggleSettings() {
+		  var x = document.getElementById("settings");
+		  if (x.style.display === "none") {
+		    x.style.display = "block";
+		  } else {
+		    x.style.display = "none";
+		  }
+		}
+
+		function togglebgselect() {
+		  var x = document.getElementById("bgselect");
+		  if (x.style.display === "none") {
+		    x.style.display = "block";
+		  } else {
+		    x.style.display = "none";
+		  }
+		}
+
+		function toggledownloadsettings() {
+		  var x = document.getElementById("downloadSettings");
+		  if (x.style.display === "none") {
+			x.style.display = "block";
+		  } else {
+			x.style.display = "none";
+		  }
+		}
+
+		function toggleAutoEncoding() {
+		  var x = document.getElementById("autoEncodeOptions");
+		  var y = document.getElementById("boardOutput");
+		  if (x.style.display === "none") {
+			x.style.display = "block";
+			y.style.height = 36;
+			autoEncode();
+		  } else {
+			x.style.display = "none";
+			y.style.height = 64;
+		  }
+		}
+
+		function opensidepanel() {
+		  document.getElementById("fumenSidebar").style.display = "block";
+		}
+
+		function closesidepanel() {
+		  document.getElementById("fumenSidebar").style.display = "none";
+		}
+
+		function addPage() {
+			if(document.getElementById('positionDisplay').value == hist.length){
+			document.getElementById('positionDisplay').value = parseFloat(document.getElementById('positionDisplay').value)+1;
+			document.getElementById("positionDisplayOver").value = "/"+(parseFloat(hist.length+1));
+			} else {
+			document.getElementById('positionDisplay').value = parseFloat(document.getElementById('positionDisplay').value)+1;
+			}
+			nextPage();
+		}
+
+		function subPage() {
+			if(document.getElementById('positionDisplay').value != 1){
+			document.getElementById('positionDisplay').value = parseFloat(document.getElementById('positionDisplay').value)-1;
+			};
+			prevPage()
+		}
+
+		function firstPage() {
+			document.getElementById('positionDisplay').value = 1;
+			startPage();
+		}
+
+		function lastPage() {
+			document.getElementById('positionDisplay').value = hist.length;
+			endPage();
+		}
+
+		function renderImages() {
+			style = document.getElementById('renderStyle').value
+			switch(style){
+				case 'four': fumencanvas(); break;
+				case 'fumen': fumenrender(); break;
+			}
+		}
+	</script>
+</html>

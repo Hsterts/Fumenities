@@ -1,17 +1,48 @@
-// import/export stuff
+// MAIN IO
 async function exportFumen() {
-	console.log(board)
 	fumen = encode(board);
-	console.log(fumen);
 	document.getElementById("boardOutput").value = fumen;
 }
 
 async function exportFullFumen() {
 	fumen = fullEncode(hist);
-	console.log(fumen);
 	document.getElementById("boardOutput").value = fumen;
 }
 
+async function importFumen() {
+	histPos = parseFloat(document.getElementById("positionDisplay").value)-1;
+	try {
+		fumen = await document.getElementById("boardOutput").value;
+	} catch (error) {
+		fumen = prompt('fumen encoding');
+	}
+	result = decode(fumen);
+	board = JSON.parse(JSON.stringify(result.board));
+	hist.splice(histPos,0,{board: JSON.stringify(board)});
+	document.getElementById("positionDisplayOver").value = "/"+hist.length;
+	hist[histPos]['comment'] = result.comment;
+	document.getElementById("commentBox").value = result.comment;
+	window.requestAnimationFrame(render);
+}
+
+async function importFullFumen() {
+	try {
+		fumen = await document.getElementById("boardOutput").value;
+	} catch (error) {
+		fumen = prompt('fumen encoding');
+	}
+	result = fullDecode(fumen);
+	hist = result;
+	histPos = 0;
+	board = JSON.parse(hist[histPos]['board']);
+	comment = hist[histPos]['comment'];
+	document.getElementById("commentBox").value = comment; 
+	document.getElementById("positionDisplay").value = 1;
+	document.getElementById("positionDisplayOver").value = "/"+hist.length;
+	window.requestAnimationFrame(render);
+}
+
+//IMAGE IMPORT
 async function importImage() {
 	try {
 		const clipboardItems = await navigator.clipboard.read();
@@ -149,35 +180,32 @@ function median(values) {
 	return (values[half - 1] + values[half]) / 2.0;
 }
 
-async function importFumen() {
-	try {
-		fumen = await document.getElementById("boardOutput").value;
-	} catch (error) {
-		fumen = prompt('fumen encoding');
-	}
-	result = decode(fumen);
-	board = JSON.parse(JSON.stringify(result));
+//MIRRORING
+const reversed = {Z: 'S',L: 'J',O: 'O',S: 'Z',I: 'I',J: 'L',T: 'T',X: 'X'};
 
-	xPOS = spawn[0];
-	yPOS = spawn[1];
-	rot = 0;
+function mirror() {
+	for (row = 0; row < board.length; row++) {
+		board[row].reverse();
+		for (i = 0; i < board[row].length; i++) {
+			if (board[row][i].t == 1) board[row][i].c = reversed[board[row][i].c];
+		}
+	}
 	updateHistory();
+	window.requestAnimationFrame(render);
 }
 
-async function importFullFumen() {
-	try {
-		fumen = await document.getElementById("boardOutput").value;
-	} catch (error) {
-		fumen = prompt('fumen encoding');
+function fullMirror() {
+	for (i = 0; i < hist.length; i++) {
+		tempBoard = JSON.parse(hist[i]['board']);
+		for (row = 0; row < tempBoard.length; row++) {
+			tempBoard[row].reverse();
+			for (j = 0; j < tempBoard[row].length; j++) {
+				if (tempBoard[row][j].t == 1) tempBoard[row][j].c = reversed[tempBoard[row][j].c];
+			}
+		}
+		hist[i]['board'] = JSON.stringify(tempBoard);
 	}
-	result = fullDecode(fumen, hist[histPos]); // let's import boards but just keep current queue/hold/piece in each frame
-	hist = JSON.parse(JSON.stringify(result));
-	histPos = 0;
-	board = JSON.parse(hist[0]['board']);
-	queue = JSON.parse(hist[0]['queue']);
-	holdP = hist[0]['hold'];
-	piece = hist[0]['piece'];
-	xPOS = spawn[0];
-	yPOS = spawn[1];
-	rot = 0;
+	board = tempBoard;
+	updateHistory();
+	window.requestAnimationFrame(render);
 }
