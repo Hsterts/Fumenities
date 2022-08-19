@@ -1,5 +1,5 @@
 h2{
-    font-family: Montserrat;
+    font-family: Montserrat, Sans-Serif;
     margin-top: 0px;
     margin-bottom: -10px;
     }
@@ -25,6 +25,8 @@ footer {
 /* FUMEN UTIL */
 #fumenutil{
     background: #313131;
+    font-family: Montserrat, Sans-Serif;
+    color: #cacccc;
     margin: auto;
     margin-top: 20px;
     width: 900px;
@@ -53,7 +55,7 @@ button{
 input,select{
     height: 1.5em;
     font-size: 1em;
-    font-family: Montserrat;
+    font-family: Montserrat, Sans-Serif;
     background: #7a7e7e;
     border: none;
     color: #FFF;
@@ -128,7 +130,7 @@ figure{
     padding-left: 6px;
     padding-right: 6px;
     color: rgb(32, 32, 32);
-    font-family: Montserrat;
+    font-family: Montserrat, Sans-Serif;
     text-align: center;
     display: inline-block;
     font-size: 14px;
@@ -249,7 +251,7 @@ input[type='radio'] {
 }
 
 #fumenSidebar{
-    font-family: Montserrat;
+    font-family: Montserrat, Sans-Serif;
     color: #eeeeee;
     background: #0e0e0ecc;
     padding-top: 20px;
@@ -277,7 +279,7 @@ input[type='radio'] {
     padding-left: 6px;
     padding-right: 6px;
     color: rgb(32, 32, 32);
-    font-family: Montserrat;
+    font-family: Montserrat, Sans-Serif;
     text-align: left;
     display: inline-block;
     font-size: 14px;

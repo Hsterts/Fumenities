@@ -134,7 +134,7 @@ function encode() {
 	pages.push(page);
 
 	var result = encoder.encode(pages);
-	return result;
+	document.getElementById("boardOutput").value = result;
 }
 
 function fullEncode() {
@@ -161,7 +161,6 @@ for (var i = 0; i < hist.length; i++){
 };
 	var result = encoder.encode(pages);
 	document.getElementById("boardOutput").value = result;
-	return result;
 }
 
 //IMAGE IMPORT
