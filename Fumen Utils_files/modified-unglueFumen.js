@@ -69,11 +69,10 @@ function clearedOffset(rowsCleared, yIndex) {
     return yIndex;
 }
 
-function unglueFumen() {
+function unglueFumen(input) {
 
     var fumenCodes = [];
     results = []
-    input = document.getElementById('input').value;
     for (let rawInput of input.split("\t")) {
         fumenCodes.push(...rawInput.split(/\s/));
     }

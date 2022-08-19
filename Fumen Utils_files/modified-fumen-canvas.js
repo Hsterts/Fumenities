@@ -150,7 +150,7 @@ max_col = 10;
 start = 0;
 end = undefined;
 
-function fumencanvas() {
+function fumencanvas(input) {
 	var container = document.getElementById('imageOutputs');
 	while (container.firstChild) {
 		container.removeChild(container.firstChild);
@@ -169,7 +169,6 @@ function fumencanvas() {
 	results = [];
 	resultURLs = [];
 
-	input = document.getElementById('input').value;
 	for (let rawInput of input.split('\t')) {
 		fumenCodes.push(...rawInput.split(/\s/));
 	}

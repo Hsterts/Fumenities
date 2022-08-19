@@ -1,9 +1,8 @@
 // const { decoder, encoder } = require('tetris-fumen');
 
-function removeComments() {
+function removeComments(input) {
     var fumenCodes = [];
     results = [];
-    input = document.getElementById('input').value;
     for (let rawInput of input.split("\t")) {
         fumenCodes.push(...rawInput.split(/\s/));
     }

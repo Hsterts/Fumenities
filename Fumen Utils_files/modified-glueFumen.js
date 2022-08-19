@@ -3,7 +3,7 @@ const Hashmap = require('hashmap');
 
 let delimiter = "\n";
 
-function glueFumen() {
+function glueFumen(input) {
 	const rowLen = 10;
 
 	const pieceMappings = new Hashmap();
@@ -227,6 +227,7 @@ function glueFumen() {
 			}
 			newX = 0;
 		}
+		console.log(piecesArr);
 		return piecesArr;
 	}
 
@@ -265,10 +266,10 @@ function glueFumen() {
     }
     
 	var fumenCodes = [];
-	input = document.getElementById('input').value;
 	for (let rawInput of input.split("\t")) { // tabs
 		fumenCodes.push(...rawInput.split(/\s/));
     }
+	console.log(fumenCodes);
 	var allPiecesArr = [];
 	var allFumens = [];
 	var fumenIssues = 0;
@@ -319,5 +320,3 @@ function glueFumen() {
     console.log(allFumens.join(' '));
     document.getElementById("output").value = allFumens.join(delimiter);
 }
-
-//LSZ JAWS, JSZ SHOE, 4p LEGS, ILSO HILL, ANTIPCO+J, TUB 3p, Dragon, Elephant, Cradle

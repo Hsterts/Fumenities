@@ -91,10 +91,16 @@ document.getElementById('b').onmousemove = function mousemove(e) {
                 autoEncode();
             }
             else {
-                if (board[mouseY][mouseX].t != 1) { // only allow drawing minoes over empty segments of board
+                if (board[mouseY][mouseX].t != 1 && drawn.length < 4) { // only allow drawing minoes over empty segments of board
                     minoModeBoard[mouseY][mouseX] = { t: 1, c: "X" }
-                    window.requestAnimationFrame(render);
-                }
+                    drawn.push(minoModeBoard[mouseY][mouseX]);
+					console.log(drawn.length);
+					window.requestAnimationFrame(render);
+	            } else {
+				console.log("else")
+				operation = undefined;
+				minoModeBoard[mouseY][mouseX] = {t: 0, c: ''}
+				}
             }
 		}
 	}
@@ -105,7 +111,11 @@ document.getElementById('b').onmousedown = function mousedown(e) {
 	rect = document.getElementById('b').getBoundingClientRect();
 	mouseY = Math.floor((e.clientY - rect.top) / cellSize);
 	mouseX = Math.floor((e.clientX - rect.left) / cellSize);
-
+	drawnCount = minoModeBoard.reduce((count,row) => {
+		return count += row.reduce((tval,cell) => {
+			return tval += cell.t;
+		}, 0);
+	}, 0);
 	if(!mouseDown) {
         movingCoordinates = false;
         if (!minoMode) {
@@ -119,13 +129,14 @@ document.getElementById('b').onmousedown = function mousedown(e) {
                     board[mouseY][mouseX] = { t: 0, c: '' };
                 };
             };
-        }
-        else {
-            if (board[mouseY][mouseX].t != 1) { // only allow drawing minoes over empty segments of board
-                minoModeBoard = JSON.parse(JSON.stringify(emptyBoard)); // reset mino and begin drawing a new one
+        } else {
+			if (board[mouseY][mouseX].t != 1 && drawnCount < 4 && minoModeBoard[mouseY][mouseX].t != 1) { // only allow drawing minoes over empty segments of board
                 operation = undefined;
                 minoModeBoard[mouseY][mouseX] = {t: 1, c: "X"}
-            }
+            } else {
+				operation = undefined;
+				minoModeBoard[mouseY][mouseX] = {t: 0, c: ''}
+			}
         }
 	};
 	mouseDown = true;
@@ -145,11 +156,11 @@ document.onmouseup = function mouseup() {
 			});
         });
         if (drawn.length != 4) { // didn't draw a tetramino
-            minoModeBoard = JSON.parse(JSON.stringify(emptyBoard));
             operation = undefined;
         }
         else {
             matchFound = false;
+			console.log(names);
             names.forEach((name) => {
 				// jesus christ this is a large number of nested loops
 				checkPiece = pieces[name];

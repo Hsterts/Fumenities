@@ -151,7 +151,7 @@ delay = 500;
 start = 0;
 end = undefined;
 
-function fumenrender() {
+function fumenrender(input) {
 	resultURLs = [];
 	var container = document.getElementById('imageOutputs');
 	while (container.firstChild) {
@@ -160,7 +160,6 @@ function fumenrender() {
 
 	var fumenCodes = [];
 	results = [];
-	input = document.getElementById('input').value;
 	for (let rawInput of input.split('\t')) {
 		fumenCodes.push(...rawInput.split(/\s/));
 	}

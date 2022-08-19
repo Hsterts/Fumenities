@@ -10,9 +10,11 @@ function toField(board) {
     return Field.create(FieldString);
 }
 
-function decode(fumen) {
-    histPos = document.getElementById('positionDisplay').value-1
-    pages = decoder.decode(fumen);
+function decode() {
+    histPos = parseFloat(document.getElementById("positionDisplay").value)-1;
+	fumen = document.getElementById("boardOutput").value;
+
+	pages = decoder.decode(fumen);
     input = pages[0]['_field']['field']['pieces'];
     board = [];
     for (rowIndex = 0; rowIndex < 20; rowIndex++) {
@@ -33,15 +35,20 @@ function decode(fumen) {
         board, 
         comment: comment
     }
-    return page;
+	board = JSON.parse(JSON.stringify(page.board));
+	hist.splice(histPos,0,{board: JSON.stringify(board)});
+	document.getElementById("positionDisplayOver").value = "/"+hist.length;
+	hist[histPos]['comment'] = page.comment;
+	document.getElementById("commentBox").value = page.comment;
+	window.requestAnimationFrame(render);
 };
 
 function fullDecode(fumen) {
+	fumen = document.getElementById("boardOutput").value;
     pages = decoder.decode(fumen);
-    console.log(pages);
     newHist = [];
     for (i = 0; i < pages.length; i++) {
-        input = pages[i]['_field']['field']['pieces'];
+		input = pages[i]['_field']['field']['pieces'];
         let tempBoard = [];
         for (rowIndex = 0; rowIndex < 20; rowIndex++) {
             let row = [];
@@ -90,10 +97,17 @@ function fullDecode(fumen) {
             currHist['queue'] = JSON.stringify(temp);
 
         }
-
+		
         newHist.push(currHist);
     }
-    return newHist;
+	hist = newHist;
+	histPos = 0;
+	board = JSON.parse(hist[histPos]['board']);
+	comment = hist[histPos]['comment'];
+	document.getElementById("commentBox").value = comment; 
+	document.getElementById("positionDisplay").value = 1;
+	document.getElementById("positionDisplayOver").value = "/"+hist.length;
+	window.requestAnimationFrame(render);
 };
 
 function encode() {
@@ -148,40 +162,6 @@ for (var i = 0; i < hist.length; i++){
 	var result = encoder.encode(pages);
 	document.getElementById("boardOutput").value = result;
 	return result;
-}
-
-// MAIN IO
-async function importFumen() {
-	histPos = parseFloat(document.getElementById("positionDisplay").value)-1;
-	try {
-		fumen = await document.getElementById("boardOutput").value;
-	} catch (error) {
-		fumen = prompt('fumen encoding');
-	}
-	result = decode(fumen);
-	board = JSON.parse(JSON.stringify(result.board));
-	hist.splice(histPos,0,{board: JSON.stringify(board)});
-	document.getElementById("positionDisplayOver").value = "/"+hist.length;
-	hist[histPos]['comment'] = result.comment;
-	document.getElementById("commentBox").value = result.comment;
-	window.requestAnimationFrame(render);
-}
-
-async function importFullFumen() {
-	try {
-		fumen = await document.getElementById("boardOutput").value;
-	} catch (error) {
-		fumen = prompt('fumen encoding');
-	}
-	result = fullDecode(fumen);
-	hist = result;
-	histPos = 0;
-	board = JSON.parse(hist[histPos]['board']);
-	comment = hist[histPos]['comment'];
-	document.getElementById("commentBox").value = comment; 
-	document.getElementById("positionDisplay").value = 1;
-	document.getElementById("positionDisplayOver").value = "/"+hist.length;
-	window.requestAnimationFrame(render);
 }
 
 //IMAGE IMPORT
@@ -362,7 +342,7 @@ function toggleFumenUtilSettings() {
 	}
   }
 
-  function toggleBGSelect() {
+function toggleBGSelect() {
 	var x = document.getElementById("bgselect");
 	if (x.style.display === "none") {
 	  x.style.display = "block";
@@ -371,7 +351,7 @@ function toggleFumenUtilSettings() {
 	}
   }
 
-  function toggleDownloadSettings() {
+function toggleDownloadSettings() {
 	var x = document.getElementById("downloadSettings");
 	if (x.style.display === "none") {
 	  x.style.display = "block";
@@ -380,7 +360,7 @@ function toggleFumenUtilSettings() {
 	}
   }
 
-  function toggleAutoEncoding() {
+function toggleAutoEncoding() {
 	var x = document.getElementById("autoEncodeOptions");
 	var y = document.getElementById("boardOutput");
 	if (x.style.display === "none") {
@@ -393,16 +373,16 @@ function toggleFumenUtilSettings() {
 	}
   }
 
-  function toggleSidePanel() {
+function toggleSidePanel() {
 	var x = document.getElementById("fumenSidebar");
 	if (x.style.display === "none") {
 	  x.style.display = "block";
 	} else {
 	  x.style.display = "none";
 	}
-  };
+};
 
-  function toggleFumenSettings() {
+function toggleFumenSettings() {
 	var fumenSettings = document.getElementById("fumenSettings");
 	var openButton = document.getElementById("openFumenSettings");
 	var closeButton = document.getElementById("closeFumenSettings");
@@ -418,7 +398,7 @@ function toggleFumenUtilSettings() {
 	
   }
 
-  function toggleToolTips() {
+function toggleToolTips() {
 	var x = document.getElementsByClassName("tooltiptext");
 	for(let z = 0; z<x.length; z++) {
 		if(x[z].style.display === "none" || x[z].style.display === ''){
@@ -429,7 +409,7 @@ function toggleFumenUtilSettings() {
 	};
 }
 
-  function addPage() {
+function addPage() {
 	  if(document.getElementById('positionDisplay').value == hist.length){
 	  document.getElementById('positionDisplay').value = parseFloat(document.getElementById('positionDisplay').value)+1;
 	  document.getElementById("positionDisplayOver").value = "/"+(parseFloat(hist.length+1));
@@ -439,27 +419,27 @@ function toggleFumenUtilSettings() {
 	  nextPage();
   }
 
-  function subPage() {
+function subPage() {
 	  if(document.getElementById('positionDisplay').value != 1){
 	  document.getElementById('positionDisplay').value = parseFloat(document.getElementById('positionDisplay').value)-1;
 	  };
 	  prevPage()
   }
 
-  function firstPage() {
+function firstPage() {
 	  document.getElementById('positionDisplay').value = 1;
 	  startPage();
   }
 
-  function lastPage() {
+function lastPage() {
 	  document.getElementById('positionDisplay').value = hist.length;
 	  endPage();
   }
 
-  function renderImages() {
+function renderImages(fumen) {
 	  style = document.getElementById('renderStyle').value
 	  switch(style){
-		  case 'four': fumencanvas(); break;
-		  case 'fumen': fumenrender(); break;
+		  case 'four': fumencanvas(fumen); break;
+		  case 'fumen': fumenrender(fumen); break;
 	  }
   }

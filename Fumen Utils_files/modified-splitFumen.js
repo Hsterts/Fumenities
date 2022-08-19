@@ -1,9 +1,8 @@
 // const { decoder, encoder } = require('tetris-fumen');
 
-function splitFumen() {
+function splitFumen(input) {
     var fumenCodes = [];
     results = [];
-    input = document.getElementById('input').value;
     for (let rawInput of input.split("\t")) {
         fumenCodes.push(...rawInput.split(/\s/));
     }

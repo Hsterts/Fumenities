@@ -39,10 +39,9 @@ reverseMappingRotation = {
     "left": "right"
 }
 
-function mirrorFumen() {
+function mirrorFumen(input) {
     var fumenCodes = [];
     results = [];
-    input = document.getElementById('input').value;
     for (let rawInput of input.split("\t")) {
         fumenCodes.push(...rawInput.split(/\s/));
     }

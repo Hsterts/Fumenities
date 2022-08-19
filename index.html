@@ -11,7 +11,7 @@
 		<span style = "float: left; font-size: 30px; margin-bottom: 10px; width:50%; height:40px;"><b>Fumen Utilities</b> © Swng</span>
 		<div style="text-align: right;">
 			<span style = "float: right; font-size: 15px; height:40px;margin-bottom: 10px; width:50%;">
-				<button class="option panel-button" id="openSP" onclick="opensidepanel()" style="display:show;">
+				<button class="option panel-button" id="openSP" onclick="toggleSidePanel()" style="display:show;">
 					<span class="material-icons">menu_open</span>
 				</button>
 			</span>
@@ -25,20 +25,20 @@
 		<textarea id="input" name="input"></textarea>
 		<br>
 		</center>
-		<button class="ibtn" onclick="glueFumen()"><b>Glue</button>
-		<button class="ibtn" onclick="unglueFumen()"><b>Unglue</b></button>
-		<button class="ibtn" onclick="mirrorFumen()"><b>Mirror</b></button>
-		<button class="ibtn" onclick="combineFumen()"><b>Combine</b></button>
-		<button class="ibtn" onclick="splitFumen()"><b>Split</b></button>
-        <button class="ibtn" onclick="removeComments()"><b>Remove Comments</b></button>
-		<button class="ibtn" onclick="renderImages()"><b>Output Image</b></button>
-        <button class="ibtn" onclick="toggleSettings()"><b>Toggle Settings</b></button>
+		<button class="ibtn" onclick="glueFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><b>Glue</button>
+		<button class="ibtn" onclick="unglueFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><b>Unglue</b></button>
+		<button class="ibtn" onclick="mirrorFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><b>Mirror</b></button>
+		<button class="ibtn" onclick="combineFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><b>Combine</b></button>
+		<button class="ibtn" onclick="splitFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><b>Split</b></button>
+        <button class="ibtn" onclick="removeComments(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><b>Remove Comments</b></button>
+		<button class="ibtn" onclick="renderImages(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><b>Output Image</b></button>
+        <button class="ibtn" onclick="toggleFumenUtilSettings()"><b>Toggle Settings</b></button>
 		<div class="row" id="settings" style="display:none;">
 		<center><hr class="solid"></center>
 		<b><h2>Settings</h2></b><br>
 			<div class="column left"><center><b>Render Settings</b><br></center>
 				<div id="styleOptions">
-					<select id="renderStyle" onchange="renderImages()">
+					<select id="renderStyle" onchange="renderImages(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))">
 						<option value="four">FOUR</option>
 						<option value="fumen">Fumen</option>
 					</select>
@@ -59,7 +59,7 @@
 				<span class="checkmark"></span>Auto
 				</label><br>
 
-				<input id="transparency" type="checkbox" checked="checked" onclick="togglebgselect()"></input>
+				<input id="transparency" type="checkbox" checked="checked" onclick="toggleBGSelect()"></input>
 				<label for="transparency">Transparency</label><br>
 
 					<div id="bgselect" style="display:none;">
@@ -67,7 +67,7 @@
 					<label for="transparency">BG Color</label><br>
 					</div>
 
-				<input id="displayMode" type="checkbox" onclick="fumencanvas()"></input>
+				<input id="displayMode" type="checkbox" onclick="fumencanvas(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"></input>
 				<label for="displayMode">Display Comments?</label><br>
 			</div>
 			<div class="column right">
@@ -101,7 +101,7 @@
 		<div id="fumenSidebar" style="display:show;">
 			<div style="text-align: right;">
 				<span style = "position:fixed; top: 20px; right:24px; font-size: 15px; height:15px;margin-bottom: 10px;">
-					<button class="option panel-button" id="closeSP" onclick="closesidepanel()">
+					<button class="option panel-button" id="closeSP" onclick="toggleSidePanel()">
 						<span class="material-icons">close</span>
 					</button>
 				</span>
@@ -227,7 +227,7 @@
 							</div>
 								<hr width = "99%">
 							<div class="tooltip">
-								<button class="fumen-option" onclick="this.blur(); importFumen()"><b>Insert</b></button>
+								<button class="fumen-option" onclick="this.blur(); decode()"><b>Insert</b></button>
 								<span class="tooltiptext">Insert the fumen into the current page.</span>
 							</div>
 							<div class="tooltip">
@@ -235,7 +235,7 @@
 								<span class="tooltiptext">Export the current page.</span>
 							</div>
 							<div class="tooltip">
-								<button class="fumen-option" onclick="this.blur(); importFullFumen()"><b>Import</b></button>
+								<button class="fumen-option" onclick="this.blur(); fullDecode()"><b>Import</b></button>
 								<span class="tooltiptext">Import and replace the current data.</span>
 							</div>
 							<div class="tooltip">
