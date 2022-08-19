@@ -351,3 +351,115 @@ function fullMirror() {
 	updateHistory();
 	window.requestAnimationFrame(render);
 }
+
+//HTML FUNCTIONS
+function toggleFumenUtilSettings() {
+	var x = document.getElementById("settings");
+	if (x.style.display === "none") {
+	  x.style.display = "block";
+	} else {
+	  x.style.display = "none";
+	}
+  }
+
+  function toggleBGSelect() {
+	var x = document.getElementById("bgselect");
+	if (x.style.display === "none") {
+	  x.style.display = "block";
+	} else {
+	  x.style.display = "none";
+	}
+  }
+
+  function toggleDownloadSettings() {
+	var x = document.getElementById("downloadSettings");
+	if (x.style.display === "none") {
+	  x.style.display = "block";
+	} else {
+	  x.style.display = "none";
+	}
+  }
+
+  function toggleAutoEncoding() {
+	var x = document.getElementById("autoEncodeOptions");
+	var y = document.getElementById("boardOutput");
+	if (x.style.display === "none") {
+	  x.style.display = "block";
+	  y.style.height = 36;
+	  autoEncode();
+	} else {
+	  x.style.display = "none";
+	  y.style.height = 64;
+	}
+  }
+
+  function toggleSidePanel() {
+	var x = document.getElementById("fumenSidebar");
+	if (x.style.display === "none") {
+	  x.style.display = "block";
+	} else {
+	  x.style.display = "none";
+	}
+  };
+
+  function toggleFumenSettings() {
+	var fumenSettings = document.getElementById("fumenSettings");
+	var openButton = document.getElementById("openFumenSettings");
+	var closeButton = document.getElementById("closeFumenSettings");
+	if (fumenSettings.style.display === "none"){
+	    fumenSettings.style.display = "block";
+	    openButton.style.display = "none";
+	    closeButton.style.display = "block";
+	} else {
+	    fumenSettings.style.display = "none";
+	    openButton.style.display = "block";
+	    closeButton.style.display = "none";
+	}
+	
+  }
+
+  function toggleToolTips() {
+	var x = document.getElementsByClassName("tooltiptext");
+	for(let z = 0; z<x.length; z++) {
+		if(x[z].style.display === "none" || x[z].style.display === ''){
+			x[z].style.display = "block";
+		} else {
+			x[z].style.display = "none";
+		};
+	};
+}
+
+  function addPage() {
+	  if(document.getElementById('positionDisplay').value == hist.length){
+	  document.getElementById('positionDisplay').value = parseFloat(document.getElementById('positionDisplay').value)+1;
+	  document.getElementById("positionDisplayOver").value = "/"+(parseFloat(hist.length+1));
+	  } else {
+	  document.getElementById('positionDisplay').value = parseFloat(document.getElementById('positionDisplay').value)+1;
+	  }
+	  nextPage();
+  }
+
+  function subPage() {
+	  if(document.getElementById('positionDisplay').value != 1){
+	  document.getElementById('positionDisplay').value = parseFloat(document.getElementById('positionDisplay').value)-1;
+	  };
+	  prevPage()
+  }
+
+  function firstPage() {
+	  document.getElementById('positionDisplay').value = 1;
+	  startPage();
+  }
+
+  function lastPage() {
+	  document.getElementById('positionDisplay').value = hist.length;
+	  endPage();
+  }
+
+  function renderImages() {
+	  style = document.getElementById('renderStyle').value
+	  switch(style){
+		  case 'four': fumencanvas(); break;
+		  case 'fumen': fumenrender(); break;
+	  }
+  }

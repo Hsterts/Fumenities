@@ -76,7 +76,7 @@
 				<label for="delay">GIF Delay (ms)</label>
 				<br><br>
 				<center><b>Download Settings</b><br></center>
-				<input id="downloadOutput" type="checkbox" onclick="toggledownloadsettings()"></input>
+				<input id="downloadOutput" type="checkbox" onclick="toggleDownloadSettings()"></input>
 				<label for="downloadOutput">Download on Render?</label><br>
 				<div id="downloadSettings" style="display:none;">
 				<select id="naming" name="Name">
@@ -145,20 +145,21 @@
 					</label>
 				</form>
 			</div>
-		<!-- MINO MODE OPTION-->
-			<div class="minoMode top-panel tooltip">
-				<input id="minoModeOption" type="checkbox" onclick="toggleMinoMode()"></input>
-				<label for="minoModeOption">Mino Mode</label>
-				<span class="tooltiptext">"Enable drawing <b>four minos</b> to dictate a piece placement.</span>
+<!-- MINO MODE OPTION-->
+		<div class="minoMode top-panel">
+			<div class="tooltip">
+				<input id="minoModeOption" type="checkbox" onclick="toggleMinoMode()"> Mino Mode</input>
+				<span class="tooltiptext">Draw four minos as a piece placement.</span>
 			</div>
 		</div>
+	</div>
 <!-- PAGES BUTTON AND DISPLAY-->
 			<!-- THE BOARD -->
 		<div class="fumen-body">
 			<div class="left-fumen-panel">
 				<div class="pagePosition">
 					<div class="pager"><button class="positionsub pagebutton" onclick="firstPage()">
-						<span class="material-icons">keyboard_double_arrow_left</span>
+						<span class="material-icons">first_page</span>
 					</button></div>
 					<div class="pager"><button class="positionsub pagebutton" onclick="subPage()">
 						<span class="material-icons">navigate_before</span>
@@ -169,7 +170,7 @@
 						<span class="material-icons">navigate_next</span>
 					</button></div>
 					<div class="pager"><button class="positionadd pagebutton" onclick="lastPage()">
-						<span class="material-icons">keyboard_double_arrow_right</span>
+						<span class="material-icons">last_page</span>
 					</button></div>
 				</div>
 	
@@ -200,21 +201,51 @@
 					</div>
 					<div class="import-export">
 						<div class="io">
-							<button class="fumen-option" onclick="this.blur(); mirror()"><b>Mirror Page</b></button>
-							<button class="fumen-option" onclick="this.blur(); fullMirror()"><b>Mirror</b></button>
-							<button class="fumen-option" onclick="this.blur(); dupliPage()"><b>Clone Page</b></button>
-							<button class="fumen-option" onclick="this.blur(); clearPage()"><b>Clear Page</b></button>
-							<button class="fumen-option" onclick="this.blur(); deletePage()"><b>Delete Page</b></button>
-							<button class="fumen-option" onclick="this.blur(); restart()"><b>Clear</b></button>
-							<hr width = "99%">
-							<button class="fumen-option" onclick="this.blur(); importFumen()"><b>Insert</b></button>
-							<button class="fumen-option" onclick="this.blur(); encode()"><b>Export Page</b></button>
-							<button class="fumen-option" onclick="this.blur(); importFullFumen()"><b>Import</b></button>
-							<button class="fumen-option" onclick="this.blur(); fullEncode()"><b>Export</b></button>
+							<div class="tooltip">
+								<button class="fumen-option" onclick="this.blur(); mirror()"><b>Mirror Page</b></button>
+								<span class="tooltiptext">Mirror the current page.</span>
+							</div>
+							<div class="tooltip">
+								<button class="fumen-option" onclick="this.blur(); fullMirror()"><b>Mirror</b></button>
+								<span class="tooltiptext">Mirror all pages.</span>
+							</div>	
+							<div class="tooltip">
+								<button class="fumen-option" onclick="this.blur(); dupliPage()"><b>Duplicate Page</b></button>
+								<span class="tooltiptext">Duplicate the current page.</span>
+							</div>
+							<div class="tooltip">
+								<button class="fumen-option" onclick="this.blur(); clearPage()"><b>Clear Page</b></button>
+								<span class="tooltiptext">Clear the contents of the current page.</span>
+							</div>
+							<div class="tooltip">
+								<button class="fumen-option" onclick="this.blur(); deletePage()"><b>Delete Page</b></button>
+								<span class="tooltiptext">Delete the current page.</span>
+							</div>
+							<div class="tooltip">
+								<button class="fumen-option" onclick="this.blur(); restart()"><b>Clear</b></button>
+								<span class="tooltiptext">Delete all data.</span>
+							</div>
+								<hr width = "99%">
+							<div class="tooltip">
+								<button class="fumen-option" onclick="this.blur(); importFumen()"><b>Insert</b></button>
+								<span class="tooltiptext">Insert the fumen into the current page.</span>
+							</div>
+							<div class="tooltip">
+								<button class="fumen-option" onclick="this.blur(); encode()"><b>Export Page</b></button>
+								<span class="tooltiptext">Export the current page.</span>
+							</div>
+							<div class="tooltip">
+								<button class="fumen-option" onclick="this.blur(); importFullFumen()"><b>Import</b></button>
+								<span class="tooltiptext">Import and replace the current data.</span>
+							</div>
+							<div class="tooltip">
+								<button class="fumen-option" onclick="this.blur(); fullEncode()"><b>Export</b></button>
+								<span class="tooltiptext">Export all pages.</span>
+							</div>
 						</div>
 					</div>
 				</div>
-		<!-- AUTO ENCODING -->
+<!-- AUTO ENCODING -->
 				<div class="bottom-right-fumen-panel">	
 					<div class="autoEncodingInputs">
 						<div class="autoEncoding">
@@ -228,7 +259,7 @@
 							</select>
 						</div>
 					</div>
-			<!-- THE OUTPUT BOX -->
+<!-- THE OUTPUT BOX -->
 					<div><textarea id="boardOutput"></textarea></div>
 				</div>
 			</div>
@@ -236,6 +267,21 @@
 
 <!-- ""ADD ONS"""-->
 			<hr width="90%">
+<!-- EXTRA SETTINGS-->
+			<div style="text-align: right;">
+				<span style = "position: relative; font-size: 15px; height:40px; right: 25; width:30px;">
+					<button class="addonButton option" id="toggleAO" onclick="toggleFumenSettings()" style="display:show;">
+						<span class="material-icons" id="openFumenSettings">expand_more</span>
+						<span class="material-icons" id="closeFumenSettings" style="display: none;">expand_less</span>
+					</button>
+				</span>
+			</div>
+			<div id="fumenSettings" style="display: none;">
+				<div class="tooltipToggle">
+					<input id="tooltipSetting" type="checkbox" onclick="toggleToolTips()"></input>
+					<label for="tooltipSetting">Show Tooltips</label>
+				</div>
+			</div>
 		</div>
 	</div>
 		</body>
@@ -267,89 +313,4 @@
 	<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> -->
 	<script src="io.js"></script>
 	<script defer src="base.js"></script>
-<!--IN DOCUMENT SCRIPTS-->
-	<script>
-		function toggleSettings() {
-		  var x = document.getElementById("settings");
-		  if (x.style.display === "none") {
-		    x.style.display = "block";
-		  } else {
-		    x.style.display = "none";
-		  }
-		}
-
-		function togglebgselect() {
-		  var x = document.getElementById("bgselect");
-		  if (x.style.display === "none") {
-		    x.style.display = "block";
-		  } else {
-		    x.style.display = "none";
-		  }
-		}
-
-		function toggledownloadsettings() {
-		  var x = document.getElementById("downloadSettings");
-		  if (x.style.display === "none") {
-			x.style.display = "block";
-		  } else {
-			x.style.display = "none";
-		  }
-		}
-
-		function toggleAutoEncoding() {
-		  var x = document.getElementById("autoEncodeOptions");
-		  var y = document.getElementById("boardOutput");
-		  if (x.style.display === "none") {
-			x.style.display = "block";
-			y.style.height = 36;
-			autoEncode();
-		  } else {
-			x.style.display = "none";
-			y.style.height = 64;
-		  }
-		}
-
-		function opensidepanel() {
-		  document.getElementById("fumenSidebar").style.display = "block";
-		}
-
-		function closesidepanel() {
-		  document.getElementById("fumenSidebar").style.display = "none";
-		}
-
-		function addPage() {
-			if(document.getElementById('positionDisplay').value == hist.length){
-			document.getElementById('positionDisplay').value = parseFloat(document.getElementById('positionDisplay').value)+1;
-			document.getElementById("positionDisplayOver").value = "/"+(parseFloat(hist.length+1));
-			} else {
-			document.getElementById('positionDisplay').value = parseFloat(document.getElementById('positionDisplay').value)+1;
-			}
-			nextPage();
-		}
-
-		function subPage() {
-			if(document.getElementById('positionDisplay').value != 1){
-			document.getElementById('positionDisplay').value = parseFloat(document.getElementById('positionDisplay').value)-1;
-			};
-			prevPage()
-		}
-
-		function firstPage() {
-			document.getElementById('positionDisplay').value = 1;
-			startPage();
-		}
-
-		function lastPage() {
-			document.getElementById('positionDisplay').value = hist.length;
-			endPage();
-		}
-
-		function renderImages() {
-			style = document.getElementById('renderStyle').value
-			switch(style){
-				case 'four': fumencanvas(); break;
-				case 'fumen': fumenrender(); break;
-			}
-		}
-	</script>
 </html>
