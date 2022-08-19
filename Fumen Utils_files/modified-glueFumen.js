@@ -1,4 +1,4 @@
-const { decoder, encoder, Field } = require('tetris-fumen');
+const { decoder, encoder, Field, Page, Operation, Mino } = require('tetris-fumen');
 const Hashmap = require('hashmap');
 
 let delimiter = "\n";

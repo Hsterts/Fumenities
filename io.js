@@ -112,7 +112,7 @@ function encode() {
 	}
 	page = {
 		comment: hist[histPos]['comment'],
-		operation: undefined,
+		operation: hist[histPos]["operation"],
 		field,
 		flags: flags,
 		index: histPos,
@@ -138,7 +138,7 @@ for (var i = 0; i < hist.length; i++){
 	}
 		page = {
 			comment: hist[i]['comment'],
-			operation: undefined,
+			operation: hist[histPos]["operation"],
 			field,
 			flags: flags,
 			index: i,
