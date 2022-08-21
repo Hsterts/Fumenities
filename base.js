@@ -85,7 +85,6 @@ document.getElementById('b').onmousedown = function mousedown(e) {
 					return tval += cell.t;
 				}, 0);
 			}, 0);
-			// console.log(drawnCount);
 			if (board[mouseY][mouseX].t != 1 && drawnCount != 4 && minoModeBoard[mouseY][mouseX].t != 1) {
 				minoModeBoard[mouseY][mouseX] = {t: 1, c: "X"}
 			} else {
@@ -315,9 +314,10 @@ function toggleMinoMode() {
     if (minoMode) {
 		console.log("minoMode");
 	} else {
+		if(operation == undefined){
 		minoModeBoard = JSON.parse(JSON.stringify(emptyBoard));
 		operation = undefined
-		updateHistory();
+		updateHistory()};
 	}
 }
 
@@ -532,29 +532,55 @@ function drawCell(x, y, piece, type) {
 	var color = {Z: '#ef624d', L: '#ef9535', O: '#f7d33e', S: '#66c65c', I: '#41afde', J: '#1983bf', T: '#b451ac', X: '#999999'};
 	var lightercolor = {Z: '#fd7660', L: '#fea440', O: '#ffe34b', S: '#7cd97a', I: '#3dc0fb', J: '#1997e3', T: '#d161c9', X: '#bbbbbb'};
 	var lightestcolor = {Z: '#ff998c', L: '#feb86d', O: '#fbe97f', S: '#96f98b', I: '#75faf8', J: '#1fd7f7', T: '#fe89f7', X: '#dddddd'};
-
+	var foureffectInput = document.getElementById("3dSetting").checked;
+	var lockFlag = document.getElementById("lockFlagInput").checked;
 
 	if(y == 0){
 		var cellAbove = 1;
 	} else {
 		var cellAbove = board[y-1][x]['t'] + minoModeBoard[y-1][x]['t'];
 	};
+
 	if (type == 1) {
+		//Normal colors
 		if (cellAbove != 1){
 			ctx.fillStyle = lightercolor[piece];
-			ctx.fillRect((x) * cellSize + 1, y * cellSize + 1 - cellSize/5, cellSize - 0, cellSize/5);
+			if(foureffectInput){
+				ctx.fillRect((x) * cellSize + 1, y * cellSize + 1 - cellSize/5, cellSize - 0, cellSize/5);
+			}
 		};
 		ctx.fillStyle = color[piece];
 		ctx.fillRect((x) * cellSize + 1, y * cellSize + 1, cellSize - 0, cellSize - 0);
+		//Light locked row colors
+		if (lockFlag == true) {
+			//check row mino count
+			var cellCount = 0;
+			for(var col = 0; col < 10; col++){	
+				cellCount += board[y][col].t;
+				cellCount += minoModeBoard[y][col].t;
+			}
+			//color in if 10
+			if(cellCount == 10){
+				if (cellAbove != 1){
+					ctx.fillStyle = lightestcolor[piece];
+					if(foureffectInput){
+						ctx.fillRect((x) * cellSize + 1, y * cellSize + 1 - cellSize/5, cellSize - 0, cellSize/5);
+					}
+				};
+				ctx.fillStyle = lightercolor[piece];
+				ctx.fillRect((x) * cellSize + 1, y * cellSize + 1, cellSize - 0, cellSize - 0);
+			}
+		}
 	};
+	//Light mino colors
 	if (type == 2) {
 		if (cellAbove != 1){
 			ctx.fillStyle = lightestcolor[piece];
+			if(foureffectInput){
 			ctx.fillRect((x) * cellSize + 1, y * cellSize + 1 - cellSize/5, cellSize - 0, cellSize/5);
+			}
 		};
 		ctx.fillStyle = lightercolor[piece];
 		ctx.fillRect((x) * cellSize + 1, y * cellSize + 1, cellSize - 0, cellSize - 0);
 	};
 }
-
-
