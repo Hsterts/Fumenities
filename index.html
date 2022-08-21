@@ -266,7 +266,7 @@
 <!-- ""ADD ONS"""-->
 			<hr width="90%">
 <!-- EXTRA SETTINGS-->
-			<div style="text-align: right;">
+			<div style="float: right; text-align: right; width: 40px;">
 				<span style = "position: relative; font-size: 15px; height:40px; right: 25; width:30px;">
 					<button class="addonButton option" id="toggleAO" onclick="toggleFumenSettings()" style="display:show;">
 						<span class="material-icons" id="openFumenSettings">expand_more</span>
@@ -274,10 +274,18 @@
 					</button>
 				</span>
 			</div>
-			<div id="fumenSettings" style="display: none;">
-				<div class="tooltipToggle">
-					<input id="tooltipSetting" type="checkbox" onclick="toggleToolTips()"></input>
-					<label for="tooltipSetting">Show Tooltips</label>
+			<div id="fumenSettings" style="display: show;">
+				<div class="flags left">
+					<div><p class="settings-header">FLAGS</p></div>
+					<input id="lockFlagInput" type="checkbox" onclick="updateHistory()" checked></input>
+					<label for="lockFlagInput">Lock</label>
+				</div>
+				<div class="extrasettings right">
+					<div><p class="settings-header">MISC. SETTINGS</p></div>
+					<div class="tooltipToggle">
+						<input id="tooltipSetting" type="checkbox" onclick="toggleToolTips()"></input>
+						<label for="tooltipSetting">Show Tooltips</label>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -302,13 +310,9 @@
 	<script type="text/javascript" src="./Fumen Utils_files/b64.js"></script>
 	<script src="./Fumen Utils_files/modified-fumen-canvas.js"></script>
 	<script src="./Fumen Utils_files/modified-fumen-render.js"></script>
-	<!-- <script src="./Fumen Utils_files/jszip.js"></script> -->
 	<script src="./Fumen Utils_files/jszip.min.js"></script>
-	<!-- <script src="./Fumen Utils_files/jszip-utils.js"></script> -->
 	<script src="./Fumen Utils_files/jszip-utils.min.js"></script>
-	<!-- <script src="./Fumen Utils_files/FileSaver.js"></script> -->
 	<script src="./Fumen Utils_files/FileSaver.min.js"></script>
-	<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> -->
 	<script src="io.js"></script>
 	<script defer src="base.js"></script>
 </html>

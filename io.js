@@ -126,7 +126,7 @@ function encode() {
 	}
 	page = {
 		comment: hist[histPos]['comment'],
-		operation: hist[histPos]["operation"],
+		operation: hist[histPos]['operation'],
 		field,
 		flags: flags,
 		index: histPos,
@@ -152,7 +152,7 @@ for (var i = 0; i < hist.length; i++){
 	}
 		page = {
 			comment: hist[i]['comment'],
-			operation: hist[histPos]["operation"],
+			operation: hist[i]['operation'],
 			field,
 			flags: flags,
 			index: i,
@@ -161,6 +161,20 @@ for (var i = 0; i < hist.length; i++){
 };
 	var result = encoder.encode(pages);
 	document.getElementById("boardOutput").value = result;
+}
+
+function autoEncode() {
+	var autoEncodeBool = document.getElementById("autoEncode").checked;
+
+	var encodingType = document.getElementById("encodingType").value;
+	if(autoEncodeBool == true) {
+		if(encodingType == "fullFumen") {
+			fumen = fullEncode();
+		};
+		if(encodingType == "currentFumen") {
+			fumen = encode();
+		};
+	};
 }
 
 //IMAGE IMPORT

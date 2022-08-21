@@ -1,6 +1,6 @@
 // const { decoder, encoder} = require('tetris-fumen');
 
-pieces = {
+gluePieces = {
     T: [
         [[0, 0], [0, -1], [0, 1], [1, 0]],
         [[0, 0], [0, 1], [1, 0], [-1, 0]],
@@ -70,22 +70,22 @@ function clearedOffset(rowsCleared, yIndex) {
 }
 
 function unglueFumen(input) {
-
     var fumenCodes = [];
     results = []
     for (let rawInput of input.split("\t")) {
         fumenCodes.push(...rawInput.split(/\s/));
     }
-
+    
     for (let code of fumenCodes) {
         try {
             let inputPages = decoder.decode(code);
+            console.log(inputPages);
             toUnglueBoard = inputPages[0]["_field"]["field"]["pieces"];
             rowsCleared = [];
 
             for (let pageNum = 0; pageNum < inputPages.length; pageNum++) {
                 op = inputPages[pageNum]["operation"];
-                piece = pieces[op["type"]][rotationMapping[op["rotation"]]];
+                piece = gluePieces[op["type"]][rotationMapping[op["rotation"]]];
 
                 for (let mino of piece) {
                     yIndex = op.y + mino[0];

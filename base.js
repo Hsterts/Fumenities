@@ -3,12 +3,12 @@ var cellSize = 22;
 var boardSize = [10, 20];
 
 //BOARD
-var comments = [];
 var board = [];
 var hist = [];
 var histPos = 0;
 var operation; // {type: 'I', rotation: 'reverse', x: 4, y: 0}
-hist = [{board: JSON.stringify(board),},];
+var flags = {lock: true}
+hist = [{board: JSON.stringify(board), comment: '', operation: undefined, minoBoard: JSON.stringify(board), flags},];
 histPos = 0;
 window.requestAnimationFrame(render);
 
@@ -16,32 +16,20 @@ const names = 'ZLOSIJT'.split('');
 
 //PIECE MAPS
 piece_T = ['0000111001000000', '0100011001000000', '0100111000000000', '0100110001000000'];
-piece_I = ['0000111100000000', '0100010001000100'];
+piece_I = ['', '0100010001000100', '0000111100000000'];
 piece_L = ['0000111010000000', '0100010001100000', '0010111000000000', '1100010001000000'];
 piece_J = ['0000111000100000', '0110010001000000', '1000111000000000', '0100010011000000'];
-piece_S = ['0000011011000000', '1000110001000000'];
-piece_Z = ['0000110001100000', '0100110010000000'];
-piece_O = ['0000011001100000'];
+piece_S = ['0000011011000000', '0100011000100000'];
+piece_Z = ['0000110001100000', '0010011001000000'];
+piece_O = ['0000110011000000'];
 
 pieces = [piece_T, piece_I, piece_L, piece_J, piece_S, piece_Z, piece_O];
 
 //MAKING FIRST EMPTY BOARD
-const a = { t: 0, c: '' }; // t:0 = nothing t:1 = filled, c = color
-
-const aRow = function () {
-	return '.'
-		.repeat(boardSize[0])
-		.split('')
-		.map(() => {
-			return a;
-		});
-};
-
-emptyBoard = [];
-
-for (let i = 0; i < boardSize[1]; i++) {
-	emptyBoard.push(aRow());
-}
+const aRow = [];
+const emptyBoard = [];
+for(let i = 0; i < boardSize[0]; i++) {aRow.push({ t: 0, c: '' })};
+for (let i = 0; i < boardSize[1]; i++) {emptyBoard.push(aRow)};
 
 board = JSON.parse(JSON.stringify(emptyBoard)); // the lazy way of doing a deep copy
 minoModeBoard = JSON.parse(JSON.stringify(emptyBoard)); // the lazy way of doing a deep copy
@@ -98,14 +86,12 @@ document.getElementById('b').onmousedown = function mousedown(e) {
 				}, 0);
 			}, 0);
 			// console.log(drawnCount);
-			if (board[mouseY][mouseX].t != 1 && drawnCount != 4 && minoModeBoard[mouseY][mouseX].t != 1) { // only allow drawing minoes over empty segments of board
-				operation = undefined;
+			if (board[mouseY][mouseX].t != 1 && drawnCount != 4 && minoModeBoard[mouseY][mouseX].t != 1) {
 				minoModeBoard[mouseY][mouseX] = {t: 1, c: "X"}
 			} else {
-				operation = undefined;
 				if(minoModeBoard[mouseY][mouseX].t == 1 && drawnCount == 4) {
-					for (var row = 0; row < 19; row++){
-						for (var col = 0; col < 9; col++) {
+					for (var row = 0; row < 20; row++){
+						for (var col = 0; col < 10; col++) {
 							if(minoModeBoard[row][col].c == ''){
 							} else {
 								minoModeBoard[row][col].c = 'X'
@@ -133,48 +119,46 @@ document.getElementById('b').onmousemove = function mousemove(e) {
 		movingCoordinates = y != mouseY || x != mouseX;
 		mouseY = y;
 		mouseX = x;
-		drawnCount = minoModeBoard.reduce((count,row) => {
-			return count += row.reduce((tval,cell) => {
-				return tval += cell.t;
-			}, 0);
-		}, 0);
         if (mouseDown && movingCoordinates) {
-            if (!minoMode) {
-                if (drawMode) {
-                    if (board[mouseY][mouseX]['t'] == 0) {
-                        board[mouseY][mouseX] = { t: 1, c: paintbucketColor() };
+			if (!minoMode) {
+				if (drawMode) {
+					if (board[mouseY][mouseX]['t'] == 0) {
+						board[mouseY][mouseX] = { t: 1, c: paintbucketColor() };
                     } else {
-                        if (board[mouseY][mouseX]['c'] != paintbucketColor()) {
-                            board[mouseY][mouseX] = { t: 1, c: paintbucketColor() };
+						if (board[mouseY][mouseX]['c'] != paintbucketColor()) {
+							board[mouseY][mouseX] = { t: 1, c: paintbucketColor() };
                         };
                     };
                 } else {
-                    board[mouseY][mouseX] = { t: 0, c: '' };
+					board[mouseY][mouseX] = { t: 0, c: '' };
                 }
-                updateHistory();
-                autoEncode();
             }
             else {
-                if (board[mouseY][mouseX].t != 1 && drawnCount < 4) { // only allow drawing minoes over empty segments of board
+				drawnCount = minoModeBoard.reduce((count,row) => {
+					return count += row.reduce((tval,cell) => {
+						return tval += cell.t;
+					}, 0);
+				}, 0);
+                if (board[mouseY][mouseX].t != 1 && minoModeBoard[mouseY][mouseX].t != 1 && drawnCount < 4) { // only allow drawing minoes over empty segments of board
                     minoModeBoard[mouseY][mouseX] = { t: 1, c: "X" };
-					window.requestAnimationFrame(render);
 	            } else {
-					operation = undefined;
 					if(minoModeBoard[mouseY][mouseX].t == 1 && drawnCount == 4) {
-						//remove colors
-						for (var row = 0; row < 19; row++){
-							for (var col = 0; col < 9; col++) {
+						//remove colors when there are four minos and user deletes one
+						for (var row = 0; row < 20; row++){
+							for (var col = 0; col < 10; col++) {
 								if(minoModeBoard[row][col].c == ''){
 								} else {
 									minoModeBoard[row][col].c = 'X'
 								}	
 							}
 						}
-						updateHistory();
 					}
 					minoModeBoard[mouseY][mouseX] = {t: 0, c: ''}
 				}
             }
+			updateHistory();
+			autoEncode();
+			window.requestAnimationFrame(render);
 		}
 	}
 };
@@ -246,6 +230,7 @@ document.onmouseup = function mouseup() {
 			}
 		}
     }
+	autoEncode();
     requestAnimationFrame(render);
 };
 
@@ -301,17 +286,39 @@ function inRange(number, min, max) {
     return (number >= min && number <= max)
 }
 
+// Updates all of the board properties: board, minoBoard, operation
 function updateHistory() {
 	histPos = parseFloat(document.getElementById("positionDisplay").value)-1;
-    hist[histPos] = { board: JSON.stringify(board) };
-    hist[histPos]["operation"] = operation;
-	hist[histPos]["minoBoard"] = JSON.stringify(minoModeBoard);
+    // hist[histPos]["board"] = JSON.stringify(board);
+	// hist[histPos]["minoBoard"] = JSON.stringify(minoModeBoard);
+	// hist[histPos]["operation"] = operation;
+	hist[histPos] = {
+		board: JSON.stringify(board),
+		minoBoard: JSON.stringify(minoModeBoard),
+		comment: document.getElementById("commentBox").value,
+		operation: operation,
+		flags: {
+			lock: document.getElementById("lockFlagInput").checked
+			},
+	};
+
+	if(hist[histPos]['comment'] == undefined){
+		document.getElementById("commentBox").value = '';
+	} else {
+		document.getElementById("commentBox").value = hist[histPos]['comment'];
+	}
 	window.requestAnimationFrame(render);
 }
 
 function toggleMinoMode() {
     minoMode = document.getElementById("minoModeOption").checked;
-    if (minoMode) console.log("minoMode");
+    if (minoMode) {
+		console.log("minoMode");
+	} else {
+		minoModeBoard = JSON.parse(JSON.stringify(emptyBoard));
+		operation = undefined
+		updateHistory();
+	}
 }
 
 function shift(direction){
@@ -324,11 +331,11 @@ function shift(direction){
 		break;
 	case 'up':
 			board.splice(0,1);
-			board.push(aRow());
+			board.push(aRow);
 		break;
 	case 'down':
 			board.pop();
-			board.splice(0,0,aRow());
+			board.splice(0,0,aRow);
 		break;
 	case 'right':
 			board.map((y) => {
@@ -347,77 +354,87 @@ function editComment() {
 	autoEncode();
 }
 
-function updateInfo() {
-	position = document.getElementById("positionDisplay").value-1;
-	if(hist[position]['comment'] == undefined){
-		document.getElementById("commentBox").value = '';
-	} else {
-		document.getElementById("commentBox").value = hist[position]['comment'];
-	}
-	if(hist[position]['operation'] == undefined){
-
-	}
-}
-
 function prevPage() {
 	histPos = parseFloat(document.getElementById("positionDisplay").value);
 	if (histPos > 0) {
         board = JSON.parse(hist[histPos - 1]['board']);
-        operation = hist[histPos - 1]["operation"];
         minoModeBoard = JSON.parse(hist[histPos - 1]["minoBoard"]);
 		document.getElementById("positionDisplay").value = histPos;
+		document.getElementById("commentBox").value = hist[histPos - 1]['comment'];
 	};
 	window.requestAnimationFrame(render);
-	updateInfo();
 	autoEncode();
 }
 
 function nextPage() {
 	histPos = parseFloat(document.getElementById("positionDisplay").value)-1;
 	if(histPos < hist.length) {
-		console.log("old")
 		board = JSON.parse(hist[histPos]['board']);
-		operation = hist[histPos]['operation'];
-		minoModeBoard = JSON.parse(hist[histPos]["minoBoard"]);
+		minoModeBoard = JSON.parse(hist[histPos]['minoBoard']);
+		comment = hist[histPos]['comment'];
+		flags = {lock: true};
 	} else {
-		console.log("new")
+		console.log("New page");
+		// Solidifying minos
+		if(hist[histPos-1]['operation'] != undefined){
+			for (var row = 0; row < 20; row++){
+				for (var col = 0; col < 10; col++) {
+					if(minoModeBoard[row][col].t != 0){
+						board[row][col] = minoModeBoard[row][col]
+					};
+				}
+			}
+		} else {
+			board = JSON.parse(hist[histPos - 1]['board'])
+		}
+		//Line clears if flag lock is on
+		if(hist[histPos-1]['flags']['lock'] === true) {
+			rowSum = [];
+			//Check # of minos
+			for(var row = 0; row < 20; row++){
+				let cellCount = 0;
+				for(var col = 0; col < 10; col++){	
+					cellCount += board[row][col].t
+				}
+				rowSum.push(cellCount);
+			}
+			//Clear lines
+			for(var row = 0; row < 20; row++){
+				if(rowSum[row] == 10) {
+					board.splice(row, 1)
+					board.splice(0, 0, aRow)
+				}
+			}
+		};
+		minoModeBoard = JSON.parse(JSON.stringify(emptyBoard));
+		operation = undefined;
 		hist[histPos] = {
 			board: JSON.stringify(board),
 			comment: '',
-			operation: undefined
+			operation: undefined,
+			minoBoard: JSON.stringify(emptyBoard),
+			flags: {lock: true},
 		};
-		console.log(histPos);
-		board = JSON.parse(hist[histPos]['board'])
-		minoModeBoard = JSON.parse(JSON.stringify(emptyBoard));
-		operation = undefined
 	}
-	updateInfo();
-	// if (histPos < hist.length) {
-    //     board = JSON.parse(hist[histPos]['board']);
-    //     operation = hist[histPos - 1]["operation"];
-    //     minoModeBoard = JSON.parse(JSON.stringify(emptyBoard));
-	// } else {
-	// 	hist[histPos] = {board: JSON.stringify(board),};
-	// }
 	document.getElementById("positionDisplayOver").value = "/"+(hist.length);
+	document.getElementById("lockFlagInput").checked = true;
 	window.requestAnimationFrame(render);
 	autoEncode();
+	updateHistory();
 }
 
 function startPage(){
 	histPos = 0;
 	board = JSON.parse(hist[histPos]['board']);
-	minoBoard = JSON.parse(hist[histPos]['minoBoard'])
+	minoModeBoard = JSON.parse(hist[histPos]['minoBoard'])
 	window.requestAnimationFrame(render);
-	updateInfo();
 	autoEncode();
 }
 
 function endPage(){
 	board = JSON.parse(hist[hist.length-1]['board']);
-	minoBoard = JSON.parse(hist[hist.length-1]['minoBoard'])
+	minoModeBoard = JSON.parse(hist[hist.length-1]['minoBoard'])
 	window.requestAnimationFrame(render);
-	updateInfo();
 	autoEncode();
 }
 
@@ -457,7 +474,7 @@ function dupliPage(){
 			hist.splice(histPos,0,{board: JSON.stringify(board)});
 			document.getElementById("positionDisplay").value = histPos+2;
 			document.getElementById("positionDisplayOver").value = "/"+hist.length;
-			document.getElementById("commentBox").value = comments[histPos];
+			document.getElementById("commentBox").value = hist[histPos]['comment'];
 		} else {
 			if(histPos == hist.length-1){
 				nextPage();
@@ -477,13 +494,11 @@ function deletePage(){
 			board = JSON.parse(hist[histPos+1]['board']);
 			document.getElementById("positionDisplay").value = histPos+1;
 			hist.splice(histPos,1);
-			comments.splice(histPos,1);
 			document.getElementById("positionDisplayOver").value = "/"+hist.length;
 		} else {
 			if(histPos == hist.length-1){
 				board = JSON.parse(hist[histPos-1]['board']);
 				hist.pop();
-				comments.pop();
 				document.getElementById("positionDisplay").value = histPos;
 				document.getElementById("positionDisplayOver").value = "/"+hist.length;
 			}
@@ -491,22 +506,6 @@ function deletePage(){
 	};
 	window.requestAnimationFrame(render);
 	autoEncode();
-}
-
-function autoEncode() {
-	var autoEncodeBool = document.getElementById("autoEncode").checked;
-
-	var encodingType = document.getElementById("encodingType").value;
-	if(autoEncodeBool == true) {
-		if(encodingType == "fullFumen") {
-			fumen = fullEncode(hist);
-			document.getElementById("boardOutput").value = fumen;
-		};
-		if(encodingType == "currentFumen") {
-			fumen = encode(board);
-			document.getElementById("boardOutput").value = fumen;
-		};
-	};
 }
 
 function render() {
@@ -523,44 +522,39 @@ function render() {
 	minoModeBoard.map((y, i) => {
 		y.map((x, ii) => {
 			if(x.t == 1) {
-				drawCell(ii, i, x.c, x.t);
+				drawCell(ii, i, x.c, 2);
 			}
 		});
 	});
-			// minoModeBoardCell = minoModeBoard[i][ii];
-			// if (minoModeBoardCell.t == 1) {
-			// 	drawCell(ii, i, minoModeBoardCell.c, 1)
-			// }
-			// if (operation != undefined) {
-			// 	console.log(operation.positions());
-			// 	operation.positions().forEach(
-			// 		position => {
-			// 			if (ii == position.x && i == (19 - position.y)) drawCell(ii, i, operation.type, 1);
-			// 		}
-			// 	);            
-			// }
 }
 
 function drawCell(x, y, piece, type) {
-	var color = {Z: '#ef624d',L: '#ef9535',O: '#f7d33e',S: '#66c65c',I: '#41afde',J: '#1983bf',T: '#b451ac',X: '#999999',};
-	var lightercolor = {Z: '#fd7660',L: '#fea440',O: '#ffe34b',S: '#7cd97a',I: '#3dc0fb',J: '#1997e3',T: '#d161c9',X: '#bbbbbb',};
+	var color = {Z: '#ef624d', L: '#ef9535', O: '#f7d33e', S: '#66c65c', I: '#41afde', J: '#1983bf', T: '#b451ac', X: '#999999'};
+	var lightercolor = {Z: '#fd7660', L: '#fea440', O: '#ffe34b', S: '#7cd97a', I: '#3dc0fb', J: '#1997e3', T: '#d161c9', X: '#bbbbbb'};
+	var lightestcolor = {Z: '#ff998c', L: '#feb86d', O: '#fbe97f', S: '#96f98b', I: '#75faf8', J: '#1fd7f7', T: '#fe89f7', X: '#dddddd'};
+
 
 	if(y == 0){
 		var cellAbove = 1;
 	} else {
 		var cellAbove = board[y-1][x]['t'] + minoModeBoard[y-1][x]['t'];
 	};
-	if(cellAbove == 0){
-		if (type !== 0) {
+	if (type == 1) {
+		if (cellAbove != 1){
 			ctx.fillStyle = lightercolor[piece];
 			ctx.fillRect((x) * cellSize + 1, y * cellSize + 1 - cellSize/5, cellSize - 0, cellSize/5);
-			ctx.fillStyle = color[piece];
-			ctx.fillRect((x) * cellSize + 1, y * cellSize + 1, cellSize - 0, cellSize - 0);}
-		} else {
-			if (type !== 0) {
-				ctx.fillStyle = color[piece];
-				ctx.fillRect((x) * cellSize + 1, y * cellSize + 1, cellSize - 0, cellSize - 0);}
-		}
+		};
+		ctx.fillStyle = color[piece];
+		ctx.fillRect((x) * cellSize + 1, y * cellSize + 1, cellSize - 0, cellSize - 0);
+	};
+	if (type == 2) {
+		if (cellAbove != 1){
+			ctx.fillStyle = lightestcolor[piece];
+			ctx.fillRect((x) * cellSize + 1, y * cellSize + 1 - cellSize/5, cellSize - 0, cellSize/5);
+		};
+		ctx.fillStyle = lightercolor[piece];
+		ctx.fillRect((x) * cellSize + 1, y * cellSize + 1, cellSize - 0, cellSize - 0);
+	};
 }
 
 

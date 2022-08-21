@@ -131,7 +131,6 @@ figure{
     padding-right: 6px;
     color: rgb(32, 32, 32);
     font-family: Montserrat, Sans-Serif;
-    text-align: center;
     display: inline-block;
     font-size: 14px;
     margin: 4px 2px;
@@ -141,17 +140,11 @@ figure{
 }
 .option:hover, .ibtn:hover {
     background-color: #969696;
-    margin: 4px 2px;
 }
-.options{
-    display: flex;
-    justify-content: space-around;
-}
+
 input[type='radio'] {
     display: none;
-}
-#imageOutputs{
-    min-height: 100%;
+
 }
 
 /* PAINT BUCKET */
@@ -174,7 +167,7 @@ input[type='radio'] {
     height: 1rem;
     margin: 0.3rem;
     border-radius: 10%;
-    border-style:inset;
+    border-style: inset;
     border-width: 0.2rem;
     filter: brightness(60%);
     padding: 2px;
@@ -380,14 +373,51 @@ input[type='radio'] {
     margin-bottom: 6px;
 }
 
+
+.flags{
+    display: block;
+    width: 200px;
+    height: 200px;
+    margin: 0px;
+    padding: 10px;
+    background: rgb(214, 214, 214);
+    border-radius: 10px;
+    color:rgb(32, 32, 32);
+
+}
+
+.extrasettings{
+    display: block;
+    width: 200px;
+    height: 200px;
+    margin: 2px;
+    padding: 10px;
+    background: rgb(214, 214, 214);
+    border-radius: 10px;
+    color:rgb(32, 32, 32);
+
+}
+
+.settings-header{
+    margin: 0px;
+    padding-top: 10px;
+    padding-bottom: 0px;
+    display: flex;
+    height: 30px;
+    border-bottom: 1px double #333333;
+}
+
+#fumenSettings{
+    margin: 25px;
+    margin-top: 12px;
+}
+
 /*TOOLTIPS*/
-/* Tooltip container */
 .tooltip {
     position: relative;
     display: inline-block;
-  }
-  
-  /* Tooltip text */
+    }
+
 .tooltip .tooltiptext {
     display: none;
     visibility: hidden;
@@ -400,12 +430,10 @@ input[type='radio'] {
     text-align: center;
     padding: 5px 0;
     border-radius: 6px;
-   
-    /* Position the tooltip text - see examples below! */
     font-style: normal;
     position: absolute;
     z-index: 1;
-  }
+}
   
 .tooltip:hover .tooltiptext {
 visibility: visible;
