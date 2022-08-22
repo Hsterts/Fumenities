@@ -110,15 +110,12 @@ document.getElementById('b').onmousedown = function mousedown(e) {
 				}
 
 				if (board[mouseY][mouseX]['t'] == 0 && drawnCount <= 3) {
-					console.log("write")
 					board[mouseY][mouseX] = { t: 2, c: 'X' };
 				} else if(drawnCount <= 3){
-					console.log("delete")
 					board[mouseY][mouseX] = { t: 0, c: '' };
 				}
 				
 				if (board[mouseY][mouseX]['t'] == 0 && drawnCount == 4) {
-					console.log("if")
 					for (var cell = 0; cell < positions.length; cell++){
 						let row = positions[cell][0]
 						let col = positions[cell][1]
@@ -126,7 +123,6 @@ document.getElementById('b').onmousedown = function mousedown(e) {
 					}
 					board[mouseY][mouseX] = { t: 2, c: 'X' };
 				} else if(drawnCount == 4) {
-					console.log("reset")
 					for (var cell = 0; cell < positions.length; cell++){
 						let row = positions[cell][0]
 						let col = positions[cell][1]
@@ -207,10 +203,8 @@ document.getElementById('b').onmousemove = function mousemove(e) {
 					}
 
 					if (board[mouseY][mouseX]['t'] == 0 && drawnCount <= 3) {
-						console.log("write")
 						board[mouseY][mouseX] = { t: 2, c: 'X' };
 					} else if(drawnCount <= 3){
-						console.log("delete")
 						board[mouseY][mouseX] = { t: 0, c: '' };
 					}
 				} else {
@@ -327,7 +321,6 @@ document.onmouseup = function mouseup() {
 			let row = positions[cell][0]
 			let col = positions[cell][1]
 			if(board[row][col].c == 'X' && positions.length % 4 == 0) board[row][col].c = result;
-			console.log("colored")
 		}
 	}
 
@@ -416,7 +409,6 @@ function updateHistory() {
 function toggleMinoMode() {
     minoMode = document.getElementById("minoModeOption").checked;
     if (minoMode) {
-		console.log("minoMode");
 	} else {
 		if(operation == undefined){
 		minoModeBoard = JSON.parse(JSON.stringify(emptyBoard));
@@ -477,7 +469,6 @@ function nextPage() {
 		comment = hist[histPos]['comment'];
 		flags = {lock: true};
 	} else {
-		console.log("New page");
 		// Solidifying minos
 		prevBoard = JSON.parse(hist[histPos-1]['board']);
 		for (var row = 0; row < 20; row++){
@@ -502,7 +493,6 @@ function nextPage() {
 			board = JSON.parse(hist[histPos - 1]['board'])
 		}
 
-		console.log(board);
 		//Line clears if flag lock is on
 		if(hist[histPos-1]['flags']['lock'] === true) {
 			rowSum = [];
@@ -531,7 +521,6 @@ function nextPage() {
 			minoBoard: JSON.stringify(emptyBoard),
 			flags: {lock: true},
 		};
-		console.log(hist[histPos]);
 	}
 	document.getElementById("positionDisplayOver").value = "/"+(hist.length);
 	document.getElementById("lockFlagInput").checked = true;
