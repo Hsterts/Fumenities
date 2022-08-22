@@ -66,20 +66,11 @@ document.getElementById('b').onmousedown = function mousedown(e) {
 	rect = document.getElementById('b').getBoundingClientRect();
 	mouseY = Math.floor((e.clientY - rect.top) / cellSize);
 	mouseX = Math.floor((e.clientX - rect.left) / cellSize);
+	
 	if(!mouseDown) {
 		movingCoordinates = false;
-		if (!minoMode) {
-			drawMode = e.button != 0 || board[mouseY][mouseX]['t'] == 1;
-			if (board[mouseY][mouseX]['t'] == 0) {
-				board[mouseY][mouseX] = { t: 1, c: paintbucketColor() };
-			} else {
-				if (board[mouseY][mouseX]['c'] != paintbucketColor()) {
-					board[mouseY][mouseX] = { t: 1, c: paintbucketColor() };
-				} else {
-					board[mouseY][mouseX] = { t: 0, c: '' };
-				};
-			};
-		} else {
+			//mino mode
+		if (minoMode) {
 			drawnCount = minoModeBoard.reduce((count,row) => {
 				return count += row.reduce((tval,cell) => {
 					return tval += cell.t;
@@ -100,13 +91,69 @@ document.getElementById('b').onmousedown = function mousedown(e) {
 				}
 				minoModeBoard[mouseY][mouseX] = {t: 0, c: ''}
 			}
+		} else {
+			//auto color is basically mino mode and normal combined.
+			if(autoColorBool) {			
+				drawMode = e.button != 0 || board[mouseY][mouseX]['t'] == 2;
+				drawnCount = board.reduce((count,row) => {
+					return count += row.reduce((xcount,cell) => {
+						return xcount += (cell.t == 2);
+					}, 0);
+				}, 0);
+				positions = [];
+				for (var row = 0; row < 20; row++){
+					for (var col = 0; col < 10; col++) {
+						if(board[row][col].t == 2){
+							positions.push([row,col])
+						};
+					}
+				}
+
+				if (board[mouseY][mouseX]['t'] == 0 && drawnCount <= 3) {
+					console.log("write")
+					board[mouseY][mouseX] = { t: 2, c: paintbucketColor() };
+				} else if(drawnCount <= 3){
+					console.log("delete")
+					board[mouseY][mouseX] = { t: 0, c: '' };
+				}
+				
+				if (board[mouseY][mouseX]['t'] == 0 && drawnCount == 4) {
+					console.log("if")
+					for (var cell = 0; cell < positions.length; cell++){
+						let row = positions[cell][0]
+						let col = positions[cell][1]
+						board[row][col].t = 1;
+					}
+					board[mouseY][mouseX] = { t: 2, c: paintbucketColor() };
+				} else if(drawnCount == 4) {
+					console.log("reset")
+					for (var cell = 0; cell < positions.length; cell++){
+						let row = positions[cell][0]
+						let col = positions[cell][1]
+						board[row][col].c = 'X';
+					}
+					board[mouseY][mouseX] = { t: 0, c: '' };
+				}
+
+			//normal draw mode
+			} else {
+				drawMode = e.button != 0 || board[mouseY][mouseX]['t'] == 1;
+				if (board[mouseY][mouseX]['t'] == 0) {
+					board[mouseY][mouseX] = { t: 1, c: paintbucketColor() };
+				} else {
+					if (board[mouseY][mouseX]['c'] != paintbucketColor()) {
+						board[mouseY][mouseX] = { t: 1, c: paintbucketColor() };
+					} else {
+						board[mouseY][mouseX] = { t: 0, c: '' };
+					};
+				}
+			}
 		}
 	};
 	mouseDown = true;
 	drawMode = board[mouseY][mouseX]['t'] == 1;
 	updateHistory();
 	autoEncode();
-	window.requestAnimationFrame(render);
 };
 
 document.getElementById('b').onmousemove = function mousemove(e) {
@@ -119,26 +166,14 @@ document.getElementById('b').onmousemove = function mousemove(e) {
 		mouseY = y;
 		mouseX = x;
         if (mouseDown && movingCoordinates) {
-			if (!minoMode) {
-				if (drawMode) {
-					if (board[mouseY][mouseX]['t'] == 0) {
-						board[mouseY][mouseX] = { t: 1, c: paintbucketColor() };
-                    } else {
-						if (board[mouseY][mouseX]['c'] != paintbucketColor()) {
-							board[mouseY][mouseX] = { t: 1, c: paintbucketColor() };
-                        };
-                    };
-                } else {
-					board[mouseY][mouseX] = { t: 0, c: '' };
-                }
-            }
-            else {
+			//mino mode
+			if (minoMode) {
 				drawnCount = minoModeBoard.reduce((count,row) => {
 					return count += row.reduce((tval,cell) => {
 						return tval += cell.t;
 					}, 0);
 				}, 0);
-                if (board[mouseY][mouseX].t != 1 && minoModeBoard[mouseY][mouseX].t != 1 && drawnCount < 4) { // only allow drawing minoes over empty segments of board
+                if (board[mouseY][mouseX].t != 1 && minoModeBoard[mouseY][mouseX].t != 1 && drawnCount < 4) {
                     minoModeBoard[mouseY][mouseX] = { t: 1, c: "X" };
 	            } else {
 					if(minoModeBoard[mouseY][mouseX].t == 1 && drawnCount == 4) {
@@ -154,10 +189,47 @@ document.getElementById('b').onmousemove = function mousemove(e) {
 					}
 					minoModeBoard[mouseY][mouseX] = {t: 0, c: ''}
 				}
-            }
+            } else {
+				//auto color is basically mino an- :ResidentSleeper:
+				if(autoColorBool) {
+					drawnCount = board.reduce((count,row) => {
+						return count += row.reduce((xcount,cell) => {
+							return xcount += (cell.t == 2);
+						}, 0);
+					}, 0);
+					positions = [];
+					for (var row = 0; row < 20; row++){
+						for (var col = 0; col < 10; col++) {
+							if(board[row][col].t == 2){
+								positions.push([row,col])
+							};
+						}
+					}
+
+					if (board[mouseY][mouseX]['t'] == 0 && drawnCount <= 3) {
+						console.log("write")
+						board[mouseY][mouseX] = { t: 2, c: paintbucketColor() };
+					} else if(drawnCount <= 3){
+						console.log("delete")
+						board[mouseY][mouseX] = { t: 0, c: '' };
+					}
+				} else {
+					//normal mode
+					if (drawMode) {
+						if (board[mouseY][mouseX]['t'] == 0) {
+							board[mouseY][mouseX] = { t: 1, c: paintbucketColor() };
+						} else {
+							if (board[mouseY][mouseX]['c'] != paintbucketColor()) {
+								board[mouseY][mouseX] = { t: 1, c: paintbucketColor() };
+							};
+						};
+					} else {
+						board[mouseY][mouseX] = { t: 0, c: '' };
+					}
+				}
+			}
 			updateHistory();
 			autoEncode();
-			window.requestAnimationFrame(render);
 		}
 	}
 };
@@ -229,6 +301,36 @@ document.onmouseup = function mouseup() {
 			}
 		}
     }
+
+	if(autoColorBool){
+		positions = [];
+		for (var row = 0; row < 20; row++){
+			for (var col = 0; col < 10; col++) {
+				if(board[row][col].t == 2){
+					positions.push([row,col])
+				};
+			}
+		}
+
+		result = readPiece(positions);
+		//because why fix the readPiece function from reading upside down :kappa:
+		switch(result){
+			case 'S': result = 'Z'; break;
+			case 'Z': result = 'S'; break;
+			case 'L': result = 'J'; break;
+			case 'J': result = 'L'; break;
+			case undefined: result = 'X'; break;
+			default: ; break;
+		}
+
+		for (var cell = 0; cell < positions.length; cell++){
+			let row = positions[cell][0]
+			let col = positions[cell][1]
+			if(board[row][col].c == 'X' && positions.length % 4 == 0) board[row][col].c = result;
+			console.log("colored")
+		}
+	}
+
 	autoEncode();
     requestAnimationFrame(render);
 };
@@ -306,6 +408,8 @@ function updateHistory() {
 	} else {
 		document.getElementById("commentBox").value = hist[histPos]['comment'];
 	}
+	
+	autoColor();
 	window.requestAnimationFrame(render);
 }
 
@@ -345,7 +449,6 @@ function shift(direction){
 		break;
 	};
 	updateHistory();
-	window.requestAnimationFrame(render);
 }
 
 function editComment() {
@@ -376,6 +479,17 @@ function nextPage() {
 	} else {
 		console.log("New page");
 		// Solidifying minos
+		prevBoard = JSON.parse(hist[histPos-1]['board']);
+		for (var row = 0; row < 20; row++){
+			for (var col = 0; col < 10; col++) {
+				if(board[row][col].t == 2){
+					prevBoard[row][col].t = 1
+					prevBoard[row][col].c = board[row][col].c
+				};
+			}
+		}
+		hist[histPos-1]['board'] = JSON.stringify(prevBoard);
+
 		if(hist[histPos-1]['operation'] != undefined){
 			for (var row = 0; row < 20; row++){
 				for (var col = 0; col < 10; col++) {
@@ -387,6 +501,8 @@ function nextPage() {
 		} else {
 			board = JSON.parse(hist[histPos - 1]['board'])
 		}
+
+		console.log(board);
 		//Line clears if flag lock is on
 		if(hist[histPos-1]['flags']['lock'] === true) {
 			rowSum = [];
@@ -415,6 +531,7 @@ function nextPage() {
 			minoBoard: JSON.stringify(emptyBoard),
 			flags: {lock: true},
 		};
+		console.log(hist[histPos]);
 	}
 	document.getElementById("positionDisplayOver").value = "/"+(hist.length);
 	document.getElementById("lockFlagInput").checked = true;
@@ -514,7 +631,7 @@ function render() {
 	ctx.fillRect(0, 0, boardSize[0] * cellSize, boardSize[1] * cellSize);
 	board.map((y, i) => {
 		y.map((x, ii) => {
-			if (x.t == 1) {
+			if (x.t != 0) {
 				drawCell(ii, i, x.c, x.t);
 			}
 		});
@@ -544,7 +661,7 @@ function drawCell(x, y, piece, type) {
 
 		if (type == 1) {
 			//Normal colors
-			if (cellAbove != 1){
+			if (cellAbove == 0){
 				ctx.fillStyle = lightercolor[piece];
 				if(foureffectInput){
 					ctx.fillRect((x) * cellSize + 1, y * cellSize + 1 - cellSize/5, cellSize - 0, cellSize/5);
@@ -575,7 +692,7 @@ function drawCell(x, y, piece, type) {
 		};
 		//Light mino colors
 		if (type == 2) {
-			if (cellAbove != 1){
+			if (cellAbove == 0){
 				ctx.fillStyle = lightestcolor[piece];
 				if(foureffectInput){
 				ctx.fillRect((x) * cellSize + 1, y * cellSize + 1 - cellSize/5, cellSize - 0, cellSize/5);
@@ -614,4 +731,79 @@ function drawCell(x, y, piece, type) {
 			ctx.fillRect((x) * cellSize + 1, y * cellSize + 1, cellSize - 1, cellSize - 1);
 		};
 	}
+}
+
+var shape_table = {'Z': [[[1, 0], [0, 2], [1, 1], [0, 1]],  [[1, 0], [1, 1], [2, 1], [0, 0]]],
+               'L': [[[1, 0], [0, 1], [2, 0], [0, 0]], [[0, 1], [0, 2], [1, 2], [0, 0]], [[0, 1], [1, 1], [2, 0], [2, 1]], [[1, 0], [1, 1], [1, 2], [0, 0]]],
+               'O': [[[1, 0], [0, 1], [1, 1], [0, 0]]],
+               'S': [[[0, 1], [1, 1], [1, 2], [0, 0]], [[1, 0], [1, 1], [2, 0], [0, 1]]],
+               'I': [[[1, 0], [2, 0], [0, 0], [3, 0]],  [[0, 1], [0, 2], [0, 3], [0, 0]]],
+               'J': [[[0, 1], [1, 1], [2, 1], [0, 0]], [[0, 1], [1, 0], [0, 2], [0, 0]], [[1, 0], [2, 0], [2, 1], [0, 0]], [[1, 0], [1, 1], [1, 2], [0, 2]]],
+               'T': [[[0, 1], [0, 2], [1, 1], [0, 0]], [[1, 0], [1, 1], [2, 0], [0, 0]], [[1, 0], [1, 1], [1, 2], [0, 1]], [[1, 0], [1, 1], [2, 1], [0, 1]]],
+};
+
+//CONTRIBUTED BY CONFIDENTIAL (confidential#1288)
+function readPiece(positions){
+    if (positions.length != 4){
+        return 'X';
+    }
+    var min_i=99;
+    var min_j=99;
+    
+    for (position of positions){
+        var j = position[0];
+        var i = position[1];
+        if (j < min_j){
+            min_j = j;
+        }
+            
+        if (i < min_i){
+            min_i = i;
+        }
+            
+    }
+    var offset_positions = [];
+
+    for (var position of positions){
+        j = position[0];
+        i = position[1];
+        offset_positions.push([j-min_j, i-min_i]);
+    }
+    
+    for (var piece in shape_table) {
+        if (shape_table.hasOwnProperty(piece) && is_element(offset_positions, shape_table[piece])) {
+            return piece;
+        }
+    }
+
+    function positions_equal(positions1, positions2){
+        if (positions1.length != positions2.length){
+            return false;
+        }
+        for (var position1 of positions1){
+            var found = false;
+            for (var position2 of positions2){
+                if (position1[0] == position2[0] && position1[1] == position2[1]){
+                    found = true;
+                }
+            }
+            if (found == false){
+                return false;
+            }
+        }
+        return true;
+    }
+    function is_element(positions1, query){
+        for (var positions of query){
+            if (positions_equal(positions1, positions)){
+                return true;
+            }
+        }
+        return false;
+    }
+            
+}
+
+function autoColor() {
+	autoColorBool = document.getElementById("autoColorInput").checked
 }

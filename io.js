@@ -127,9 +127,9 @@ function fullDecode(fumen) {
 					break;
 				case 'O':
 					switch(rotation){
-						case 'spawn': rotation = 'reverse'; y--; break;
-						case 'left': rotation = 'reverse'; y--; x--; break;
-						case 'right': rotation = 'reverse';
+						case 'spawn': rotation = 'reverse'; y--; x++; break;
+						case 'left': rotation = 'reverse'; y--; break;
+						case 'right': rotation = 'reverse'; x++; break;
 					};
 					break;
 				case 'S':
