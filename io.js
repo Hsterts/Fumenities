@@ -2,7 +2,7 @@ function toField(board) {
     FieldString = '';
     for (let row = 0; row < board.length; row++) {
         for (let col = 0; col < 10; col++) {
-            if (board[row][col]['t'] == 1 && board[row][col]['c'] != '') {
+            if (board[row][col]['t'] != 0) {
                 FieldString += board[row][col]['c'];
             } else FieldString += '_';
         }
@@ -204,26 +204,26 @@ function encode() {
 
 function fullEncode() {
 	pages = [];
-for (var i = 0; i < hist.length; i++){
-	page = [];
-	field = toField(JSON.parse(hist[i]['board']));
-	flags = {
-		rise: false,
-		mirror: false,
-		colorize: true,
-		comment: hist[i]['comment'],
-		lock: true,
-		piece: undefined,
-	}
-		page = {
+	for (var i = 0; i < hist.length; i++){
+		page = [];
+		field = toField(JSON.parse(hist[i]['board']));
+		flags = {
+			rise: false,
+			mirror: false,
+			colorize: true,
 			comment: hist[i]['comment'],
-			operation: hist[i]['operation'],
-			field,
-			flags: flags,
-			index: i,
+			lock: true,
+			piece: undefined,
 		}
-	pages.push(page);
-};
+			page = {
+				comment: hist[i]['comment'],
+				operation: hist[i]['operation'],
+				field,
+				flags: flags,
+				index: i,
+			}
+		pages.push(page);
+	};
 	var result = encoder.encode(pages);
 	document.getElementById("boardOutput").value = result;
 }

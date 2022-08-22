@@ -111,7 +111,7 @@ document.getElementById('b').onmousedown = function mousedown(e) {
 
 				if (board[mouseY][mouseX]['t'] == 0 && drawnCount <= 3) {
 					console.log("write")
-					board[mouseY][mouseX] = { t: 2, c: paintbucketColor() };
+					board[mouseY][mouseX] = { t: 2, c: 'X' };
 				} else if(drawnCount <= 3){
 					console.log("delete")
 					board[mouseY][mouseX] = { t: 0, c: '' };
@@ -124,7 +124,7 @@ document.getElementById('b').onmousedown = function mousedown(e) {
 						let col = positions[cell][1]
 						board[row][col].t = 1;
 					}
-					board[mouseY][mouseX] = { t: 2, c: paintbucketColor() };
+					board[mouseY][mouseX] = { t: 2, c: 'X' };
 				} else if(drawnCount == 4) {
 					console.log("reset")
 					for (var cell = 0; cell < positions.length; cell++){
@@ -208,7 +208,7 @@ document.getElementById('b').onmousemove = function mousemove(e) {
 
 					if (board[mouseY][mouseX]['t'] == 0 && drawnCount <= 3) {
 						console.log("write")
-						board[mouseY][mouseX] = { t: 2, c: paintbucketColor() };
+						board[mouseY][mouseX] = { t: 2, c: 'X' };
 					} else if(drawnCount <= 3){
 						console.log("delete")
 						board[mouseY][mouseX] = { t: 0, c: '' };
@@ -228,10 +228,10 @@ document.getElementById('b').onmousemove = function mousemove(e) {
 					}
 				}
 			}
-			updateHistory();
-			autoEncode();
 		}
 	}
+	updateHistory();
+	autoEncode();
 };
 
 document.onmouseup = function mouseup() {
@@ -674,8 +674,8 @@ function drawCell(x, y, piece, type) {
 				//check row mino count
 				var cellCount = 0;
 				for(var col = 0; col < 10; col++){	
-					cellCount += board[y][col].t;
-					cellCount += minoModeBoard[y][col].t;
+					cellCount += (board[y][col].t != 0);
+					cellCount += (minoModeBoard[y][col].t != 0);
 				}
 				//color in if 10
 				if(cellCount == 10){
@@ -715,13 +715,13 @@ function drawCell(x, y, piece, type) {
 				//check row mino count
 				var cellCount = 0;
 				for(var col = 0; col < 10; col++){	
-					cellCount += board[y][col].t;
-					cellCount += minoModeBoard[y][col].t;
+					cellCount += (board[y][col].t != 0);
+					cellCount += (minoModeBoard[y][col].t != 0);
 				}
 				//color in if 10
 				if(cellCount == 10){
 					ctx.fillStyle = lightercolor[piece];
-					ctx.fillRect((x) * cellSize + 1, y * cellSize + 1, cellSize, cellSize);
+					ctx.fillRect((x) * cellSize + 1, y * cellSize + 1, cellSize - 1, cellSize - 1);
 				}
 			}
 		};
