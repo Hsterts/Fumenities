@@ -44,9 +44,18 @@ function decode() {
 };
 
 function fullDecode(fumen) {
+	// TILJSZO order
+	pieces = 	[['0000111001000000', '0100011001000000', '0100111000000000', '0100110001000000'],
+				['', '0100010001000100', '0000111100000000'],
+				['0000111010000000', '0100010001100000', '0010111000000000', '1100010001000000'],
+				['0000111000100000', '0110010001000000', '1000111000000000', '0100010011000000'],
+				['0000011011000000', '0100011000100000'],
+				['0000110001100000', '0010011001000000'],
+				['0000110011000000']];
 	fumen = document.getElementById("boardOutput").value;
     pages = decoder.decode(fumen);
     newHist = [];
+
     for (i = 0; i < pages.length; i++) {
 		input = pages[i]['_field']['field']['pieces'];
         let tempBoard = [];
@@ -67,6 +76,8 @@ function fullDecode(fumen) {
         currHist = {
             board: JSON.stringify(tempBoard),
             comment: pages[i]['comment'],
+			flags: pages[i]['flags'],
+			operation: pages[i]['operation'],
         };
 
         if (pages[i]['flags']['quiz'] && comment.substring(0, 3) == '#Q=') {
@@ -98,11 +109,65 @@ function fullDecode(fumen) {
 
         }
 		
+		// Decoding operation to minoModeBoards
+		if(currHist.operation != undefined){
+			minoModeBoard = JSON.parse(JSON.stringify(emptyBoard));
+			let c = currHist.operation.type
+			let rotation = currHist.operation.rotation
+			let x = currHist.operation.x - 1
+			let y = 19 - currHist.operation.y - 1
+			
+			//hardcoding rotations because why distinguish between I, SZ, and O rotations :tf: (i'll work on it)
+			switch(c){
+				case 'I':
+					switch(rotation){
+						case 'reverse': rotation = 'spawn'; x--; break;
+						case 'left': rotation = 'right'; y--; break;	
+					}
+					break;
+				case 'O':
+					switch(rotation){
+						case 'spawn': rotation = 'reverse'; y--; break;
+						case 'left': rotation = 'reverse'; y--; x--; break;
+						case 'right': rotation = 'reverse';
+					};
+					break;
+				case 'S':
+					switch(rotation){
+						case 'spawn': rotation = 'reverse'; y--; break;
+						case 'left': rotation = 'right'; x--; break;
+					}
+				case 'Z':
+					switch(rotation){
+						case 'spawn': rotation = 'reverse'; y--; break;
+						case 'left': rotation = 'right'; x--; break;
+					}
+				}
+			
+			let pieceIndex = 'TILJSZO'.indexOf(c);
+			let rotIndex = ['reverse','right','spawn','left'].indexOf(rotation);
+			let pieceRef = pieces[pieceIndex]
+			let rotRef = pieceRef[rotIndex];
+	
+			for(map = 0; map < 16; map++) {
+				let row = Math.floor(map/4) + y;
+				let col = (map % 4) + x;
+				let type = rotRef[map]
+				if(type == 1){
+				 	minoModeBoard[row][col] = {t: 1, c: c}
+				}
+			}
+
+		}
+		currHist['minoBoard'] = JSON.stringify(minoModeBoard);
         newHist.push(currHist);
+		minoModeBoard = JSON.parse(JSON.stringify(emptyBoard));
     }
+
 	hist = newHist;
 	histPos = 0;
 	board = JSON.parse(hist[histPos]['board']);
+	minoModeBoard = JSON.parse(hist[histPos]['minoBoard']);
 	comment = hist[histPos]['comment'];
 	document.getElementById("commentBox").value = comment; 
 	document.getElementById("positionDisplay").value = 1;
@@ -420,6 +485,17 @@ function toggleToolTips() {
 			x[z].style.display = "none";
 		};
 	};
+}
+
+function toggleStyle() {
+	if(document.getElementById('defaultRenderInput').checked) {
+		style = 'fumen';
+		document.getElementById('3dToggle').style.opacity = 0.5
+	} else {
+		style = 'four';
+		document.getElementById('3dToggle').style.opacity = 1
+	}
+	render();
 }
 
 function addPage() {

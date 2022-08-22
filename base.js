@@ -30,12 +30,12 @@ const aRow = [];
 const emptyBoard = [];
 for(let i = 0; i < boardSize[0]; i++) {aRow.push({ t: 0, c: '' })};
 for (let i = 0; i < boardSize[1]; i++) {emptyBoard.push(aRow)};
-
 board = JSON.parse(JSON.stringify(emptyBoard)); // the lazy way of doing a deep copy
 minoModeBoard = JSON.parse(JSON.stringify(emptyBoard)); // the lazy way of doing a deep copy
 updateHistory()
 
 // CANVAS
+style = 'four'
 var ctx = document.getElementById('b').getContext('2d');
 var ctxH = document.getElementById('b').getContext('2d');
 var ctxN = document.getElementById('b').getContext('2d');
@@ -46,11 +46,11 @@ var gridCtx = gridCvs.getContext('2d');
 gridCtx.fillStyle = '#000000CC';
 gridCtx.fillRect(0, 0, cellSize, cellSize);
 gridCtx.strokeStyle = '#ffffff88';
-gridCtx.strokeRect(0, 0, cellSize+1, cellSize+1);
+gridCtx.strokeRect(0, 0, cellSize + 1, cellSize + 1);
 var pattern = ctx.createPattern(gridCvs, 'repeat');
 document.getElementById('b').height = (boardSize[1]) * cellSize;
 document.getElementById('b').width = boardSize[0] * cellSize;
-document.getElementById('b').style.outline = '1px solid #ffffff';
+document.getElementById('b').style.outline = '2px solid #ffffffcc';
 
 //MOUSE INPUT
 mouseY = 0;
@@ -529,58 +529,89 @@ function render() {
 }
 
 function drawCell(x, y, piece, type) {
-	var color = {Z: '#ef624d', L: '#ef9535', O: '#f7d33e', S: '#66c65c', I: '#41afde', J: '#1983bf', T: '#b451ac', X: '#999999'};
-	var lightercolor = {Z: '#fd7660', L: '#fea440', O: '#ffe34b', S: '#7cd97a', I: '#3dc0fb', J: '#1997e3', T: '#d161c9', X: '#bbbbbb'};
-	var lightestcolor = {Z: '#ff998c', L: '#feb86d', O: '#fbe97f', S: '#96f98b', I: '#75faf8', J: '#1fd7f7', T: '#fe89f7', X: '#dddddd'};
 	var foureffectInput = document.getElementById("3dSetting").checked;
 	var lockFlag = document.getElementById("lockFlagInput").checked;
-
-	if(y == 0){
-		var cellAbove = 1;
-	} else {
-		var cellAbove = board[y-1][x]['t'] + minoModeBoard[y-1][x]['t'];
-	};
-
-	if (type == 1) {
-		//Normal colors
-		if (cellAbove != 1){
-			ctx.fillStyle = lightercolor[piece];
-			if(foureffectInput){
-				ctx.fillRect((x) * cellSize + 1, y * cellSize + 1 - cellSize/5, cellSize - 0, cellSize/5);
-			}
+	
+	if(style == 'four'){
+		var color = {Z: '#ef624d', L: '#ef9535', O: '#f7d33e', S: '#66c65c', I: '#41afde', J: '#1983bf', T: '#b451ac', X: '#999999'};
+		var lightercolor = {Z: '#fd7660', L: '#fea440', O: '#ffe34b', S: '#7cd97a', I: '#3dc0fb', J: '#1997e3', T: '#d161c9', X: '#bbbbbb'};
+		var lightestcolor = {Z: '#ff998c', L: '#feb86d', O: '#fbe97f', S: '#96f98b', I: '#75faf8', J: '#1fd7f7', T: '#fe89f7', X: '#dddddd'};
+		if(y == 0){
+			var cellAbove = 1;
+		} else {
+			var cellAbove = board[y-1][x]['t'] + minoModeBoard[y-1][x]['t'];
 		};
-		ctx.fillStyle = color[piece];
-		ctx.fillRect((x) * cellSize + 1, y * cellSize + 1, cellSize - 0, cellSize - 0);
-		//Light locked row colors
-		if (lockFlag == true) {
-			//check row mino count
-			var cellCount = 0;
-			for(var col = 0; col < 10; col++){	
-				cellCount += board[y][col].t;
-				cellCount += minoModeBoard[y][col].t;
-			}
-			//color in if 10
-			if(cellCount == 10){
-				if (cellAbove != 1){
-					ctx.fillStyle = lightestcolor[piece];
-					if(foureffectInput){
-						ctx.fillRect((x) * cellSize + 1, y * cellSize + 1 - cellSize/5, cellSize - 0, cellSize/5);
-					}
-				};
+
+		if (type == 1) {
+			//Normal colors
+			if (cellAbove != 1){
 				ctx.fillStyle = lightercolor[piece];
-				ctx.fillRect((x) * cellSize + 1, y * cellSize + 1, cellSize - 0, cellSize - 0);
-			}
-		}
-	};
-	//Light mino colors
-	if (type == 2) {
-		if (cellAbove != 1){
-			ctx.fillStyle = lightestcolor[piece];
-			if(foureffectInput){
-			ctx.fillRect((x) * cellSize + 1, y * cellSize + 1 - cellSize/5, cellSize - 0, cellSize/5);
+				if(foureffectInput){
+					ctx.fillRect((x) * cellSize + 1, y * cellSize + 1 - cellSize/5, cellSize - 0, cellSize/5);
+				}
+			};
+			ctx.fillStyle = color[piece];
+			ctx.fillRect((x) * cellSize + 1, y * cellSize + 1, cellSize - 0, cellSize - 0);
+			//Light locked row colors
+			if (lockFlag == true) {
+				//check row mino count
+				var cellCount = 0;
+				for(var col = 0; col < 10; col++){	
+					cellCount += board[y][col].t;
+					cellCount += minoModeBoard[y][col].t;
+				}
+				//color in if 10
+				if(cellCount == 10){
+					if (cellAbove != 1){
+						ctx.fillStyle = lightestcolor[piece];
+						if(foureffectInput){
+							ctx.fillRect((x) * cellSize + 1, y * cellSize + 1 - cellSize/5, cellSize - 0, cellSize/5);
+						}
+					};
+					ctx.fillStyle = lightercolor[piece];
+					ctx.fillRect((x) * cellSize + 1, y * cellSize + 1, cellSize - 0, cellSize - 0);
+				}
 			}
 		};
-		ctx.fillStyle = lightercolor[piece];
-		ctx.fillRect((x) * cellSize + 1, y * cellSize + 1, cellSize - 0, cellSize - 0);
-	};
+		//Light mino colors
+		if (type == 2) {
+			if (cellAbove != 1){
+				ctx.fillStyle = lightestcolor[piece];
+				if(foureffectInput){
+				ctx.fillRect((x) * cellSize + 1, y * cellSize + 1 - cellSize/5, cellSize - 0, cellSize/5);
+				}
+			};
+			ctx.fillStyle = lightercolor[piece];
+			ctx.fillRect((x) * cellSize + 1, y * cellSize + 1, cellSize - 0, cellSize - 0);
+		};
+	}
+
+	if(style == 'fumen'){
+		var color = {Z: '#990000', L: '#996600', O: '#999900', S: '#009900', I: '#009999', J: '#0000bb', T: '#990099', X: '#999999'};
+		var lightercolor = {Z: '#cc3333', L: '#cc9933', O: '#cccc33', S: '#33cc33', I: '#33cccc', J: '#3333cc', T: '#cc33cc', X: '#cccccc'};
+		if (type == 1) {
+			//Normal colors
+			ctx.fillStyle = color[piece];
+			ctx.fillRect((x) * cellSize + 1, y * cellSize + 1, cellSize - 1, cellSize - 1);
+			//Light locked row colors
+			if (lockFlag == true) {
+				//check row mino count
+				var cellCount = 0;
+				for(var col = 0; col < 10; col++){	
+					cellCount += board[y][col].t;
+					cellCount += minoModeBoard[y][col].t;
+				}
+				//color in if 10
+				if(cellCount == 10){
+					ctx.fillStyle = lightercolor[piece];
+					ctx.fillRect((x) * cellSize + 1, y * cellSize + 1, cellSize, cellSize);
+				}
+			}
+		};
+		//Light mino colors
+		if (type == 2) {
+			ctx.fillStyle = lightercolor[piece];
+			ctx.fillRect((x) * cellSize + 1, y * cellSize + 1, cellSize - 1, cellSize - 1);
+		};
+	}
 }

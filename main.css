@@ -304,7 +304,12 @@ input[type='radio'] {
 .pagePosition {
     text-align: center;
     padding-bottom: 5px;
-    }
+}
+
+.import-export {
+    text-align: center;
+    padding-bottom: 5px;
+}
 
 .pager {
     display: inline-block;
@@ -394,7 +399,7 @@ input[type='radio'] {
     padding: 10px;
     background: rgb(214, 214, 214);
     border-radius: 10px;
-    color:rgb(32, 32, 32);
+    color:#202020;
 
 }
 
@@ -404,7 +409,7 @@ input[type='radio'] {
     padding-bottom: 0px;
     display: flex;
     height: 30px;
-    border-bottom: 1px double #333333;
+    border-bottom: 1px solid #333333;
 }
 
 #fumenSettings{

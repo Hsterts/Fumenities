@@ -282,13 +282,17 @@
 				</div>
 				<div class="extrasettings right">
 					<div><p class="settings-header">MISC. SETTINGS</p></div>
-					<div class="tooltipToggle">
+					<div id="tooltipToggle">
 						<input id="tooltipSetting" type="checkbox" onclick="toggleToolTips()"></input>
 						<label for="tooltipSetting">Show Tooltips</label>
 					</div>
-					<div class="3dToggle">
-						<input id="3dSetting" type="checkbox" onclick="toggle3D()" checked></input>
+					<div id="3dToggle">
+						<input id="3dSetting" type="checkbox" checked></input>
 						<label for="3dSetting">Show 3D Effect</label>
+					</div>
+					<div id="defaultRenderToggle">
+						<input id="defaultRenderInput" type="checkbox" onclick="toggleStyle()"></input>
+						<label for="defaultRenderInput">Use Default Style</label>
 					</div>
 				</div>
 			</div>
