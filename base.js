@@ -147,7 +147,8 @@ document.getElementById('b').onmousedown = function mousedown(e) {
 		}
 	};
 	mouseDown = true;
-	drawMode = board[mouseY][mouseX]['t'] == 1;
+    drawMode = board[mouseY][mouseX]['t'] == 1;
+    if (minoMode) drawMode = minoModeBoard[mouseY][mouseX]['t'] == 1;
 	updateHistory();
 	autoEncode();
 };
@@ -169,10 +170,10 @@ document.getElementById('b').onmousemove = function mousemove(e) {
 						return tval += cell.t;
 					}, 0);
 				}, 0);
-                if (board[mouseY][mouseX].t != 1 && minoModeBoard[mouseY][mouseX].t != 1 && drawnCount < 4) {
+                if (board[mouseY][mouseX].t != 1 && minoModeBoard[mouseY][mouseX].t != 1 && drawnCount < 4 && drawMode) {
                     minoModeBoard[mouseY][mouseX] = { t: 1, c: "X" };
 	            } else {
-					if(minoModeBoard[mouseY][mouseX].t == 1 && drawnCount == 4) {
+					if(minoModeBoard[mouseY][mouseX].t == 1 && drawnCount == 4 && !drawMode) {
 						//remove colors when there are four minos and user deletes one
 						for (var row = 0; row < 20; row++){
 							for (var col = 0; col < 10; col++) {
@@ -183,7 +184,7 @@ document.getElementById('b').onmousemove = function mousemove(e) {
 							}
 						}
 					}
-					minoModeBoard[mouseY][mouseX] = {t: 0, c: ''}
+					if (!drawMode) minoModeBoard[mouseY][mouseX] = {t: 0, c: ''}
 				}
             } else {
 				//auto color is basically mino an- :ResidentSleeper:
