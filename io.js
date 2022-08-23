@@ -305,7 +305,7 @@ async function importImage() {
 						nDat.push(nearestColor(hsv[0], hsv[1], hsv[2]));
 					}*/
 
-					tempBoard = new Array(40 - y).fill(new Array(10).fill({ t: 0, c: '' })); // empty top [40-y] rows
+					tempBoard = new Array(20 - y).fill(new Array(10).fill({ t: 0, c: '' })); // empty top [20-y] rows
 					for (rowIndex = 0; rowIndex < y; rowIndex++) {
 						let row = [];
 						for (colIndex = 0; colIndex < 10; colIndex++) {
@@ -318,14 +318,7 @@ async function importImage() {
 					}
 
 					board = JSON.parse(JSON.stringify(tempBoard));
-
-					xPOS = spawn[0];
-					yPOS = spawn[1];
-					rot = 0;
-					clearActive();
-					updateGhost();
-					setShape();
-					updateHistory();
+                    updateHistory();
 				};
 
 				var URLObj = window.URL || window.webkitURL;
