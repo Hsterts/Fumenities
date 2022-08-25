@@ -21,7 +21,7 @@
 		<h3><b>Input</b></h3>
 		<br>
 		<center>
-		<textarea id="input" name="input"></textarea>
+		<textarea id="input" name="input" onfocusin="focused()" onfocusout="unfocused()"></textarea>
 		<br>
 		</center>
 		<button class="ibtn" onclick="glueFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><b>Glue</button>
@@ -89,7 +89,7 @@
 <center><hr class="solid"></center>
 		<h3><b>Output</b></h3><br>
 		<center>
-		<textarea id="output" name="output"></textarea>
+		<textarea id="output" name="output"  onfocusin="focused()" onfocusout="unfocused()"></textarea>
 		<br>
 		</center>
 		<button class="ibtn" onclick="navigator.clipboard.writeText(document.getElementById('output').value)"><b>Copy</b></button>
@@ -146,7 +146,7 @@
 <!-- MINO MODE OPTION-->
 		<div class="minoMode top-panel">
 			<div class="tooltip">
-				<input id="minoModeOption" type="checkbox" onclick="toggleMinoMode()"> Mino Mode</input>
+				<input id="minoModeInput" type="checkbox" onclick="toggleMinoMode()"> Mino Mode</input>
 				<span class="tooltiptext">Draw four minos as a piece placement.</span>
 			</div>
 		</div>
@@ -176,7 +176,7 @@
 
 				<!-- THE COMMENT BOX -->
 				<div>
-					<textarea id="commentBox" onchange="editComment()"></textarea>
+					<textarea id="commentBox" onchange="updateBook()" onfocusin="focused()" onfocusout="unfocused()"></textarea>
 				</div>
 			</div>
 			<!-- THE OPTIONS -->
@@ -258,7 +258,7 @@
 						</div>
 					</div>
 <!-- THE OUTPUT BOX -->
-					<div><textarea id="boardOutput"></textarea></div>
+					<div><textarea id="boardOutput" onfocusin="focused()" onfocusout="unfocused()"></textarea></div>
 				</div>
 			</div>
 		</div>
@@ -277,7 +277,7 @@
 			<div id="fumenSettings" style="display: show;">
 				<div class="flags left">
 					<div><p class="settings-header">FUMEN SETTINGS</p></div>
-					<input id="lockFlagInput" type="checkbox" onclick="updateHistory()" checked></input>
+					<input id="lockFlagInput" type="checkbox" onclick="updateBook()" checked></input>
 					<label for="lockFlagInput">Lock</label>
 					<input id="autoColorInput" type="checkbox" onclick="autoColor()"></input>
 					<label for="autoColorInput">Auto-Color</label>

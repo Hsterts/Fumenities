@@ -1,60 +1,75 @@
 function toField(board) {
-    FieldString = '';
+    FieldString = ''
     for (let row = 0; row < board.length; row++) {
         for (let col = 0; col < 10; col++) {
             if (board[row][col]['t'] != 0) {
-                FieldString += board[row][col]['c'];
-            } else FieldString += '_';
+                FieldString += board[row][col]['c']
+            } else FieldString += '_'
         }
     }
-    return Field.create(FieldString);
+    return Field.create(FieldString)
 }
 
-function decode() {
-    histPos = parseFloat(document.getElementById("positionDisplay").value)-1;
-	fumen = document.getElementById("boardOutput").value;
+// TILJSZO order
+pieces = 	[['0000111001000000', '0100011001000000', '0100111000000000', '0100110001000000'],
+['', '0100010001000100', '0000111100000000'],
+['0000111010000000', '0100010001100000', '0010111000000000', '1100010001000000'],
+['0000111000100000', '0110010001000000', '1000111000000000', '0100010011000000'],
+['0000011011000000', '0100011000100000'],
+['0000110001100000', '0010011001000000'],
+['0000110011000000']]
 
-	pages = decoder.decode(fumen);
-    input = pages[0]['_field']['field']['pieces'];
-    board = [];
-    for (rowIndex = 0; rowIndex < 20; rowIndex++) {
-        let row = [];
-        for (colIndex = 0; colIndex < 10; colIndex++) {
-            index = (20 - rowIndex - 1) * 10 + colIndex;
-            colorIndex = input[index];
-            if (colorIndex == 0) row.push({ t: 0, c: '' });
-            else {
-                letter = ' ILOZTJSX'[colorIndex];
-                row.push({ t: 1, c: letter });
-            }
-        }
-        board.push(row);
-    }
-    comment = pages[0]['comment'];
-    page = {
-        board, 
-        comment: comment
-    }
-	board = JSON.parse(JSON.stringify(page.board));
-	hist.splice(histPos,0,{board: JSON.stringify(board)});
-	document.getElementById("positionDisplayOver").value = "/"+hist.length;
-	hist[histPos]['comment'] = page.comment;
-	document.getElementById("commentBox").value = page.comment;
-	window.requestAnimationFrame(render);
+function decode() {
+    bookPos = parseFloat(document.getElementById("positionDisplay").value)-1
+	bookInsert = []
+	fumen = document.getElementById("boardOutput").value
+	pages = decoder.decode(fumen)
+	console.log(pages)
+	for(let i = 0; i < pages.length; i++){
+		let board = []
+
+		for (rowIndex = 0; rowIndex < 20; rowIndex++) {
+			let row = []
+			for (colIndex = 0; colIndex < 10; colIndex++) {
+				index = (20 - rowIndex - 1) * 10 + colIndex
+				colorIndex = pages[i]['_field']['field']['pieces'][index]
+				if (colorIndex == 0) row.push({ t: 0, c: '' })
+				else {
+					letter = ' ILOZTJSX'[colorIndex]
+					row.push({ t: 1, c: letter })
+				}
+			}
+			board.push(row)
+		}
+
+		board = JSON.stringify(board)
+		minoBoard = JSON.stringify(decodeOperation(pages[i]['operation']))
+		comment = pages[i]['comment']
+		flags = pages[i]['flags']
+
+		page = {
+			board, 
+			operation: pages[i]['operation'],
+			minoBoard: minoBoard,
+			comment: comment,
+			flags: flags,
+		}
+		book.splice(bookPos + i, 0, page)
+		bookInsert.push(page)
+	}
+	board = JSON.parse(bookInsert[0].board)
+	minoModeBoard = JSON.parse(bookInsert[0].minoBoard)
+	comment = bookInsert[0].comment
+	document.getElementById("positionDisplayOver").value = "/"+book.length
+	document.getElementById("commentBox").value = bookInsert[0].comment
+	updateBook()
+	window.requestAnimationFrame(render)
 };
 
 function fullDecode(fumen) {
-	// TILJSZO order
-	pieces = 	[['0000111001000000', '0100011001000000', '0100111000000000', '0100110001000000'],
-				['', '0100010001000100', '0000111100000000'],
-				['0000111010000000', '0100010001100000', '0010111000000000', '1100010001000000'],
-				['0000111000100000', '0110010001000000', '1000111000000000', '0100010011000000'],
-				['0000011011000000', '0100011000100000'],
-				['0000110001100000', '0010011001000000'],
-				['0000110011000000']];
 	fumen = document.getElementById("boardOutput").value;
     pages = decoder.decode(fumen);
-    newHist = [];
+    newBook = [];
 
     for (i = 0; i < pages.length; i++) {
 		input = pages[i]['_field']['field']['pieces'];
@@ -73,24 +88,17 @@ function fullDecode(fumen) {
             tempBoard.push(row);
         }
 
-        currHist = {
-            board: JSON.stringify(tempBoard),
-            comment: pages[i]['comment'],
-			flags: pages[i]['flags'],
-			operation: pages[i]['operation'],
-        };
-
         if (pages[i]['flags']['quiz'] && comment.substring(0, 3) == '#Q=') {
-            bracketStart = comment.indexOf('[');
+			bracketStart = comment.indexOf('[');
             bracketEnd = comment.indexOf(']');
             if (bracketStart >= 0 && bracketEnd == bracketStart + 2 && 'SZLJIOT'.includes(comment[bracketStart + 1])) {
-                currHist['hold'] = comment[bracketStart + 1];
-            } else currHist['hold'] = '';
+                currBook['hold'] = comment[bracketStart + 1];
+            } else currBook['hold'] = '';
 
             bracketStart = comment.indexOf('(');
             bracketEnd = comment.indexOf(')');
             if (bracketStart >= 0 && bracketEnd == bracketStart + 2 && 'SZLJIOT'.includes(comment[bracketStart + 1])) {
-                currHist['piece'] = comment[bracketStart + 1];
+                currBook['piece'] = comment[bracketStart + 1];
             }
 
             currQueue = comment.substring(bracketEnd + 1);
@@ -105,96 +113,55 @@ function fullDecode(fumen) {
                 shuf.map((p) => temp.push(p));
                 temp.push('|');
             }
-            currHist['queue'] = JSON.stringify(temp);
-
+            currBook['queue'] = JSON.stringify(temp);
         }
+
+		tempMinoBoard = decodeOperation(pages[i].operation)
 		
-		// Decoding operation to minoModeBoards
-		if(currHist.operation != undefined){
-			minoModeBoard = JSON.parse(JSON.stringify(emptyBoard));
-			let c = currHist.operation.type
-			let rotation = currHist.operation.rotation
-			let x = currHist.operation.x - 1
-			let y = 19 - currHist.operation.y - 1
-			
-			//hardcoding rotations because why distinguish between I, SZ, and O rotations :tf: (i'll work on it)
-			switch(c){
-				case 'I':
-					switch(rotation){
-						case 'reverse': rotation = 'spawn'; x--; break;
-						case 'left': rotation = 'right'; y--; break;	
-					}
-					break;
-				case 'O':
-					switch(rotation){
-						case 'spawn': rotation = 'reverse'; y--; x++; break;
-						case 'left': rotation = 'reverse'; y--; break;
-						case 'right': rotation = 'reverse'; x++; break;
-					};
-					break;
-				case 'S':
-					switch(rotation){
-						case 'spawn': rotation = 'reverse'; y--; break;
-						case 'left': rotation = 'right'; x--; break;
-					}
-				case 'Z':
-					switch(rotation){
-						case 'spawn': rotation = 'reverse'; y--; break;
-						case 'left': rotation = 'right'; x--; break;
-					}
-				}
-			
-			let pieceIndex = 'TILJSZO'.indexOf(c);
-			let rotIndex = ['reverse','right','spawn','left'].indexOf(rotation);
-			let pieceRef = pieces[pieceIndex]
-			let rotRef = pieceRef[rotIndex];
+		currBook = {
+			board: JSON.stringify(tempBoard),
+			minoBoard: JSON.stringify(tempMinoBoard),
+			comment: pages[i]['comment'],
+			flags: pages[i]['flags'],
+			operation: pages[i]['operation'],
+		};
+		
+
+		newBook.push(currBook);
+	}
 	
-			for(map = 0; map < 16; map++) {
-				let row = Math.floor(map/4) + y;
-				let col = (map % 4) + x;
-				let type = rotRef[map]
-				if(type == 1){
-				 	minoModeBoard[row][col] = {t: 1, c: c}
-				}
-			}
 
-		}
-		currHist['minoBoard'] = JSON.stringify(minoModeBoard);
-        newHist.push(currHist);
-		minoModeBoard = JSON.parse(JSON.stringify(emptyBoard));
-    }
-
-	hist = newHist;
-	histPos = 0;
-	board = JSON.parse(hist[histPos]['board']);
-	minoModeBoard = JSON.parse(hist[histPos]['minoBoard']);
-	comment = hist[histPos]['comment'];
+	book = newBook;
+	bookPos = 0;
+	board = JSON.parse(book[bookPos]['board']);
+	minoModeBoard = JSON.parse(book[bookPos]['minoBoard']);
+	comment = book[bookPos]['comment'];
 	document.getElementById("commentBox").value = comment; 
 	document.getElementById("positionDisplay").value = 1;
-	document.getElementById("positionDisplayOver").value = "/"+hist.length;
+	document.getElementById("positionDisplayOver").value = "/"+book.length;
 	window.requestAnimationFrame(render);
 };
 
 function encode() {
-	histPos = document.getElementById("positionDisplay").value-1
+	bookPos = document.getElementById("positionDisplay").value-1
 	pages = [];
 
 	page = [];
-	field = toField(JSON.parse(hist[histPos]['board']));
+	field = toField(JSON.parse(book[bookPos]['board']));
 	flags = {
 		rise: false,
 		mirror: false,
 		colorize: true,
-		comment: hist[histPos]['comment'],
+		comment: book[bookPos]['comment'],
 		lock: true,
 		piece: undefined,
 	}
 	page = {
-		comment: hist[histPos]['comment'],
-		operation: hist[histPos]['operation'],
+		comment: book[bookPos]['comment'],
+		operation: book[bookPos]['operation'],
 		field,
 		flags: flags,
-		index: histPos,
+		index: bookPos,
 	}
 	pages.push(page);
 
@@ -204,20 +171,20 @@ function encode() {
 
 function fullEncode() {
 	pages = [];
-	for (var i = 0; i < hist.length; i++){
+	for (var i = 0; i < book.length; i++){
 		page = [];
-		field = toField(JSON.parse(hist[i]['board']));
+		field = toField(JSON.parse(book[i]['board']));
 		flags = {
 			rise: false,
 			mirror: false,
 			colorize: true,
-			comment: hist[i]['comment'],
+			comment: book[i]['comment'],
 			lock: true,
 			piece: undefined,
 		}
 			page = {
-				comment: hist[i]['comment'],
-				operation: hist[i]['operation'],
+				comment: book[i]['comment'],
+				operation: book[i]['operation'],
 				field,
 				flags: flags,
 				index: i,
@@ -240,6 +207,59 @@ function autoEncode() {
 			fumen = encode();
 		};
 	};
+}
+
+function decodeOperation(operation){
+	decodedMinoBaord = []
+	if(operation != undefined){
+		decodedMinoBoard = JSON.parse(JSON.stringify(emptyBoard))
+		let c = operation.type
+		let rotation = operation.rotation
+		let x = operation.x - 1
+		let y = 19 - operation.y - 1
+		
+		//hardcoding rotations because why distinguish between I, SZ, and O rotations :tf: (i'll work on it)
+		switch(c){
+			case 'I':
+				switch(rotation){
+					case 'reverse': rotation = 'spawn'; x--; break;
+					case 'left': rotation = 'right'; y--; break;	
+				}
+				break;
+			case 'O':
+				switch(rotation){
+					case 'spawn': rotation = 'reverse'; y--; x++; break;
+					case 'left': rotation = 'reverse'; y--; break;
+					case 'right': rotation = 'reverse'; x++; break;
+				};
+				break;
+			case 'S':
+				switch(rotation){
+					case 'spawn': rotation = 'reverse'; y--; break;
+					case 'left': rotation = 'right'; x--; break;
+				}
+			case 'Z':
+				switch(rotation){
+					case 'spawn': rotation = 'reverse'; y--; break;
+					case 'left': rotation = 'right'; x--; break;
+				}
+			}
+		
+		let pieceIndex = 'TILJSZO'.indexOf(c)
+		let rotIndex = ['reverse','right','spawn','left'].indexOf(rotation)
+		let pieceRef = pieces[pieceIndex]
+		let rotRef = pieceRef[rotIndex]
+
+		for(map = 0; map < 16; map++) {
+			let row = Math.floor(map/4) + y
+			let col = (map % 4) + x
+			let type = rotRef[map]
+			if(type == 1){
+					decodedMinoBoard[row][col] = {t: 1, c: c}
+			}
+		}
+	}
+	return decodedMinoBoard
 }
 
 //IMAGE IMPORT
@@ -325,7 +345,7 @@ async function importImage() {
 					clearActive();
 					updateGhost();
 					setShape();
-					updateHistory();
+					updatebookory();
 				};
 
 				var URLObj = window.URL || window.webkitURL;
@@ -390,139 +410,139 @@ function mirror() {
 			if (board[row][i].t == 1) board[row][i].c = reversed[board[row][i].c];
 		}
 	}
-	updateHistory();
+	updatebookory();
 	window.requestAnimationFrame(render);
 }
 
 function fullMirror() {
-	for (i = 0; i < hist.length; i++) {
-		tempBoard = JSON.parse(hist[i]['board']);
+	for (i = 0; i < book.length; i++) {
+		tempBoard = JSON.parse(book[i]['board']);
 		for (row = 0; row < tempBoard.length; row++) {
 			tempBoard[row].reverse();
 			for (j = 0; j < tempBoard[row].length; j++) {
 				if (tempBoard[row][j].t == 1) tempBoard[row][j].c = reversed[tempBoard[row][j].c];
 			}
 		}
-		hist[i]['board'] = JSON.stringify(tempBoard);
+		book[i]['board'] = JSON.stringify(tempBoard);
 	}
 	board = tempBoard;
-	updateHistory();
+	updatebookory();
 	window.requestAnimationFrame(render);
 }
 
 //HTML FUNCTIONS
 function toggleFumenUtilSettings() {
-	var x = document.getElementById("settings");
+	var x = document.getElementById("settings")
 	if (x.style.display === "none") {
-	  x.style.display = "block";
+	  x.style.display = "block"
 	} else {
-	  x.style.display = "none";
+	  x.style.display = "none"
 	}
   }
 
 function toggleBGSelect() {
-	var x = document.getElementById("bgselect");
+	var x = document.getElementById("bgselect")
 	if (x.style.display === "none") {
-	  x.style.display = "block";
+	  x.style.display = "block"
 	} else {
-	  x.style.display = "none";
+	  x.style.display = "none"
 	}
   }
 
 function toggleDownloadSettings() {
-	var x = document.getElementById("downloadSettings");
+	var x = document.getElementById("downloadSettings")
 	if (x.style.display === "none") {
-	  x.style.display = "block";
+	  x.style.display = "block"
 	} else {
-	  x.style.display = "none";
+	  x.style.display = "none"
 	}
   }
 
 function toggleAutoEncoding() {
-	var x = document.getElementById("autoEncodeOptions");
-	var y = document.getElementById("boardOutput");
+	var x = document.getElementById("autoEncodeOptions")
+	var y = document.getElementById("boardOutput")
 	if (x.style.display === "none") {
-	  x.style.display = "block";
-	  y.style.height = 36;
-	  autoEncode();
+	  x.style.display = "block"
+	  y.style.height = 36
+	  autoEncode()
 	} else {
-	  x.style.display = "none";
-	  y.style.height = 64;
+	  x.style.display = "none"
+	  y.style.height = 64
 	}
   }
 
 function toggleSidePanel() {
-	var x = document.getElementById("fumenSidebar");
+	var x = document.getElementById("fumenSidebar")
 	if (x.style.display === "none") {
-	  x.style.display = "block";
+	  x.style.display = "block"
 	} else {
-	  x.style.display = "none";
+	  x.style.display = "none"
 	}
-};
+}
 
 function toggleFumenSettings() {
-	var fumenSettings = document.getElementById("fumenSettings");
-	var openButton = document.getElementById("openFumenSettings");
-	var closeButton = document.getElementById("closeFumenSettings");
+	var fumenSettings = document.getElementById("fumenSettings")
+	var openButton = document.getElementById("openFumenSettings")
+	var closeButton = document.getElementById("closeFumenSettings")
 	if (fumenSettings.style.display === "none"){
-	    fumenSettings.style.display = "block";
-	    openButton.style.display = "none";
-	    closeButton.style.display = "block";
+	    fumenSettings.style.display = "block"
+	    openButton.style.display = "none"
+	    closeButton.style.display = "block"
 	} else {
-	    fumenSettings.style.display = "none";
-	    openButton.style.display = "block";
-	    closeButton.style.display = "none";
+	    fumenSettings.style.display = "none"
+	    openButton.style.display = "block"
+	    closeButton.style.display = "none"
 	}
 	
   }
 
 function toggleToolTips() {
-	var x = document.getElementsByClassName("tooltiptext");
+	var x = document.getElementsByClassName("tooltiptext")
 	for(let z = 0; z<x.length; z++) {
 		if(x[z].style.display === "none" || x[z].style.display === ''){
-			x[z].style.display = "block";
+			x[z].style.display = "block"
 		} else {
-			x[z].style.display = "none";
+			x[z].style.display = "none"
 		};
 	};
 }
 
 function toggleStyle() {
 	if(document.getElementById('defaultRenderInput').checked) {
-		style = 'fumen';
+		style = 'fumen'
 		document.getElementById('3dToggle').style.opacity = 0.5
 	} else {
-		style = 'four';
+		style = 'four'
 		document.getElementById('3dToggle').style.opacity = 1
 	}
-	render();
+	render()
 }
 
 function addPage() {
-	  if(document.getElementById('positionDisplay').value == hist.length){
-	  document.getElementById('positionDisplay').value = parseFloat(document.getElementById('positionDisplay').value)+1;
-	  document.getElementById("positionDisplayOver").value = "/"+(parseFloat(hist.length+1));
+	  if(document.getElementById('positionDisplay').value == book.length){
+	  document.getElementById('positionDisplay').value = parseFloat(document.getElementById('positionDisplay').value)+1
+	  document.getElementById("positionDisplayOver").value = "/"+(parseFloat(book.length+1))
 	  } else {
-	  document.getElementById('positionDisplay').value = parseFloat(document.getElementById('positionDisplay').value)+1;
-	  }
-	  nextPage();
+	  document.getElementById('positionDisplay').value = parseFloat(document.getElementById('positionDisplay').value)+1
+	  } 
+	  nextPage()
   }
 
 function subPage() {
 	  if(document.getElementById('positionDisplay').value != 1){
-	  document.getElementById('positionDisplay').value = parseFloat(document.getElementById('positionDisplay').value)-1;
-	  };
+	  document.getElementById('positionDisplay').value = parseFloat(document.getElementById('positionDisplay').value)-1
+	  }
 	  prevPage()
   }
 
 function firstPage() {
-	  document.getElementById('positionDisplay').value = 1;
-	  startPage();
+	  document.getElementById('positionDisplay').value = 1
+	  startPage()
   }
 
 function lastPage() {
-	  document.getElementById('positionDisplay').value = hist.length;
-	  endPage();
+	  document.getElementById('positionDisplay').value = book.length
+	  endPage()
   }
 
 function renderImages(fumen) {
@@ -532,3 +552,39 @@ function renderImages(fumen) {
 		  case 'fumen': fumenrender(fumen); break;
 	  }
   }
+
+function undo() {
+	bookPos = parseFloat(document.getElementById("positionDisplay").value)-1
+	if(undoLog.length != 0){
+		book = JSON.parse(undoLog[undoLog.length-2])
+		redoLog.push(undoLog[undoLog.length-1])
+		undoLog.pop()
+		board = JSON.parse(book[bookPos]['board'])
+		minoModeBoard = JSON.parse(book[bookPos]['minoBoard'])
+		operation = book[bookPos]['operation']
+		comment = book[bookPos]['comment']
+		document.getElementById("commentBox").value = comment
+		document.getElementById("lockFlagInput").checked = book[bookPos]['flags']['lock']
+	} else {
+		console.log("No previous actions logged")
+	}
+	window.requestAnimationFrame(render)
+}
+
+function redo() {
+	bookPos = parseFloat(document.getElementById("positionDisplay").value)-1
+	if(redoLog.length != 0){
+		book = JSON.parse(redoLog[redoLog.length-1])
+		undoLog.push(redoLog[redoLog.length-1])
+		redoLog.pop()
+		board = JSON.parse(book[bookPos]['board'])
+		minoModeBoard = JSON.parse(book[bookPos]['minoBoard'])
+		operation = book[bookPos]['operation']
+		comment = book[bookPos]['comment']
+		document.getElementById("commentBox").value = comment
+		document.getElementById("lockFlagInput").checked = book[bookPos]['flags']['lock']
+	} else {
+		console.log("No following actions logged")
+	}
+	window.requestAnimationFrame(render)
+}
