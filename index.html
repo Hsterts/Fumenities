@@ -156,23 +156,23 @@
 		<div class="fumen-body">
 			<div class="left-fumen-panel">
 				<div class="pagePosition">
-					<div class="pager"><button class="positionsub pagebutton" onclick="firstPage()">
+					<div class="pager"><button class="positionsub pagebutton" onclick="startPage()">
 						<span class="material-icons">first_page</span>
 					</button></div>
-					<div class="pager"><button class="positionsub pagebutton" onclick="subPage()">
+					<div class="pager"><button class="positionsub pagebutton" onclick="prevPage()">
 						<span class="material-icons">navigate_before</span>
 					</button></div>
 					<div class="pager"><input id="positionDisplay" inputmode="numeric" value="1"/></div>
 					<div class="pager"><input id="positionDisplayOver" value="/1" disabled/></div>
-					<div class="pager"><button class="positionadd pagebutton" onclick="addPage()">
+					<div class="pager"><button class="positionadd pagebutton" onclick="nextPage()">
 						<span class="material-icons">navigate_next</span>
 					</button></div>
-					<div class="pager"><button class="positionadd pagebutton" onclick="lastPage()">
+					<div class="pager"><button class="positionadd pagebutton" onclick="endPage()">
 						<span class="material-icons">last_page</span>
 					</button></div>
 				</div>
 	
-				<center><div id="board"><canvas id="b"></canvas></div></center>
+				<center><div id="board" oncontextmenu="return false"><canvas id="b"></canvas></div></center>
 
 				<!-- THE COMMENT BOX -->
 				<div>
@@ -327,6 +327,5 @@
 	<script src="./Fumen Utils_files/jszip.min.js"></script>
 	<script src="./Fumen Utils_files/jszip-utils.min.js"></script>
 	<script src="./Fumen Utils_files/FileSaver.min.js"></script>
-	<script src="io.js"></script>
 	<script defer src="base.js"></script>
 </html>
