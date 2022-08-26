@@ -1267,11 +1267,15 @@ function toggleAutoEncoding() {
 function toggleSidePanel() {
 	var x = document.getElementById('fumenSidebar')
 	var y = document.getElementById('settingsSidebar')
+	var open = document.getElementById('openFumenSettings')
+	var close = document.getElementById('closeFumenSettings')
 	if (x.style.display === 'none') {
-	  x.style.display = 'block'
+		x.style.display = 'block'
 	} else {
-	  x.style.display = 'none'
-	  y.style.display = 'none'
+		x.style.display = 'none'
+		y.style.display = 'none'
+		open.style.display = 'block'
+		close.style.display = 'none'
 	}
 }
 
