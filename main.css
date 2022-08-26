@@ -1,3 +1,8 @@
+header{
+    margin: 0;
+    font-size: 32px;
+}
+
 h2{
     font-family: Montserrat, Sans-Serif;
     margin-top: 0px;
@@ -17,13 +22,8 @@ h3{
 *::-webkit-scrollbar-thumb{
     background-color: #6b6d6d;
     }
-
-footer {
-    width: 100%;
-}
-
-/* FUMEN UTIL */
-#fumenutil{
+    
+#main{
     background: #313131;
     font-family: Montserrat, Sans-Serif;
     color: #cacccc;
@@ -31,6 +31,13 @@ footer {
     margin-top: 20px;
     width: 900px;
     }
+
+.large-hr{
+    background: #cacccc;
+    height: 4px;
+}
+
+/* FUMEN UTIL */
 
 textarea{
     width: 100%;
@@ -134,12 +141,18 @@ figure{
     display: inline-block;
     font-size: 14px;
     margin: 4px 2px;
-    transition-duration: 0.2s;
     cursor: pointer;
     border-radius: 2px;
 }
+
 .option:hover, .ibtn:hover {
     background-color: #969696;
+    transition-duration: 0.2s;
+}
+
+.option-left{
+    position: fixed;
+    right: 428px;
 }
 
 input[type='radio'] {
@@ -224,10 +237,12 @@ input[type='radio'] {
 }
 
 .top-right-fumen-panel{
+    text-align: center;
     height: 415px;
 }
 
 .bottom-right-fumen-panel{
+    text-align: center;
     height: 100px;
 }
 
@@ -245,20 +260,35 @@ input[type='radio'] {
 
 #fumenSidebar{
     font-family: Montserrat, Sans-Serif;
-    color: #eeeeee;
     background: #0e0e0ecc;
-    padding-top: 20px;
-    padding-bottom: 20px;
     text-align: center;
-    align-items: flex-start;
-    justify-content: space-around;
     height: 100%;
     width: 500px;
     position: fixed; /* Fixed Sidebar (stay in place on scroll) */
     top: 0;
     right: 0;
     padding-top: 60px;
-    box-shadow: -5px 0px 2px #0e0e0ecc;
+}
+
+#settingsSidebar{
+    font-family: Montserrat, Sans-Serif;
+    color: #eeeeee;
+    background: #8e8e8ecc;
+    padding-bottom: 20px;
+    text-align: center;
+    justify-content: space-around;
+    height: 100%;
+    width: 200px;
+    position: fixed; /* Fixed Sidebar (stay in place on scroll) */
+    top: 0;
+    right: 500px;
+    padding-top: 115px;
+}
+
+#spbutton{
+    position: fixed;
+    top: 22px;
+    right: 30px;
 }
 
 #boardOutput{
@@ -277,16 +307,32 @@ input[type='radio'] {
     display: inline-block;
     font-size: 14px;
     margin: 4px 2px;
-    transition-duration: 0.2s;
     cursor: pointer;
     border-radius: 2px;
     width: 200px;
 }
 
-.fumen-option:hover{
+.fumen-option:hover, .addonButton:hover{
     background-color: #969696;
     margin: 4px 2px;
-    transition: 0s linear;
+    transition: linear;
+    transition-duration: 0.1s;
+}
+
+.addonButton{
+    width: 38px;
+    height: 28px;
+    background-color: rgb(214, 214, 214);
+    border: 1px solid #b4b4b4da;
+    padding-left: 6px;
+    padding-right: 6px;
+    color: rgb(32, 32, 32);
+    font-family: Montserrat, Sans-Serif;
+    display: inline-block;
+    font-size: 14px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 2px;
 }
 
 #commentBox{
@@ -296,18 +342,16 @@ input[type='radio'] {
     margin-left: 5px;
 }
 
-.io {
-    display: inline-flex;
-    flex-direction: column;
-}
-
 .pagePosition {
     text-align: center;
     padding-bottom: 5px;
+    padding-left: 2px;
 }
 
 .import-export {
     text-align: center;
+    display: inline-flex;
+    flex-direction: column;
     padding-bottom: 5px;
 }
 
@@ -376,45 +420,6 @@ input[type='radio'] {
     overflow: hidden;
     margin-left: -7px;
     margin-bottom: 6px;
-}
-
-
-.flags{
-    display: block;
-    width: 200px;
-    height: 200px;
-    margin: 0px;
-    padding: 10px;
-    background: rgb(214, 214, 214);
-    border-radius: 10px;
-    color:rgb(32, 32, 32);
-
-}
-
-.extrasettings{
-    display: block;
-    width: 200px;
-    height: 200px;
-    margin: 2px;
-    padding: 10px;
-    background: rgb(214, 214, 214);
-    border-radius: 10px;
-    color:#202020;
-
-}
-
-.settings-header{
-    margin: 0px;
-    padding-top: 10px;
-    padding-bottom: 0px;
-    display: flex;
-    height: 30px;
-    border-bottom: 1px solid #333333;
-}
-
-#fumenSettings{
-    margin: 25px;
-    margin-top: 12px;
 }
 
 /*TOOLTIPS*/

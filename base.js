@@ -1273,15 +1273,17 @@ function toggleAutoEncoding() {
 
 function toggleSidePanel() {
 	var x = document.getElementById('fumenSidebar')
+	var y = document.getElementById('settingsSidebar')
 	if (x.style.display === 'none') {
 	  x.style.display = 'block'
 	} else {
 	  x.style.display = 'none'
+	  y.style.display = 'none'
 	}
 }
 
 function toggleFumenSettings() {
-	var fumenSettings = document.getElementById('fumenSettings')
+	var fumenSettings = document.getElementById('settingsSidebar')
 	var openButton = document.getElementById('openFumenSettings')
 	var closeButton = document.getElementById('closeFumenSettings')
 	if (fumenSettings.style.display === 'none'){

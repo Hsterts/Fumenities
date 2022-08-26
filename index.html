@@ -1,331 +1,314 @@
 <html>
 	<head>
-		<title>Fumen Utilities</title>
-<!--STYLES-->
-	<link href="https://fonts.googleapis.com/icon?family=Material+Icons"
-	rel="stylesheet">
-  	<link href="main.css" rel="stylesheet">
+	<title>Fumen Utilities</title>
+	<link href = "https://fonts.googleapis.com/icon?family=Material+Icons" rel = "stylesheet">
+	<link href = "main.css" rel = "stylesheet">
+	<meta name = "description" content = "Alternative Fumen editor with more features">
+	<meta name = "keywords" content = "Fumen">
 	</head>
-	<body id="fumenutil">
-		<span style = "float: left; font-size: 30px; margin-bottom: 10px; width:50%; height:40px;"><b>Fumen Utilities</b> © Swng</span>
-		<div style="text-align: right;">
-			<span style = "float: right; font-size: 15px; height:40px;margin-bottom: 10px; width:50%;">
-				<button class="option panel-button" id="openSP" onclick="toggleSidePanel()" style="display:show;">
-					<span class="material-icons">menu_open</span>
+
+	<body id = "main">		
+<!--Header-->
+		<header><b>Fumen Utilities</b> © Swng</header>
+		
+		<div id = "spbutton">
+				<button class = "option panel-button" onclick = "toggleSidePanel()" style = "display:show;">
+					<span class = "material-icons">menu_open</span>
 				</button>
-			</span>
 		</div>
-<br><br>
-<center><hr style="border-style:solid;height:4px;"></center>
-	<div id="fumenUtil">
-		<h3><b>Input</b></h3>
-		<br>
-		<center>
-		<textarea id="input" name="input" onfocusin="focused()" onfocusout="unfocused()"></textarea>
-		<br>
-		</center>
-		<button class="ibtn" onclick="glueFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><b>Glue</button>
-		<button class="ibtn" onclick="unglueFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><b>Unglue</b></button>
-		<button class="ibtn" onclick="mirrorFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><b>Mirror</b></button>
-		<button class="ibtn" onclick="combineFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><b>Combine</b></button>
-		<button class="ibtn" onclick="splitFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><b>Split</b></button>
-        <button class="ibtn" onclick="removeComments(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><b>Remove Comments</b></button>
-		<button class="ibtn" onclick="renderImages(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><b>Output Image</b></button>
-        <button class="ibtn" onclick="toggleFumenUtilSettings()"><b>Toggle Settings</b></button>
-		<div class="row" id="settings" style="display:none;">
-		<center><hr class="solid"></center>
-		<b><h2>Settings</h2></b><br>
-			<div class="column left"><center><b>Render Settings</b><br></center>
-				<div id="styleOptions">
-					<select id="renderStyle" onchange="renderImages(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))">
-						<option value="four">FOUR</option>
-						<option value="fumen">Fumen</option>
+		
+		<hr class = "large-hr">
+
+<!--FumenUtil-->
+		<div id = "fumenUtil">
+<!--Input-->			
+			<h3><b>Input</b></h3><br>
+			<center><textarea id = "input" name = "input" onfocusin = "focused()" onfocusout = "unfocused()"></textarea><br></center>
+			<div class = "fumenOperations">
+				<button class = "ibtn" onclick = "glueFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><b>Glue</button>
+				<button class = "ibtn" onclick = "unglueFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><b>Unglue</b></button>
+				<button class = "ibtn" onclick = "mirrorFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><b>Mirror</b></button>
+				<button class = "ibtn" onclick = "combineFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><b>Combine</b></button>
+				<button class = "ibtn" onclick = "splitFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><b>Split</b></button>
+				<button class = "ibtn" onclick = "removeComments(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><b>Remove Comments</b></button>
+				<button class = "ibtn" onclick = "renderImages(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><b>Output Image</b></button>
+				<button class = "ibtn" onclick = "toggleFumenUtilSettings()"><b>Toggle Settings</b></button>
+			</div>
+
+			<div class = "row" id = "settings" style = "display:none;">
+			<center><hr class = "solid"></center>
+			<b><h2>Settings</h2></b><br>
+				<div class = "column left"><center><b>Render Settings</b><br></center>
+					<div id = "styleOptions">
+						<select id = "renderStyle" onchange = "renderImages(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))">
+							<option value = "four">FOUR</option>
+							<option value = "fumen">Fumen</option>
+						</select>
+						<label for = "renderStyle">Render Style</label>
+					</div>
+
+					<input id = "cellSize" type = "number" value = 22></input>
+					<label for = "cellSize">Cell Size</label><br>
+
+					<input id = "width" type = "number" value = 10 min = 1 max = 10></input>
+					<label for = "width">Width</label><br>
+
+					<input id = "height" type = "number" value = 4 min = 1 max = 20></input>
+					<label for = "height">Height</label>
+
+					<label id = "autoheightlabel">
+					<input id = "autoheight" type = "checkbox" checked = "checked">
+					<span class = "checkmark"></span>Auto
+					</label><br>
+
+					<input id = "transparency" type = "checkbox" onclick = "toggleBGSelect()" checked></input>
+					<label for = "transparency">Transparency</label><br>
+
+						<div id = "bgselect" style = "display:none;">
+						<input id = "bg" type = "color" value = "#f3f3ed" style = "width:100px;padding:0px;"></input>
+						<label for = "transparency">BG Color</label><br>
+						</div>
+
+					<input id = "displayMode" type = "checkbox" onclick = "fumencanvas(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"></input>
+					<label for = "displayMode">Display Comments?</label><br>
+				</div>
+				<div class = "column right">
+					<center><b>GIF Settings</b><br></center>
+					<input id = "delay" type = "value" value = 500></input>
+					<label for = "delay">GIF Delay (ms)</label><br><br>
+					<center><b>Download Settings</b><br></center>
+					<input id = "downloadOutput" type = "checkbox" onclick = "toggleDownloadSettings()"></input>
+					<label for = "downloadOutput">Download on Render?</label><br>
+					<div id = "downloadSettings" style = "display:none;">
+					<select id = "naming" name = "Name">
+						<option value = "index">Index (1, 2, ...)</option>
+						<option value = "fumen">Fumen Code</option>
 					</select>
-					<label for="renderStyle">Render Style</label>
-				</div>
-
-				<input id="cellSize" type="number" value=22></input>
-				<label for="cellSize">Cell Size</label><br>
-
-				<input id="width" type="number" value=10 min=1 max=10></input>
-				<label for="width">Width</label><br>
-
-				<input id="height" type="number" value=4 min=1 max=20></input>
-				<label for="height">Height</label>
-
-				<label id="autoheightlabel">
-				<input id="autoheight" type="checkbox" checked="checked">
-				<span class="checkmark"></span>Auto
-				</label><br>
-
-				<input id="transparency" type="checkbox" checked="checked" onclick="toggleBGSelect()"></input>
-				<label for="transparency">Transparency</label><br>
-
-					<div id="bgselect" style="display:none;">
-					<input id="bg" type="color" value="#f3f3ed" style="width:100px;padding:0px;"></input>
-					<label for="transparency">BG Color</label><br>
+					<label for = "naming">Output Name</label>
 					</div>
-
-				<input id="displayMode" type="checkbox" onclick="fumencanvas(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"></input>
-				<label for="displayMode">Display Comments?</label><br>
-			</div>
-			<div class="column right">
-				<center><b>GIF Settings</b><br></center>
-				<input id="delay" type="value" value=500></input>
-				<label for="delay">GIF Delay (ms)</label>
-				<br><br>
-				<center><b>Download Settings</b><br></center>
-				<input id="downloadOutput" type="checkbox" onclick="toggleDownloadSettings()"></input>
-				<label for="downloadOutput">Download on Render?</label><br>
-				<div id="downloadSettings" style="display:none;">
-				<select id="naming" name="Name">
-					<option value="index">Index (1, 2, ...)</option>
-					<option value="fumen">Fumen Code</option>
-				</select>
-				<label for="naming">Output Name</label>
 				</div>
 			</div>
-		</div>
-<center><hr class="solid"></center>
-		<h3><b>Output</b></h3><br>
-		<center>
-		<textarea id="output" name="output"  onfocusin="focused()" onfocusout="unfocused()"></textarea>
-		<br>
-		</center>
-		<button class="ibtn" onclick="navigator.clipboard.writeText(document.getElementById('output').value)"><b>Copy</b></button>
-		<br>
-		<center><div id="imageOutputs"></div></center>
-	<br>
-		<div id="fumenSidebar" style="display:show;">
-			<div style="text-align: right;">
-				<span style = "position:fixed; top: 20px; right:24px; font-size: 15px; height:15px;margin-bottom: 10px;">
-					<button class="option panel-button" id="closeSP" onclick="toggleSidePanel()">
-						<span class="material-icons">close</span>
+
+			<hr class = "small-hr">
+<!--Output-->
+			<h3><b>Output</b></h3><br>
+			<center><textarea id = "output" name = "output" onfocusin = "focused()" onfocusout = "unfocused()"></textarea><br></center>
+			<button class = "ibtn" onclick = "navigator.clipboard.writeText(document.getElementById('output').value)"><b>Copy</b></button><br>
+
+			<center><div id = "imageOutputs"></div></center><br>
+
+			
+<!--Fumen Sidebar-->
+			<div id = "fumenSidebar" style = "display:none;">
+				<div id = "spbutton">
+					<button class = "option option-left" onclick = "toggleFumenSettings()" style = "display:show;">
+						<span class = "material-icons" id = "openFumenSettings">keyboard_arrow_left</span>
+						<span class = "material-icons" id = "closeFumenSettings" style = "display: none;">keyboard_arrow_right</span>
 					</button>
-				</span>
-			</div>
-		<hr width="90%">
-		<div class="fumen-header">
-		<!-- PAINT BUCKET CHOICES -->
-			<div class="color-options top-panel">
-				<form class="paint-bucket" name="paintbucket">
-					<label for="I">
-						<input type="radio" name="paintbucket" class="paintbucket" id="I" value="I" />
-						<span></span>
-					</label>
-					<label for="L">
-						<input type="radio" name="paintbucket" class="paintbucket" id="L" value="L" />
-						<span></span>
-					</label>
-					<label for="O">
-						<input type="radio" name="paintbucket" class="paintbucket" id="O" value="O" />
-						<span></span>
-					</label>
-					<label for="Z">
-						<input type="radio" name="paintbucket" class="paintbucket" id="Z" value="Z" />
-						<span></span>
-					</label>
-					<label for="T">
-						<input type="radio" name="paintbucket" class="paintbucket" id="T" value="T" />
-						<span></span>
-					</label>
-					<label for="J">
-						<input type="radio" name="paintbucket" class="paintbucket" id="J" value="J" />
-						<span></span>
-					</label>
-					<label for="S">
-						<input type="radio" name="paintbucket" class="paintbucket" id="S" value="S" />
-						<span></span>
-					</label>
-					<label for="X">
-						<input type="radio" name="paintbucket" class="paintbucket" id="X" value="X" checked />
-						<span></span>
-					</label>
-				</form>
-			</div>
-<!-- MINO MODE OPTION-->
-		<div class="minoMode top-panel">
-			<div class="tooltip">
-				<input id="minoModeInput" type="checkbox" onclick="toggleMinoMode()"> Mino Mode</input>
-				<span class="tooltiptext">Draw four minos as a piece placement.</span>
-			</div>
-		</div>
-	</div>
-<!-- PAGES BUTTON AND DISPLAY-->
-			<!-- THE BOARD -->
-		<div class="fumen-body">
-			<div class="left-fumen-panel">
-				<div class="pagePosition">
-					<div class="pager"><button class="positionsub pagebutton" onclick="startPage()">
-						<span class="material-icons">first_page</span>
-					</button></div>
-					<div class="pager"><button class="positionsub pagebutton" onclick="prevPage()">
-						<span class="material-icons">navigate_before</span>
-					</button></div>
-					<div class="pager"><input id="positionDisplay" inputmode="numeric" value="1"/></div>
-					<div class="pager"><input id="positionDisplayOver" value="/1" disabled/></div>
-					<div class="pager"><button class="positionadd pagebutton" onclick="nextPage()">
-						<span class="material-icons">navigate_next</span>
-					</button></div>
-					<div class="pager"><button class="positionadd pagebutton" onclick="endPage()">
-						<span class="material-icons">last_page</span>
-					</button></div>
 				</div>
-	
-				<center><div id="board" oncontextmenu="return false"><canvas id="b"></canvas></div></center>
 
-				<!-- THE COMMENT BOX -->
-				<div>
-					<textarea id="commentBox" onchange="updateBook()" onfocusin="focused()" onfocusout="unfocused()"></textarea>
+				<div id = "spbutton">
+						<button class = "option panel-button" onclick = "toggleSidePanel()">
+							<span class = "material-icons">close</span>
+						</button>
 				</div>
-			</div>
-			<!-- THE OPTIONS -->
-<!-- IMPORT-EXPORT -->
-			<div class="right-fumen-panel">
-				<div class="top-right-fumen-panel">	
-					<div class="pagePosition">
-						<div class="shifter"><button class="shiftleft pagebutton" onclick="shift('left')">
-							<span class="material-icons">keyboard_arrow_left</span>
-						</button></div>
-						<div class="shifter"><button class="shiftup pagebutton" onclick="shift('up')">
-							<span class="material-icons">keyboard_arrow_up</span>
-						</button></div>
-						<div class="shifter"><button class="shiftdown pagebutton" onclick="shift('down')">
-							<span class="material-icons">keyboard_arrow_down</span>
-						</button></div>
-						<div class="shifter"><button class="shiftright pagebutton" onclick="shift('right')">
-							<span class="material-icons">keyboard_arrow_right</span>
-						</button></div>
-					</div>
-					<div class="import-export">
-						<div class="io">
-							<div class="tooltip">
-								<button class="fumen-option" onclick="this.blur(); mirror()"><b>Mirror Page</b></button>
-								<span class="tooltiptext">Mirror the current page.</span>
-							</div>
-							<div class="tooltip">
-								<button class="fumen-option" onclick="this.blur(); fullMirror()"><b>Mirror</b></button>
-								<span class="tooltiptext">Mirror all pages.</span>
-							</div>	
-							<div class="tooltip">
-								<button class="fumen-option" onclick="this.blur(); dupliPage()"><b>Duplicate Page</b></button>
-								<span class="tooltiptext">Duplicate the current page.</span>
-							</div>
-							<div class="tooltip">
-								<button class="fumen-option" onclick="this.blur(); clearPage()"><b>Clear Page</b></button>
-								<span class="tooltiptext">Clear the contents of the current page.</span>
-							</div>
-							<div class="tooltip">
-								<button class="fumen-option" onclick="this.blur(); deletePage()"><b>Delete Page</b></button>
-								<span class="tooltiptext">Delete the current page.</span>
-							</div>
-							<div class="tooltip">
-								<button class="fumen-option" onclick="this.blur(); restart()"><b>Clear</b></button>
-								<span class="tooltiptext">Delete all data.</span>
-							</div>
-								<hr width = "99%">
-                            <div class="tooltip">
-                                <button class="fumen-option" onclick="this.blur(); importImage()"><b>Import Image</b></button>
-                                <span class="tooltiptext">Parse an image of a board and insert it into the current page.</span>
-                            </div>
-							<div class="tooltip">
-								<button class="fumen-option" onclick="this.blur(); decode()"><b>Insert</b></button>
-								<span class="tooltiptext">Insert the fumen into the current page.</span>
-							</div>
-							<div class="tooltip">
-								<button class="fumen-option" onclick="this.blur(); encode()"><b>Export Page</b></button>
-								<span class="tooltiptext">Export the current page.</span>
-							</div>
-							<div class="tooltip">
-								<button class="fumen-option" onclick="this.blur(); fullDecode()"><b>Import</b></button>
-								<span class="tooltiptext">Import and replace the current data.</span>
-							</div>
-							<div class="tooltip">
-								<button class="fumen-option" onclick="this.blur(); fullEncode()"><b>Export</b></button>
-								<span class="tooltiptext">Export all pages.</span>
-							</div>
-						</div>
-					</div>
-				</div>
-<!-- AUTO ENCODING -->
-				<div class="bottom-right-fumen-panel">	
-					<div class="autoEncodingInputs">
-						<div class="autoEncoding">
-							<input id="autoEncode" type="checkbox" onclick="toggleAutoEncoding()"></input>
-							<label for="autoEncode">Auto-Encode</label>
-						</div>
-						<div class="autoEncoding" id="autoEncodeOptions" style="display:none;">
-							<select id="encodingType" name="encodingTypes" style= "width: 200px;" onchange="autoEncode()">
-								<option value="fullFumen">Full Fumen</option>
-								<option value="currentFumen">Current Page</option>
-							</select>
-						</div>
-					</div>
-<!-- THE OUTPUT BOX -->
-					<div><textarea id="boardOutput" onfocusin="focused()" onfocusout="unfocused()"></textarea></div>
-				</div>
-			</div>
-		</div>
 
-<!-- ""ADD ONS"""-->
-			<hr width="90%">
-<!-- EXTRA SETTINGS-->
-			<div style="float: right; text-align: right; width: 40px;">
-				<span style = "position: relative; font-size: 15px; height:40px; right: 25; width:30px;">
-					<button class="addonButton option" id="toggleAO" onclick="toggleFumenSettings()" style="display:show;">
-						<span class="material-icons" id="openFumenSettings">expand_more</span>
-						<span class="material-icons" id="closeFumenSettings" style="display: none;">expand_less</span>
-					</button>
-				</span>
-			</div>
-			<div id="fumenSettings" style="display: show;">
-				<div class="flags left">
-					<div><p class="settings-header">FUMEN SETTINGS</p></div>
-					<input id="lockFlagInput" type="checkbox" onclick="updateBook()" checked></input>
-					<label for="lockFlagInput">Lock</label>
-					<input id="autoColorInput" type="checkbox" onclick="autoColor()"></input>
-					<label for="autoColorInput">Auto-Color</label>
+				<hr width = "90%">
+
+				<div class = "fumen-header">
+					<!-- PAINT BUCKET CHOICES -->
+					<div class = "color-options top-panel">
+					<form class = "paint-bucket" name = "paintbucket">
+						<label for = "I">
+							<input type = "radio" name = "paintbucket" class = "paintbucket" id = "I" value = "I" />
+							<span></span>
+						</label>
+						<label for = "L">
+							<input type = "radio" name = "paintbucket" class = "paintbucket" id = "L" value = "L" />
+							<span></span>
+						</label>
+						<label for = "O">
+							<input type = "radio" name = "paintbucket" class = "paintbucket" id = "O" value = "O" />
+							<span></span>
+						</label>
+						<label for = "Z">
+							<input type = "radio" name = "paintbucket" class = "paintbucket" id = "Z" value = "Z" />
+							<span></span>
+						</label>
+						<label for = "T">
+							<input type = "radio" name = "paintbucket" class = "paintbucket" id = "T" value = "T" />
+							<span></span>
+						</label>
+						<label for = "J">
+							<input type = "radio" name = "paintbucket" class = "paintbucket" id = "J" value = "J" />
+							<span></span>
+						</label>
+						<label for = "S">
+							<input type = "radio" name = "paintbucket" class = "paintbucket" id = "S" value = "S" />
+							<span></span>
+						</label>
+						<label for = "X">
+							<input type = "radio" name = "paintbucket" class = "paintbucket" id = "X" value = "X" checked />
+							<span></span>
+						</label>
+					</form>
+					</div>
+
+					<!-- MINO MODE OPTION-->
+					<div class = "minoMode top-panel">
+						<div class = "tooltip">
+							<input id = "minoModeInput" type = "checkbox" onclick = "toggleMinoMode()"> Mino Mode</input>
+							<span class = "tooltiptext">Draw four minos as a piece placement.</span>
+						</div>
+					</div>
 				</div>
-				<div class="extrasettings right">
-					<div><p class="settings-header">MISC. SETTINGS (WIPWIPWIP)</p></div>
-					<div id="tooltipToggle">
-						<input id="tooltipSetting" type="checkbox" onclick="toggleToolTips()"></input>
-						<label for="tooltipSetting">Show Tooltips</label>
+
+				<div class = "fumen-body">
+					<div class = "left-fumen-panel">
+
+						<!--Pages & Buttons-->
+						<div class = "pagePosition">
+							<div class = "pager"><button class = "positionsub pagebutton" onclick = "startPage()"><span class = "material-icons">first_page</span></button></div>
+							<div class = "pager"><button class = "positionsub pagebutton" onclick = "prevPage()"><span class = "material-icons">navigate_before</span></button></div>
+							<div class = "pager"><input id = "positionDisplay" inputmode = "numeric" value = "1"/></div>
+							<div class = "pager"><input id = "positionDisplayOver" value = "/1" disabled/></div>
+							<div class = "pager"><button class = "positionadd pagebutton" onclick = "nextPage()"><span class = "material-icons">navigate_next</span></button></div>
+							<div class = "pager"><button class = "positionadd pagebutton" onclick = "endPage()"><span class = "material-icons">last_page</span></button></div>
+						</div>
+
+						<!--Board-->
+						<center><div id = "board" oncontextmenu = "return false"><canvas id = "b"></canvas></div></center>
+
+						<!--Comment Box-->
+						<textarea id = "commentBox" onchange = "updateBook()" onfocusin = "focused()" onfocusout = "unfocused()"></textarea>
 					</div>
-					<div id="3dToggle">
-						<input id="3dSetting" type="checkbox" checked></input>
-						<label for="3dSetting">Show 3D Effect</label>
+					
+					<div class = "right-fumen-panel">
+						<div class = "top-right-fumen-panel">
+							<!--Shifters-->
+							<div class = "pagePosition">
+								<div class = "shifter"><button class = "pagebutton" onclick = "shift('left')"><span class = "material-icons">keyboard_arrow_left</span></button></div>
+								<div class = "shifter"><button class = "pagebutton" onclick = "shift('up')"><span class = "material-icons">keyboard_arrow_up</span></button></div>
+								<div class = "shifter"><button class = "pagebutton" onclick = "shift('down')"><span class = "material-icons">keyboard_arrow_down</span></button></div>
+								<div class = "shifter"><button class = "pagebutton" onclick = "shift('right')"><span class = "material-icons">keyboard_arrow_right</span></button></div>
+							</div>
+							<!--Fumen Options-->
+							<div class = "import-export">
+								<div class = "tooltip">
+									<button class = "fumen-option" onclick = "this.blur(); mirror()"><b>Mirror Page</b></button>
+									<span class = "tooltiptext">Mirror the current page.</span>
+								</div>
+								<div class = "tooltip">
+									<button class = "fumen-option" onclick = "this.blur(); fullMirror()"><b>Mirror</b></button>
+									<span class = "tooltiptext">Mirror all pages.</span>
+								</div>	
+								<div class = "tooltip">
+									<button class = "fumen-option" onclick = "this.blur(); dupliPage()"><b>Duplicate Page</b></button>
+									<span class = "tooltiptext">Duplicate the current page.</span>
+								</div>
+								<div class = "tooltip">
+									<button class = "fumen-option" onclick = "this.blur(); clearPage()"><b>Clear Page</b></button>
+									<span class = "tooltiptext">Clear the contents of the current page.</span>
+								</div>
+								<div class = "tooltip">
+									<button class = "fumen-option" onclick = "this.blur(); deletePage()"><b>Delete Page</b></button>
+									<span class = "tooltiptext">Delete the current page.</span>
+								</div>
+								<div class = "tooltip">
+									<button class = "fumen-option" onclick = "this.blur(); restart()"><b>Clear</b></button>
+									<span class = "tooltiptext">Delete all data.</span>
+								</div>
+									<hr width = "99%">
+								<div class = "tooltip">
+									<button class = "fumen-option" onclick = "this.blur(); importImage()"><b>Import Image</b></button>
+									<span class = "tooltiptext">Parse an image of a board and insert it into the current page.</span>
+								</div>
+								<div class = "tooltip">
+									<button class = "fumen-option" onclick = "this.blur(); decode()"><b>Insert</b></button>
+									<span class = "tooltiptext">Insert the fumen into the current page.</span>
+								</div>
+								<div class = "tooltip">
+									<button class = "fumen-option" onclick = "this.blur(); encode()"><b>Export Page</b></button>
+									<span class = "tooltiptext">Export the current page.</span>
+								</div>
+								<div class = "tooltip">
+									<button class = "fumen-option" onclick = "this.blur(); fullDecode()"><b>Import</b></button>
+									<span class = "tooltiptext">Import and replace the current data.</span>
+								</div>
+								<div class = "tooltip">
+									<button class = "fumen-option" onclick = "this.blur(); fullEncode()"><b>Export</b></button>
+									<span class = "tooltiptext">Export all pages.</span>
+								</div>
+							</div>
+						</div>
+						<div class = "bottom-right-fumen-panel">	
+							<!--Auto-Encoding-->
+							<div class = "autoEncodingInputs">
+								<div class = "autoEncoding">
+									<input id = "autoEncode" type = "checkbox" onclick = "toggleAutoEncoding()"></input>
+									<label for = "autoEncode">Auto-Encode</label>
+								</div>
+								<div class = "autoEncoding" id = "autoEncodeOptions" style = "display:none;">
+									<select id = "encodingType" name = "encodingTypes" style = "width: 200px;" onchange = "autoEncode()">
+										<option value = "fullFumen">Full Fumen</option>
+										<option value = "currentFumen">Current Page</option>
+									</select>
+								</div>
+							</div>
+							<!--Output Box-->
+							<div><textarea id = "boardOutput" onfocusin = "focused()" onfocusout = "unfocused()"></textarea></div>
+						</div>
 					</div>
-					<div id="defaultRenderToggle">
-						<input id="defaultRenderInput" type="checkbox" onclick="toggleStyle()"></input>
-						<label for="defaultRenderInput">Use Default Style</label>
+				</div>
+			</div>
+			
+<!--Settings Sidebar-->
+			<div id = "settingsSidebar" style = "display:none;">
+				<hr width = "90%">
+
+				<div class = "flags">
+					<div><p class = "settings-header">FUMEN SETTINGS</p></div>
+					<input id = "lockFlagInput" type = "checkbox" onclick = "updateBook()" checked></input>
+					<label for = "lockFlagInput">Lock</label><br>
+					<input id = "autoColorInput" type = "checkbox" onclick = "autoColor()"></input>
+					<label for = "autoColorInput">Auto-Color</label>
+				</div>
+				
+				<div class = "extrasettings">
+					<div><p class = "settings-header">MISC. SETTINGS (WIPWIPWIP)</p></div>
+					<div id = "tooltipToggle">
+						<input id = "tooltipSetting" type = "checkbox" onclick = "toggleToolTips()"></input>
+						<label for = "tooltipSetting">Show Tooltips</label>
+					</div>
+					<div id = "3dToggle">
+						<input id = "3dSetting" type = "checkbox" checked></input>
+						<label for = "3dSetting">Show 3D Effect</label>
+					</div>
+					<div id = "defaultRenderToggle">
+						<input id = "defaultRenderInput" type = "checkbox" onclick = "toggleStyle()"></input>
+						<label for = "defaultRenderInput">Use Default Style</label>
 					</div>
 				</div>
 			</div>
 		</div>
-	</div>
-		</body>
-
-		<footer>
-			<center><hr style="border-style:solid;height:4px;color:#cacccc"></center>
-		</footer>
+	</body>
 
 <!--EXTERNAL SCRIPTS-->
-	<script src="./Fumen Utils_files/tetris-fumen.js"></script>
-	<script src="./Fumen Utils_files/modified-glueFumen.js"></script>
-	<script src="./Fumen Utils_files/modified-unglueFumen.js"></script>
-	<script src="./Fumen Utils_files/modified-mirrorFumen.js"></script>
-	<script src="./Fumen Utils_files/modified-combineFumen.js"></script>
-	<script src="./Fumen Utils_files/modified-splitFumen.js"></script>
-	<script src="./Fumen Utils_files/modified-removeComments.js"></script>
-	<script type="text/javascript" src="./Fumen Utils_files/LZWEncoder.js"></script>
-	<script type="text/javascript" src="./Fumen Utils_files/NeuQuant.js"></script>
-	<script type="text/javascript" src="./Fumen Utils_files/GIFEncoder.js"></script>
-	<script type="text/javascript" src="./Fumen Utils_files/b64.js"></script>
-	<script src="./Fumen Utils_files/modified-fumen-canvas.js"></script>
-	<script src="./Fumen Utils_files/modified-fumen-render.js"></script>
-	<script src="./Fumen Utils_files/jszip.min.js"></script>
-	<script src="./Fumen Utils_files/jszip-utils.min.js"></script>
-	<script src="./Fumen Utils_files/FileSaver.min.js"></script>
-	<script defer src="base.js"></script>
+	<script defer src = "base.js"></script>
+	<script src = "./Fumen Utils_files/tetris-fumen.js"></script>
+	<script src = "./Fumen Utils_files/modified-glueFumen.js"></script>
+	<script src = "./Fumen Utils_files/modified-unglueFumen.js"></script>
+	<script src = "./Fumen Utils_files/modified-mirrorFumen.js"></script>
+	<script src = "./Fumen Utils_files/modified-combineFumen.js"></script>
+	<script src = "./Fumen Utils_files/modified-splitFumen.js"></script>
+	<script src = "./Fumen Utils_files/modified-removeComments.js"></script>
+	<script src = "./Fumen Utils_files/modified-fumen-canvas.js"></script>
+	<script src = "./Fumen Utils_files/modified-fumen-render.js"></script>
+	<script src = "./Fumen Utils_files/jszip.min.js"></script>
+	<script src = "./Fumen Utils_files/jszip-utils.min.js"></script>
+	<script src = "./Fumen Utils_files/FileSaver.min.js"></script>
+	<script type = "text/javascript" src = "./Fumen Utils_files/LZWEncoder.js"></script>
+	<script type = "text/javascript" src = "./Fumen Utils_files/NeuQuant.js"></script>
+	<script type = "text/javascript" src = "./Fumen Utils_files/GIFEncoder.js"></script>
+	<script type = "text/javascript" src = "./Fumen Utils_files/b64.js"></script>
 </html>
