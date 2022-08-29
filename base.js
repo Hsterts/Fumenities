@@ -1360,3 +1360,23 @@ function redo() {
 	}
 	window.requestAnimationFrame(render)
 }
+
+function takeshot() {
+    container = document.getElementById('imageOutputs')
+    html2canvas(container, {
+        backgroundColor: null,
+        width: container.clientWidth,
+        height: container.clientHeight,
+    }).then(
+        function (canvas) {
+            canvas.toBlob(blob => {
+                try { navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]); }
+                catch (error) {
+                    dataURL = canvas.toDataURL();
+                    console.log("Firefox doesn't support dropping images into clipboard, try pasting this DataURL into a new tab and copy pasting the image: ", dataURL);
+                    navigator.clipboard.writeText(dataURL);
+                }
+            });
+        }
+    );
+}
