@@ -48,7 +48,7 @@ textarea{
     border: 1.5px solid #c3c3c3;
     color: white;
     font-family: Courier New;
-    font-size: 1em;
+    font-size: 14px;
     resize: none;
     }
 
@@ -166,10 +166,10 @@ input[type='radio'] {
     display: flex;
     flex-wrap: wrap;
     padding: 2px;
-    border-radius: 10px;
+    border-radius: 3px;
     justify-content: center;
-    width: 18rem;
-    margin-bottom: 5px;
+    width: 290px;
+    margin-bottom: 0px;
     align-self: center;
 }
 
@@ -208,48 +208,56 @@ input[type='radio'] {
 .fumen-header{
     display: flex;
     justify-content: center;
-}
-
-.top-panel{
-    display: inline-block;
+    background: #ffffff66;
+    border-radius:3px;
+    padding: 3px;
+    margin-bottom: 0;
+    margin-left: 20px;
+    margin-right: 20px;
 }
 
 .minomode{
-    width: 150px;
-    align-self: center;
-    padding-bottom: 5px;
-    
+    padding: 6px;
+    margin: 2px;
+    margin-left: 5px;
+    border-radius: 3px;
+    background: #1c1c1c;
+    height: 30px;
+    width: 130px;
+    vertical-align: middle;
+    padding-bottom: 0px;
 }
+
+.pepega{
+    vertical-align: middle;
+}
+
 .fumen-body{
     display: flex;
     margin-right: 10px;
     margin-left: 15px;
 }
 
-.left-fumen-panel{
-    flex: 1;
-}
-
 .right-fumen-panel{
     flex: 1;
-    margin-top: 4px;
+    margin-top: 9px;
     text-align: left;
 }
 
 .top-right-fumen-panel{
     text-align: center;
-    height: 415px;
+    height: 394px;
 }
 
 .bottom-right-fumen-panel{
     text-align: center;
-    height: 100px;
+    height: 125px;
 }
 
 #board{
     width: 220px;
     height: 440px;
-    margin: 0;
+    margin-top: 2px;
     padding-left: 18px;
     padding-right: 15px;
 }
@@ -271,18 +279,38 @@ input[type='radio'] {
 }
 
 #settingsSidebar{
-    font-family: Montserrat, Sans-Serif;
     color: #eeeeee;
-    background: #8e8e8ecc;
+    background: #767474ee;
     padding-bottom: 20px;
-    text-align: center;
-    justify-content: space-around;
+    text-align: left;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
     height: 100%;
-    width: 200px;
+    width: 250px;
     position: fixed; /* Fixed Sidebar (stay in place on scroll) */
     top: 0;
     right: 500px;
-    padding-top: 115px;
+    padding-top: 150px;
+}
+
+.settingsBody{
+    margin-left: 5px;
+    width: 230px;
+    padding: 5px;
+    background: #00000088;
+    border-radius: 5px;
+}
+
+.settings-header{
+    background: #000000cc;
+    border-radius: 5px;
+    text-align: center;
+    vertical-align: middle;
+    margin: 5px;
+    padding: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 
 #spbutton{
@@ -292,11 +320,12 @@ input[type='radio'] {
 }
 
 #boardOutput{
-    width:200px;
-    height:64px;
+    background: #383838;
+    width:180px;
+    height:79px;
 }
 
-.fumen-option{
+.fumen-option, #reset{
     background-color: rgb(214, 214, 214);
     border: 1px solid #b4b4b4da;
     padding-left: 6px;
@@ -309,11 +338,35 @@ input[type='radio'] {
     margin: 4px 2px;
     cursor: pointer;
     border-radius: 2px;
-    width: 200px;
+    width: 180px;
 }
 
-.fumen-option:hover, .addonButton:hover{
+#reset-angry{
+    background-color: rgb(131, 43, 43);
+    border: 1px solid #ffb5b5da;
+    padding-left: 6px;
+    padding-right: 6px;
+    color: rgb(255, 0, 0);
+    font-family: Montserrat, Sans-Serif;
+    text-align: left;
+    display: none;
+    font-size: 14px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 2px;
+    width: 180px;
+}
+
+.fumen-option:hover, #reset:hover, .addonButton:hover{
     background-color: #969696;
+    margin: 4px 2px;
+    transition: linear;
+    transition-duration: 0.1s;
+}
+
+#reset-angry:hover{
+    background-color: #ff0000;
+    color: rgb(71, 0, 0);
     margin: 4px 2px;
     transition: linear;
     transition-duration: 0.1s;
@@ -342,17 +395,32 @@ input[type='radio'] {
     margin-left: 5px;
 }
 
-.pagePosition {
+.page{
     text-align: center;
-    padding-bottom: 5px;
-    padding-left: 2px;
+    padding: 3px;
+    margin-left: 2px;
+    margin-top: 3px;
 }
 
-.import-export {
+.pagePosition {
+    text-align: center;
+    margin-bottom: 8px;
+    width: 198px;
+    padding: 3px;
+    margin-left: 9px;
+    background: #ffffff66;
+    border-radius: 2px;
+}
+
+.import-export{
     text-align: center;
     display: inline-flex;
     flex-direction: column;
-    padding-bottom: 5px;
+    padding: 3px;
+    padding-left: 10px;
+    padding-right: 10px;
+    background: #ffffff66;
+    border-radius: 2px;
 }
 
 .pager {
@@ -366,7 +434,7 @@ input[type='radio'] {
     }
 
 #positionDisplay{
-    width: 40px;
+    width: 35px;
     height: 30px;
     text-align: right;
     border-top-left-radius: 2px;
@@ -383,7 +451,7 @@ input[type='radio'] {
 }
 
 #positionDisplayOver{
-    width: 50px;
+    width: 45px;
     height: 30px;
     text-align: left;
     border-top-right-radius: 2px;
