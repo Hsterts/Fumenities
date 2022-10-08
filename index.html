@@ -94,6 +94,7 @@
 			<h3><b>Output</b></h3><br>
 			<center><textarea id = "output" name = "output" onfocusin = "focused()" onfocusout = "unfocused()"></textarea><br></center>
 			<button class = "ibtn" onclick = "navigator.clipboard.writeText(document.getElementById('output').value)"><b>Copy</b></button><br>
+            <button class = "ibtn" onclick = "takeshot()"><b>Copy imageOutputs</b></button><br>
 
 			<center><div id = "imageOutputs"></div></center><br>
 
@@ -224,7 +225,7 @@
 							<hr style = "visibility: hidden; margin: 2px;">
 							<div class = "import-export">
 								<div class = "tooltip">
-									<button class = "fumen-option" onclick = "this.blur(); importImage()"><b>Import Image</b></button>
+									<button class = "fumen-option" onclick = "this.blur(); importImageButton()"><b>Import Image</b></button>
 									<span class = "tooltiptext">Parse an image of a board and insert it into the current page.</span>
 								</div>
 								<div class = "tooltip">
@@ -322,4 +323,7 @@
 	<script type = "text/javascript" src = "./Fumen Utils_files/NeuQuant.js"></script>
 	<script type = "text/javascript" src = "./Fumen Utils_files/GIFEncoder.js"></script>
 	<script type = "text/javascript" src = "./Fumen Utils_files/b64.js"></script>
+    <script src=
+    "https://cdn.jsdelivr.net/npm/html2canvas@1.0.0-rc.5/dist/html2canvas.min.js">
+      </script>
 </html>

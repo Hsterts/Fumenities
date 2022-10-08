@@ -1054,79 +1054,104 @@ function decodeOperation(operation){
 }
 
 //IMAGE IMPORT
-async function importImage() {
+document.addEventListener('paste', (event) => {
+    var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+    for (index in items) {
+        var item = items[index];
+        if (item.kind === 'file') {
+            var blob = item.getAsFile();
+            importImage(blob);
+        }
+    }
+})
+
+async function importImage(blob) {
+    // Create an abstract canvas and get context
+    var mycanvas = document.createElement('canvas');
+    var ctx = mycanvas.getContext('2d');
+
+    // Create an image
+    var img = new Image();
+
+    // Once the image loads, render the img on the canvas
+    img.onload = function () {
+        console.log(this.width, this.height);
+        scale = this.width / 10.0;
+        x = 10;
+        y = Math.min(Math.round(this.height / scale), 22);
+        console.log(x, y);
+        mycanvas.width = this.width;
+        mycanvas.height = this.height;
+
+        // Draw the image
+        ctx.drawImage(img, 0, 0, this.width, this.height);
+        var data = Object.values(ctx.getImageData(0, 0, this.width, this.height).data);
+        var nDat = [];
+        for (row = 0; row < y; row++) {
+            for (col = 0; col < 10; col++) {
+                // get median value of pixels that should correspond to [row col] mino
+
+                minoPixelsR = [];
+                minoPixelsG = [];
+                minoPixelsB = [];
+
+                for (pixelRow = Math.floor(row * scale); pixelRow < row * scale + scale; pixelRow++) {
+                    for (pixelCol = Math.floor(col * scale); pixelCol < col * scale + scale; pixelCol++) {
+                        index = (pixelRow * this.width + pixelCol) * 4;
+                        minoPixelsR.push(data[index]);
+                        minoPixelsG.push(data[index + 1]);
+                        minoPixelsB.push(data[index + 2]);
+                    }
+                }
+
+                medianR = median(minoPixelsR);
+                medianG = median(minoPixelsG);
+                medianB = median(minoPixelsB);
+                var hsv = rgb2hsv(medianR, medianG, medianB);
+                console.log(hsv, nearestColor(hsv[0], hsv[1], hsv[2])); // debugging purposes
+                nDat.push(nearestColor(hsv[0], hsv[1], hsv[2]));
+            }
+        }
+        /* // old alg from just scaling it down to x by y pixels
+        for (let i = 0; i < data.length / 4; i++) {
+            //nDat.push(data[i*4] + data[(i*4)+1] + data[(i*4)+2] < 382?1:0)
+            var hsv = rgb2hsv(data[i * 4], data[i * 4 + 1], data[i * 4 + 2]);
+            console.log(hsv, nearestColor(hsv[0], hsv[1], hsv[2])); // debugging purposes
+            nDat.push(nearestColor(hsv[0], hsv[1], hsv[2]));
+        }*/
+
+        tempBoard = new Array(20 - y).fill(new Array(10).fill({ t: 0, c: '' })); // empty top [40-y] rows
+        for (rowIndex = 0; rowIndex < y; rowIndex++) {
+            let row = [];
+            for (colIndex = 0; colIndex < 10; colIndex++) {
+                index = rowIndex * 10 + colIndex;
+                temp = nDat[index];
+                if (temp == '.') row.push({ t: 0, c: '' });
+                else row.push({ t: 1, c: temp });
+            }
+            tempBoard.push(row);
+        }
+
+        board = JSON.parse(JSON.stringify(tempBoard));
+        updateBook();
+    };
+
+    var URLObj = window.URL || window.webkitURL;
+    img.src = URLObj.createObjectURL(blob);
+}
+
+async function importImageButton() {
 	try {
 		const clipboardItems = await navigator.clipboard.read();
 		for (const clipboardItem of clipboardItems) {
 			for (const type of clipboardItem.types) {
 				const blob = await clipboardItem.getType(type);
 
-				// Create an abstract canvas and get context
-				var mycanvas = document.createElement('canvas');
-				var ctx = mycanvas.getContext('2d');
-
-				// Create an image
-				var img = new Image();
-
-				// Once the image loads, render the img on the canvas
-				img.onload = function () {
-					scale = this.width / 10.0;
-					x = 10;
-					y = Math.min(Math.round(this.height / scale), 22);
-					mycanvas.width = this.width;
-					mycanvas.height = this.height;
-
-					// Draw the image
-					ctx.drawImage(img, 0, 0, this.width, this.height);
-					var data = Object.values(ctx.getImageData(0, 0, this.width, this.height).data);
-					var nDat = [];
-					for (row = 0; row < y; row++) {
-						for (col = 0; col < 10; col++) {
-							// get median value of pixels that should correspond to [row col] mino
-
-							minoPixelsR = [];
-							minoPixelsG = [];
-							minoPixelsB = [];
-
-							for (pixelRow = Math.floor(row * scale); pixelRow < row * scale + scale; pixelRow++) {
-								for (pixelCol = Math.floor(col * scale); pixelCol < col * scale + scale; pixelCol++) {
-									index = (pixelRow * this.width + pixelCol) * 4;
-									minoPixelsR.push(data[index]);
-									minoPixelsG.push(data[index + 1]);
-									minoPixelsB.push(data[index + 2]);
-								}
-							}
-
-							medianR = median(minoPixelsR);
-							medianG = median(minoPixelsG);
-							medianB = median(minoPixelsB);
-							var hsv = rgb2hsv(medianR, medianG, medianB);
-							nDat.push(nearestColor(hsv[0], hsv[1], hsv[2]));
-						}
-					}
-
-					tempBoard = new Array(20 - y).fill(new Array(10).fill({ t: 0, c: '' })); // empty top [40-y] rows
-					for (rowIndex = 0; rowIndex < y; rowIndex++) {
-						let row = [];
-						for (colIndex = 0; colIndex < 10; colIndex++) {
-							index = rowIndex * 10 + colIndex;
-							temp = nDat[index];
-							if (temp == '.') row.push({ t: 0, c: '' });
-							else row.push({ t: 1, c: temp });
-						}
-						tempBoard.push(row);
-					}
-
-					board = JSON.parse(JSON.stringify(tempBoard));
-					updateBook();
-				};
-
-				var URLObj = window.URL || window.webkitURL;
-				img.src = URLObj.createObjectURL(blob);
+                importImage(blob);
 			}
 		}
 	} catch (err) {
-		console.error(err.name, err.message);
+		console.log(err.message, "\nTry Ctrl V instead.");
 	}
 }
 
@@ -1344,4 +1369,24 @@ function redo() {
 		console.log('No following actions logged')
 	}
 	window.requestAnimationFrame(render)
+}
+
+function takeshot() {
+    container = document.getElementById('imageOutputs')
+    html2canvas(container, {
+        backgroundColor: null,
+        width: container.clientWidth,
+        height: container.clientHeight,
+    }).then(
+        function (canvas) {
+            canvas.toBlob(blob => {
+                try { navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]); }
+                catch (error) {
+                    dataURL = canvas.toDataURL();
+                    console.log("Firefox doesn't support dropping images into clipboard, try pasting this DataURL into a new tab and copy pasting the image: ", dataURL);
+                    navigator.clipboard.writeText(dataURL);
+                }
+            });
+        }
+    );
 }
