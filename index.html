@@ -98,9 +98,8 @@
 
 			<center><div id = "imageOutputs"></div></center><br>
 
-			
 <!--Fumen Sidebar-->
-			<div id = "fumenSidebar" style = "display:none;">
+			<div id = "fumenSidebar" style = "display:show;">
 				<div id = "spbutton">
 					<button class = "option option-left" onclick = "toggleFumenSettings()" style = "display:show;">
 						<span class = "material-icons" id = "openFumenSettings">keyboard_arrow_left</span>
@@ -114,51 +113,50 @@
 						</button>
 				</div>
 
-				<hr width = "90%">
+				<hr style="visibility: hidden;">
 
 				<div class = "fumen-header">
 					<!-- PAINT BUCKET CHOICES -->
 					<div class = "color-options top-panel">
-					<form class = "paint-bucket" name = "paintbucket">
-						<label for = "I">
-							<input type = "radio" name = "paintbucket" class = "paintbucket" id = "I" value = "I" />
-							<span></span>
-						</label>
-						<label for = "L">
-							<input type = "radio" name = "paintbucket" class = "paintbucket" id = "L" value = "L" />
-							<span></span>
-						</label>
-						<label for = "O">
-							<input type = "radio" name = "paintbucket" class = "paintbucket" id = "O" value = "O" />
-							<span></span>
-						</label>
-						<label for = "Z">
-							<input type = "radio" name = "paintbucket" class = "paintbucket" id = "Z" value = "Z" />
-							<span></span>
-						</label>
-						<label for = "T">
-							<input type = "radio" name = "paintbucket" class = "paintbucket" id = "T" value = "T" />
-							<span></span>
-						</label>
-						<label for = "J">
-							<input type = "radio" name = "paintbucket" class = "paintbucket" id = "J" value = "J" />
-							<span></span>
-						</label>
-						<label for = "S">
-							<input type = "radio" name = "paintbucket" class = "paintbucket" id = "S" value = "S" />
-							<span></span>
-						</label>
-						<label for = "X">
-							<input type = "radio" name = "paintbucket" class = "paintbucket" id = "X" value = "X" checked />
-							<span></span>
-						</label>
-					</form>
+						<form class = "paint-bucket" name = "paintbucket">
+							<label for = "I">
+								<input type = "radio" name = "paintbucket" class = "paintbucket" id = "I" value = "I" />
+								<span></span>
+							</label>
+							<label for = "L">
+								<input type = "radio" name = "paintbucket" class = "paintbucket" id = "L" value = "L" />
+								<span></span>
+							</label>
+							<label for = "O">
+								<input type = "radio" name = "paintbucket" class = "paintbucket" id = "O" value = "O" />
+								<span></span>
+							</label>
+							<label for = "Z">
+								<input type = "radio" name = "paintbucket" class = "paintbucket" id = "Z" value = "Z" />
+								<span></span>
+							</label>
+							<label for = "T">
+								<input type = "radio" name = "paintbucket" class = "paintbucket" id = "T" value = "T" />
+								<span></span>
+							</label>
+							<label for = "J">
+								<input type = "radio" name = "paintbucket" class = "paintbucket" id = "J" value = "J" />
+								<span></span>
+							</label>
+							<label for = "S">
+								<input type = "radio" name = "paintbucket" class = "paintbucket" id = "S" value = "S" />
+								<span></span>
+							</label>
+							<label for = "X">
+								<input type = "radio" name = "paintbucket" class = "paintbucket" id = "X" value = "X" checked />
+								<span></span>
+							</label>
+						</form>
 					</div>
-
 					<!-- MINO MODE OPTION-->
 					<div class = "minoMode top-panel">
 						<div class = "tooltip">
-							<input id = "minoModeInput" type = "checkbox" onclick = "toggleMinoMode()"> Mino Mode</input>
+							<input id = "minoModeInput" type = "checkbox" onclick = "toggleMinoMode()"><span class = "pepega">Mino Mode</span></input>
 							<span class = "tooltiptext">Draw four minos as a piece placement.</span>
 						</div>
 					</div>
@@ -168,7 +166,7 @@
 					<div class = "left-fumen-panel">
 
 						<!--Pages & Buttons-->
-						<div class = "pagePosition">
+						<div class = "page">
 							<div class = "pager"><button class = "positionsub pagebutton" onclick = "startPage()"><span class = "material-icons">first_page</span></button></div>
 							<div class = "pager"><button class = "positionsub pagebutton" onclick = "prevPage()"><span class = "material-icons">navigate_before</span></button></div>
 							<div class = "pager"><input id = "positionDisplay" inputmode = "numeric" value = "1"/></div>
@@ -216,10 +214,16 @@
 									<span class = "tooltiptext">Delete the current page.</span>
 								</div>
 								<div class = "tooltip">
-									<button class = "fumen-option" onclick = "this.blur(); restart()"><b>Clear</b></button>
+									<button id = "reset" onclick = "this.blur(); restartCheck()"><b>Reset</b></button>
 									<span class = "tooltiptext">Delete all data.</span>
 								</div>
-									<hr width = "99%">
+								<div class = "tooltip">
+									<button id = "reset-angry" onclick = "this.blur(); restart()"><b>Reset</b></button>
+									<span class = "tooltiptext">Delete all data.</span>
+								</div>
+							</div>
+							<hr style = "visibility: hidden; margin: 2px;">
+							<div class = "import-export">
 								<div class = "tooltip">
 									<button class = "fumen-option" onclick = "this.blur(); importImageButton()"><b>Import Image</b></button>
 									<span class = "tooltiptext">Parse an image of a board and insert it into the current page.</span>
@@ -243,21 +247,23 @@
 							</div>
 						</div>
 						<div class = "bottom-right-fumen-panel">	
-							<!--Auto-Encoding-->
-							<div class = "autoEncodingInputs">
-								<div class = "autoEncoding">
-									<input id = "autoEncode" type = "checkbox" onclick = "toggleAutoEncoding()"></input>
-									<label for = "autoEncode">Auto-Encode</label>
+								<!--Auto-Encoding-->
+							<div class = "import-export">
+								<div class = "autoEncodingInputs">
+									<div class = "autoEncoding">
+										<input id = "autoEncode" type = "checkbox" onclick = "toggleAutoEncoding()"></input>
+										<label for = "autoEncode">Auto-Encode</label>
+									</div>
+									<div class = "autoEncoding" id = "autoEncodeOptions" style = "display:none;">
+										<select id = "encodingType" name = "encodingTypes" style = "width: 180px;" onchange = "autoEncode()">
+											<option value = "fullFumen">Full Fumen</option>
+											<option value = "currentFumen">Current Page</option>
+										</select>
+									</div>
 								</div>
-								<div class = "autoEncoding" id = "autoEncodeOptions" style = "display:none;">
-									<select id = "encodingType" name = "encodingTypes" style = "width: 200px;" onchange = "autoEncode()">
-										<option value = "fullFumen">Full Fumen</option>
-										<option value = "currentFumen">Current Page</option>
-									</select>
-								</div>
-							</div>
-							<!--Output Box-->
-							<div><textarea id = "boardOutput" onfocusin = "focused()" onfocusout = "unfocused()"></textarea></div>
+								<!--Output Box-->
+								<div><textarea id = "boardOutput" onfocusin = "focused()" onfocusout = "unfocused()"></textarea></div>
+							</div>	
 						</div>
 					</div>
 				</div>
@@ -265,29 +271,34 @@
 			
 <!--Settings Sidebar-->
 			<div id = "settingsSidebar" style = "display:none;">
-				<hr width = "90%">
-
-				<div class = "flags">
-					<div><p class = "settings-header">FUMEN SETTINGS</p></div>
-					<input id = "lockFlagInput" type = "checkbox" onclick = "updateBook()" checked></input>
-					<label for = "lockFlagInput">Lock</label><br>
-					<input id = "autoColorInput" type = "checkbox" onclick = "autoColor()"></input>
-					<label for = "autoColorInput">Auto-Color</label>
+				<hr style="visibility: hidden;">
+				<div class = "settingsBody">
+					<div class = "flags">
+						<div><p class = "settings-header">FUMEN SETTINGS</p></div>
+						<input id = "lockFlagInput" type = "checkbox" onclick = "updateBook()" checked></input>
+						<label for = "lockFlagInput"><span class = "pepega">Lock</span></label><br>
+						<input id = "autoColorInput" type = "checkbox" onclick = "autoColor()"></input>
+						<label for = "autoColorInput"><span class = "pepega">Auto-Color</span></label><br>
+						<input id = "rowFillInput" type = "checkbox"></input>
+						<label for = "rowFillInput"><span class = "pepega">Row-Fill</span></label>
+					</div>
 				</div>
-				
-				<div class = "extrasettings">
-					<div><p class = "settings-header">MISC. SETTINGS (WIPWIPWIP)</p></div>
-					<div id = "tooltipToggle">
-						<input id = "tooltipSetting" type = "checkbox" onclick = "toggleToolTips()"></input>
-						<label for = "tooltipSetting">Show Tooltips</label>
-					</div>
-					<div id = "3dToggle">
-						<input id = "3dSetting" type = "checkbox" checked></input>
-						<label for = "3dSetting">Show 3D Effect</label>
-					</div>
-					<div id = "defaultRenderToggle">
-						<input id = "defaultRenderInput" type = "checkbox" onclick = "toggleStyle()"></input>
-						<label for = "defaultRenderInput">Use Default Style</label>
+				<hr style="visibility: hidden;">
+				<div class = "settingsBody">
+					<div class = "extrasettings">
+						<div><p class = "settings-header"><span class = "settings-header">MISC. SETTINGS</span></p></div>
+						<div id = "tooltipToggle">
+							<input id = "tooltipSetting" type = "checkbox" onclick = "toggleToolTips()"></input>
+							<label for = "tooltipSetting"><span class = "pepega">Show Tooltips</span></label>
+						</div>
+						<div id = "3dToggle">
+							<input id = "3dSetting" type = "checkbox" checked></input>
+							<label for = "3dSetting"><span class = "pepega">Show 3D Effect</span></label>
+						</div>
+						<div id = "defaultRenderToggle">
+							<input id = "defaultRenderInput" type = "checkbox" onclick = "toggleStyle()"></input>
+							<label for = "defaultRenderInput"><span class = "pepega">Use Default Style</span></label>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -295,7 +306,7 @@
 	</body>
 
 <!--EXTERNAL SCRIPTS-->
-	<script defer src = "base.js"></script>
+	<script src = "base.js"></script>
 	<script src = "./Fumen Utils_files/tetris-fumen.js"></script>
 	<script src = "./Fumen Utils_files/modified-glueFumen.js"></script>
 	<script src = "./Fumen Utils_files/modified-unglueFumen.js"></script>

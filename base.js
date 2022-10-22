@@ -65,7 +65,6 @@ document.getElementById('b').onmousedown = function mousedown(e) {
 	rect = document.getElementById('b').getBoundingClientRect()
 	mouseY = Math.floor((e.clientY - rect.top) / cellSize)
 	mouseX = Math.floor((e.clientX - rect.left) / cellSize)
-	console.log(e.button)
 	if(!mouseDown && e.button == 0) {
 		movingCoordinates = false
 			//mino mode
@@ -330,12 +329,11 @@ document.onmouseup = function mouseup() {
     requestAnimationFrame(render)
 }
 
-function focused() {userFocus = true; console.log(userFocus)}
+function focused() {userFocus = true}
 
-function unfocused() {userFocus = false; console.log(userFocus)}
+function unfocused() {userFocus = false}
 
 document.onkeydown = function hotkeys(e) {
-	console.log(e.key)
 	if(userFocus == false){
 		if(e.ctrlKey == true){
 			switch (e.key) {
@@ -564,6 +562,8 @@ function restart(){
 	document.getElementById('boardOutput').value = ''
 	document.getElementById('commentBox').value = ''
 	comments = []
+	document.getElementById('reset').style.display = 'inline-block'
+	document.getElementById('reset-angry').style.display = 'none'
 	window.requestAnimationFrame(render)
 }
 
@@ -576,6 +576,8 @@ function clearPage(){
 		operation: undefined,
 		flags: flags
 	}
+	board = book[bookPos]['board']
+	minoBoard = book[bookPos]['minoBoard']
 	window.requestAnimationFrame(render)
 	document.getElementById('commentBox').value = ''
 	autoEncode()
@@ -816,15 +818,6 @@ function autoColor() {
 	}
 }
 
-function drawnCount(field) {
-	count = field.reduce((count,row) => {
-		return count += row.reduce((tval,cell) => {
-			return tval += (cell.t != 0)
-		}, 0)
-	}, 0)
-	return count
-}
-
 //from io.js
 function toField(board) {
     FieldString = ''
@@ -852,7 +845,6 @@ function decode() {
 	bookInsert = []
 	fumen = document.getElementById('boardOutput').value
 	pages = decoder.decode(fumen)
-	console.log(pages)
 	for(let i = 0; i < pages.length; i++){
 		let board = []
 
@@ -1010,15 +1002,14 @@ function autoEncode() {
 }
 
 function decodeOperation(operation){
-	decodedMinoBaord = []
+	decodedMinoBoard = JSON.parse(JSON.stringify(emptyBoard))
 	if(operation != undefined){
-		decodedMinoBoard = JSON.parse(JSON.stringify(emptyBoard))
 		let c = operation.type
 		let rotation = operation.rotation
 		let x = operation.x - 1
 		let y = 19 - operation.y - 1
 		
-		//hardcoding rotations because why distinguish between I, SZ, and O rotations :tf: (i'll work on it)
+		//hardcoding rotations because why distinguish between I, SZ, and O rotations :tf: (i wont work on it)
 		switch(c){
 			case 'I':
 				switch(rotation){
@@ -1155,7 +1146,6 @@ async function importImageButton() {
 		for (const clipboardItem of clipboardItems) {
 			for (const type of clipboardItem.types) {
 				const blob = await clipboardItem.getType(type);
-				//console.log(URL.createObjectURL(blob));
 
                 importImage(blob);
 			}
@@ -1239,6 +1229,11 @@ function fullMirror() {
 }
 
 //HTML FUNCTIONS
+function restartCheck(){
+	document.getElementById('reset').style.display = 'none'
+	document.getElementById('reset-angry').style.display = 'inline-block'
+}
+
 function toggleFumenUtilSettings() {
 	var x = document.getElementById('settings')
 	if (x.style.display === 'none') {
@@ -1271,11 +1266,11 @@ function toggleAutoEncoding() {
 	var y = document.getElementById('boardOutput')
 	if (x.style.display === 'none') {
 	  x.style.display = 'block'
-	  y.style.height = 36
+	  y.style.height = 66
 	  autoEncode()
 	} else {
 	  x.style.display = 'none'
-	  y.style.height = 64
+	  y.style.height = 94
 	}
   }
 
