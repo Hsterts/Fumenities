@@ -1072,7 +1072,7 @@ document.addEventListener('paste', (event) => {
             importImage(blob);
         }
     }
-})
+});
 
 async function importImage(blob) {
     // Create an abstract canvas and get context
@@ -1382,6 +1382,7 @@ function takeshot() {
         backgroundColor: null,
         width: container.clientWidth,
         height: container.clientHeight,
+        scrollY: -window.scrollY
     }).then(
         function (canvas) {
             canvas.toBlob(blob => {
