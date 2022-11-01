@@ -1,8 +1,6 @@
 const { decoder, encoder, Field } = require('tetris-fumen');
 const Hashmap = require('hashmap');
 
-let delimiter = '\n';
-
 function glueFumen() {
 	const rowLen = 10;
 

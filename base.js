@@ -180,6 +180,7 @@ document.getElementById('b').onmousemove = function mousemove(e) {
 						for (var row = 0; row < 20; row++){
 							for (var col = 0; col < 10; col++) {
 								if(minoModeBoard[row][col].c != ''){
+									console.log(minoModeBoard[row][col])
 									minoModeBoard[row][col].c = 'X'
 								}	
 							}
@@ -936,6 +937,16 @@ function fullDecode(fumen) {
 
 function encode() {
 	bookPos = document.getElementById('positionDisplay').value-1
+	// Solidifying minos
+	for (var row = 0; row < 20; row++){
+		for (var col = 0; col < 10; col++) {
+			if(board[row][col].t == 2){
+				prevBoard[row][col].t = 1
+				prevBoard[row][col].c = board[row][col].c
+			}
+		}
+	}
+
 	pages = [];
 
 	page = [];
@@ -1234,15 +1245,6 @@ function restartCheck(){
 	document.getElementById('reset-angry').style.display = 'inline-block'
 }
 
-function toggleFumenUtilSettings() {
-	var x = document.getElementById('settings')
-	if (x.style.display === 'none') {
-	  x.style.display = 'block'
-	} else {
-	  x.style.display = 'none'
-	}
-  }
-
 function toggleBGSelect() {
 	var x = document.getElementById('bgselect')
 	if (x.style.display === 'none') {
@@ -1264,13 +1266,13 @@ function toggleDownloadSettings() {
 function toggleAutoEncoding() {
 	var x = document.getElementById('autoEncodeOptions')
 	var y = document.getElementById('boardOutput')
-	if (x.style.display === 'none') {
+	if (x.style.display == 'none') {
 	  x.style.display = 'block'
-	  y.style.height = 66
+	  y.style.height = 50
 	  autoEncode()
 	} else {
 	  x.style.display = 'none'
-	  y.style.height = 94
+	  y.style.height = 79
 	}
   }
 
@@ -1291,16 +1293,23 @@ function toggleSidePanel() {
 
 function toggleFumenSettings() {
 	var fumenSettings = document.getElementById('settingsSidebar')
-	var openButton = document.getElementById('openFumenSettings')
-	var closeButton = document.getElementById('closeFumenSettings')
+	var settingsButton = document.getElementsByClassName('option-left')[0]
+	var openLogo = document.getElementById('openFumenSettings')
+	var closeLogo = document.getElementById('closeFumenSettings')
 	if (fumenSettings.style.display === 'none'){
 	    fumenSettings.style.display = 'block'
-	    openButton.style.display = 'none'
-	    closeButton.style.display = 'block'
+		settingsButton.style.right = '459px'
+		settingsButton.style.borderBottomLeftRadius = '0px'
+		settingsButton.style.borderBottomRightRadius = '10px'
+	    openLogo.style.display = 'none'
+	    closeLogo.style.display = 'block'
 	} else {
 	    fumenSettings.style.display = 'none'
-	    openButton.style.display = 'block'
-	    closeButton.style.display = 'none'
+		settingsButton.style.right = '500px'
+		settingsButton.style.borderBottomRightRadius = '0px'
+		settingsButton.style.borderBottomLeftRadius = '10px'
+	    openLogo.style.display = 'block'
+	    closeLogo.style.display = 'none'
 	}
 	
   }
@@ -1390,4 +1399,52 @@ function takeshot() {
             });
         }
     );
+}
+
+function toggleGrid() {
+	gridToggle = document.getElementById('gridToggle').checked
+	var x = document.getElementById('gridColorPicker')
+	if(gridToggle){
+		x.style.display = 'block';
+	} else {
+		x.style.display = 'none';
+	}
+}
+
+function encodeString(fieldString) {
+	var pages = []
+	var fieldArray = JSON.parse(JSON.stringify(emptyBoard))
+	fieldArray.splice(16, 4)
+	var rows = fieldString.split(',')
+
+	for (let i = 0; i < 4; i++){
+		let row = []
+		for (let j = 0; j < 10; j++){
+			let mino = {c: rows[i].split('')[j]}
+			row.push(mino)
+		}
+		fieldArray.push(row)
+	}
+
+	var field = toField(fieldArray)
+	page = {field}
+	pages.push(page)
+
+	return encoder.encode(pages)
+}
+
+delimiter = document.getElementById('delim').value
+
+function updateDelim() {
+	delimiter = document.getElementById('delim').value;
+}
+
+//gonna just leave this here, used it to convert wirelyre mino-board strings to fumens
+function wireEncode(){
+	inputs = document.getElementById('input').value.split('\n')
+	outputs = []
+	for(let i = 0; i < inputs.length; i++){
+		outputs.push(encodeString(inputs[i]))
+	}
+	document.getElementById('output').value = outputs.join('\n')
 }
