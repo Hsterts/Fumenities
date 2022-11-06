@@ -180,9 +180,8 @@ document.getElementById('b').onmousemove = function mousemove(e) {
 						for (var row = 0; row < 20; row++){
 							for (var col = 0; col < 10; col++) {
 								if(minoModeBoard[row][col].c != ''){
-									console.log(minoModeBoard[row][col])
 									minoModeBoard[row][col].c = 'X'
-								}	
+								}
 							}
 						}
 					}

@@ -110,6 +110,15 @@ textarea{
     resize: show;
     }
 
+.commentDisplay{
+    height: 24px;
+    width: inherit;
+    margin: 2px 0 0 0;
+    font-size: 14px;
+    padding: 2px;
+    text-align: center;
+}
+
 input, select{
     height: 1.5em;
     font-size: 1em;
@@ -315,16 +324,15 @@ input[type='radio'] {
     text-align: center;
     height: 100%;
     width: 500px;
-    position: fixed; /* Fixed Sidebar (stay in place on scroll) */
+    position: fixed;
     top: 0;
     right: 0;
     padding-top: 40px;
-    box-shadow:#201631;
 }
 
 #settingsSidebar{
     color: #ececec;
-    background: #2c2c2cce;
+    background: #4c4459cc;
     padding-bottom: 20px;
     text-align: left;
     display: flex;
@@ -332,7 +340,7 @@ input[type='radio'] {
     align-content: center;
     height: 100%;
     width: 250px;
-    position: fixed; /* Fixed Sidebar (stay in place on scroll) */
+    position: fixed;
     top: 0;
     right: 500px;
     padding-top: 120px;
@@ -345,7 +353,7 @@ input[type='radio'] {
     width: 220px;
     height: 150px;
     padding: 10px 5px 10px 5px;
-    background: #00000066;
+    background: #000000A0;
     border-radius: 2px;
 }
 

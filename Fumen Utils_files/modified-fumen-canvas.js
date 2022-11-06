@@ -61,67 +61,73 @@ function draw(fumenPage, tilesize, numrows, transparent, gridColor) {
 		context.strokeRect(0, 0, width, height);
 		for (i = 0; i < numcols; i++) {
 			for (j = 0; j < numrows; j++) {
-				context.fillStyle = gridColor+'28'
-				context.fillRect(i * tilesize - 1, height - (j + 1) * tilesize, tilesize, 1)
-				context.fillRect(i * tilesize - 1, height - (j + 1) * tilesize, 1, tilesize)
-				context.fillRect(i * tilesize - 1, height - j * tilesize, tilesize, 1)
-				context.fillRect((i + 1) * tilesize - 1, height - (j + 1) * tilesize, 1, tilesize)
+				// all dim grids
+				context.fillStyle = gridColor + '30'
+				context.fillRect(i * tilesize, height - (j + 1) * tilesize, 1, tilesize)
+				context.fillRect(i * tilesize, height - (j + 1) * tilesize, tilesize, 1)
 			}
 		}
 	}
 	
 	for (i = 0; i < numcols; i++) {
 		for (j = 0; j < numrows; j++) {
-			//normal
 			if(field.at(i, j) != '_') {
+				// all blocks
 				context.fillStyle = colors[field.at(i, j)].normal
 				context.fillRect(i * tilesize, height - (j + 1) * tilesize, tilesize, tilesize)
-				//highlights
+				// all dim grids
+				if(gridToggle){
+					context.fillStyle = gridColor + '40'
+					context.fillRect(i * tilesize, height - (j + 1) * tilesize, 1, tilesize)
+					context.fillRect(i * tilesize, height - (j + 1) * tilesize, tilesize, 1)
+					context.fillRect((i + 1) * tilesize, height - (j + 1) * tilesize, 1, tilesize)
+					context.fillRect(i * tilesize, height - j * tilesize, tilesize, 1)
+				}
 				if(field.at(i, j + 1) == '_') {
+					// all highlights
 					context.fillStyle = colors[field.at(i, j)].light
 					context.fillRect(i * tilesize, height - (j + 1) * tilesize - tilesize / 5, tilesize, tilesize / 5)
-						context.fillStyle = gridColor+'88'
-					if(gridToggle) {
-						context.fillRect(i * tilesize - 1, height - (j + 1) * tilesize - tilesize / 5, tilesize, 1)
-						context.fillStyle = gridColor
-						context.fillRect(i * tilesize - 1, height - (j + 1) * tilesize, tilesize, 1)
-						if(field.at(i + 1, j) == '_' && field.at(i + 1, j + 1) == '_') {	
-								context.fillStyle = gridColor+'CC'
-								context.fillRect((i + 1) * tilesize - 1, height - (j + 1) * tilesize - tilesize / 5, 1, tilesize / 5)
-							}
-
-						if(i != 0 && field.at(i - 1, j) == '_' && field.at(i - 1, j + 1) == '_') {
-								context.fillStyle = gridColor+'CC'
-								context.fillRect(i * tilesize - 1, height - (j + 1) * tilesize - tilesize / 5, 1, tilesize / 5)
+					if(gridToggle){
+						// all top dim highlight borders
+						context.fillStyle = gridColor + 'CC'
+						context.fillRect(i * tilesize, height - (j + 1) * tilesize - tilesize / 5, tilesize, 1)
+						// left kinda dim highlight borders
+						if(field.at(Math.max(0, i - 1), j + 1) == '_') {
+							context.fillStyle = gridColor + 'CC'
+							context.fillRect(i * tilesize, height - (j + 1) * tilesize - tilesize / 5, 1, tilesize / 5)
+						} else {
+							context.fillStyle = gridColor + 'FF'
+							context.fillRect(i * tilesize, height - (j + 1) * tilesize - tilesize / 5, 1, tilesize / 5)
+						}
+						// right kinda dim highlight borders
+						if(field.at(i + 1, j + 1) == '_') {
+							context.fillStyle = gridColor + 'CC'
+							context.fillRect((i + 1) * tilesize, height - (j + 1) * tilesize - tilesize / 5, 1, tilesize / 5)
 						}
 					}
-				}
-				if(gridToggle) {
-					if(field.at(i, j - 1) == '_') {
-						context.fillStyle = gridColor
-						context.fillRect(i * tilesize - 1, height - j * tilesize, tilesize + 1, 1)
-					} else {
-						context.fillStyle = gridColor+'33'
-						context.fillRect(i * tilesize - 1, height - j * tilesize, tilesize + 1, 1)					
 					}
-					
+				if(gridToggle){
+					context.fillStyle = gridColor + 'FF'
+					// left border
+					if(field.at(Math.max(i - 1, 0), j) == '_') {
+						context.fillRect(i * tilesize, height - (j + 1) * tilesize, 1, tilesize + 1)
+					}
+					// top border
+					if(field.at(i, j + 1) == '_') {
+						context.fillRect(i * tilesize, height - (j + 1) * tilesize, tilesize + 1, 1)
+					}
+					// right border
 					if(field.at(i + 1, j) == '_') {
-							context.fillStyle = gridColor
-							context.fillRect((i + 1) * tilesize - 1, height - (j + 1) * tilesize, 1, tilesize + 1)
-					} else {
-						context.fillStyle = gridColor+'33'
-						context.fillRect((i + 1) * tilesize - 1, height - (j + 1) * tilesize, 1, tilesize + 1)
+						context.fillRect((i + 1) * tilesize, height - (j + 1) * tilesize, 1, tilesize + 1)
 					}
-
-					if(i != 0 && field.at(i - 1, j) == '_'){
-								context.fillStyle = gridColor
-								context.fillRect(i * tilesize - 1, height - (j + 1) * tilesize, 1, tilesize + 1)
+					// bottom border
+					if(field.at(i, j - 1) == '_') {
+						context.fillRect(i * tilesize, height - j * tilesize, tilesize + 1, 1)
 					}
 				}
 			}
 		}
 	}
-
 	return canvas
 }
 
@@ -180,7 +186,6 @@ cellSize = 22;
 height = undefined;
 transparency_four = true;
 gridToggle = false;
-gridColor = document.getElementById('gridColor').value;
 delay = 500;
 max_col = 10;
 
@@ -192,15 +197,17 @@ function fumencanvas(input) {
 	while (container.firstChild) {
 		container.removeChild(container.firstChild);
 	}
-
-//	var cellSize = document.getElementById('cellSize').value;
+	
+	//	var cellSize = document.getElementById('cellSize').value;
 	var transparency_four = document.getElementById('transparency').checked;
 	if(document.getElementById('autoheight').checked){
 		var height = undefined
-		}else{
+	}else{
 		var height = 1+parseFloat(document.getElementById('height').value)
 	};
 
+	var gridColor = document.getElementById('gridColor').value;
+	
 	var fumenCodes = [];
 	var fumenComments = [];
 	results = [];
@@ -222,8 +229,8 @@ function fumencanvas(input) {
 				var commentBox = document.createElement('figcaption');
 				var textBox = document.createElement('textarea')
 				textBox.value = pageComment;
-				textBox.style.width = canvas.width+4;
-				textBox.className = 'commentBox';
+				textBox.style.width = canvas.width + 2;
+				textBox.className = 'commentDisplay';
 
                 img.src = canvas.toDataURL("image/png");
 				img.className = 'imageOutput';
