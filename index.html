@@ -214,7 +214,7 @@
 							<div class = "page">
 								<div class = "pager"><button class = "positionsub pagebutton" onclick = "startPage()"><span class = "material-icons">first_page</span></button></div>
 								<div class = "pager"><button class = "positionsub pagebutton" onclick = "prevPage()"><span class = "material-icons">navigate_before</span></button></div>
-								<div class = "pager"><input id = "positionDisplay" inputmode = "numeric" value = "1"/></div>
+								<div class = "pager"><input id = "positionDisplay" onfocusout="gotoPage()" inputmode = "numeric" value = "1"/></div>
 								<div class = "pager"><input id = "positionDisplayOver" value = "/1" disabled/></div>
 								<div class = "pager"><button class = "positionadd pagebutton" onclick = "nextPage()"><span class = "material-icons">navigate_next</span></button></div>
 								<div class = "pager"><button class = "positionadd pagebutton" onclick = "endPage()"><span class = "material-icons">last_page</span></button></div>
