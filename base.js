@@ -445,7 +445,7 @@ function shift(direction){
 function prevPage() {
 	bookPos = parseFloat(document.getElementById('positionDisplay').value)-1
 	if (bookPos > 0) {
-		document.getElementById('positionDisplay').value = parseFloat(document.getElementById('positionDisplay').value)-1
+		document.getElementById('positionDisplay').value = bookPos
         board = JSON.parse(book[bookPos - 1]['board'])
         minoModeBoard = JSON.parse(book[bookPos - 1]['minoBoard'])
 		document.getElementById('positionDisplay').value = bookPos
@@ -455,16 +455,33 @@ function prevPage() {
 	autoEncode()
 }
 
+function gotoPage() {
+	bookPos = parseFloat(document.getElementById('positionDisplay').value)-1
+	// Bound bookPos to existing region
+	bookPos = Math.max(Math.min(book.length-1, bookPos), 0)
+	
+	// Go to an existing page
+	document.getElementById('positionDisplay').value = bookPos+1
+	board = JSON.parse(book[bookPos]['board'])
+	minoModeBoard = JSON.parse(book[bookPos]['minoBoard'])
+	comment = book[bookPos]['comment']
+	flags = {lock: true}
+	window.requestAnimationFrame(render)
+	autoEncode()
+}
+
 function nextPage() {
 	bookPos = parseFloat(document.getElementById('positionDisplay').value)
 	if(bookPos < book.length) {
-		document.getElementById('positionDisplay').value = parseFloat(document.getElementById('positionDisplay').value)+1
+		// Go to an existing page
+		document.getElementById('positionDisplay').value = bookPos+1
 		board = JSON.parse(book[bookPos]['board'])
 		minoModeBoard = JSON.parse(book[bookPos]['minoBoard'])
 		comment = book[bookPos]['comment']
 		flags = {lock: true}
 	} else {
-		document.getElementById('positionDisplay').value = parseFloat(document.getElementById('positionDisplay').value)+1
+		// Create new page
+		document.getElementById('positionDisplay').value = bookPos+1
 		document.getElementById('positionDisplayOver').value = '/' + (parseFloat(book.length) + 1)
 
 		// Solidifying minos
