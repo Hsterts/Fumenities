@@ -7,11 +7,10 @@ var board = []
 var book = []
 var undoLog = []
 var redoLog = []
-var bookPos = 0
 var operation // {type: 'I', rotation: 'reverse', x: 4, y: 0}
 var flags = {lock: true}
 book = [{board: JSON.stringify(board), comment: '', operation: undefined, minoBoard: JSON.stringify(board), flags},]
-bookPos = 0
+var bookPos = 0
 window.requestAnimationFrame(render)
 
 //PIECE MAPS
@@ -442,33 +441,46 @@ function shift(direction){
 	updateBook()
 }
 
+function settoPage(newPagePos) { // I do not trust the global variable
+	// Bound bookPos to existing pages
+	newPagePos = Math.max(Math.min(book.length-1, newPagePos), 0)
+
+	document.getElementById('positionDisplay').value = newPagePos+1
+	board = JSON.parse(book[newPagePos]['board'])
+	minoModeBoard = JSON.parse(book[newPagePos]['minoBoard'])
+	document.getElementById('commentBox').value = book[newPagePos]['comment']
+	//what about operation?
+}
+
 function prevPage() {
 	bookPos = parseFloat(document.getElementById('positionDisplay').value)-1
-	if (bookPos > 0) {
-		document.getElementById('positionDisplay').value = parseFloat(document.getElementById('positionDisplay').value)-1
-        board = JSON.parse(book[bookPos - 1]['board'])
-        minoModeBoard = JSON.parse(book[bookPos - 1]['minoBoard'])
-		document.getElementById('positionDisplay').value = bookPos
-		document.getElementById('commentBox').value = book[bookPos - 1]['comment']
-	}
+	settoPage(bookPos-1)
+	window.requestAnimationFrame(render)
+	autoEncode()
+}
+
+function gotoPage() {
+	bookPos = parseFloat(document.getElementById('positionDisplay').value)-1
+	// Go to an existing page
+	settoPage(bookPos)
 	window.requestAnimationFrame(render)
 	autoEncode()
 }
 
 function nextPage() {
-	bookPos = parseFloat(document.getElementById('positionDisplay').value)
-	if(bookPos < book.length) {
-		document.getElementById('positionDisplay').value = parseFloat(document.getElementById('positionDisplay').value)+1
-		board = JSON.parse(book[bookPos]['board'])
-		minoModeBoard = JSON.parse(book[bookPos]['minoBoard'])
-		comment = book[bookPos]['comment']
+	bookPos = parseFloat(document.getElementById('positionDisplay').value)-1
+	bookPos += 1 //next page
+	if(bookPos <= book.length-1) {
+		// Go to an existing page
+		settoPage(bookPos)
 		flags = {lock: true}
 	} else {
-		document.getElementById('positionDisplay').value = parseFloat(document.getElementById('positionDisplay').value)+1
+		// Create new page
+		document.getElementById('positionDisplay').value = bookPos+1
 		document.getElementById('positionDisplayOver').value = '/' + (parseFloat(book.length) + 1)
 
 		// Solidifying minos
-		prevBoard = JSON.parse(book[bookPos - 1]['board'])
+		prevBoard = JSON.parse(book[bookPos-1]['board'])
 		for (var row = 0; row < 20; row++){
 			for (var col = 0; col < 10; col++) {
 				if(board[row][col].t == 2){
@@ -523,8 +535,8 @@ function nextPage() {
 			operation: undefined,
 			flags: {lock: lockFlag},
 		}
+		document.getElementById('commentBox').value = comment
 	}
-	document.getElementById('commentBox').value = comment
 	window.requestAnimationFrame(render)
 	autoEncode()
 	updateBook()
@@ -532,17 +544,13 @@ function nextPage() {
 
 function startPage(){
 	bookPos = 0
-	document.getElementById('positionDisplay').value = 1
-	board = JSON.parse(book[bookPos]['board'])
-	minoModeBoard = JSON.parse(book[bookPos]['minoBoard'])
+	settoPage(bookPos)
 	window.requestAnimationFrame(render)
 	autoEncode()
 }
 
 function endPage(){
-	document.getElementById('positionDisplay').value = book.length
-	board = JSON.parse(book[book.length-1]['board'])
-	minoModeBoard = JSON.parse(book[book.length-1]['minoBoard'])
+	settoPage(book.length-1)
 	window.requestAnimationFrame(render)
 	autoEncode()
 }
@@ -576,10 +584,8 @@ function clearPage(){
 		operation: undefined,
 		flags: flags
 	}
-	board = book[bookPos]['board']
-	minoBoard = book[bookPos]['minoBoard']
+	settoPage(bookPos)
 	window.requestAnimationFrame(render)
-	document.getElementById('commentBox').value = ''
 	autoEncode()
 }
 
@@ -925,10 +931,7 @@ function fullDecode(fumen) {
 
 	book = newBook;
 	bookPos = 0;
-	board = JSON.parse(book[bookPos]['board']);
-	minoModeBoard = JSON.parse(book[bookPos]['minoBoard']);
-	comment = book[bookPos]['comment'];
-	document.getElementById('commentBox').value = comment; 
+	settoPage(bookPos)
 	document.getElementById('positionDisplay').value = 1;
 	document.getElementById('positionDisplayOver').value = '/'+book.length;
 	window.requestAnimationFrame(render);
