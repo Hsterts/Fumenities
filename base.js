@@ -445,10 +445,9 @@ function shift(direction){
 function prevPage() {
 	bookPos = parseFloat(document.getElementById('positionDisplay').value)-1
 	if (bookPos > 0) {
-		document.getElementById('positionDisplay').value = parseFloat(document.getElementById('positionDisplay').value)-1
+		document.getElementById('positionDisplay').value = bookPos
         board = JSON.parse(book[bookPos - 1]['board'])
         minoModeBoard = JSON.parse(book[bookPos - 1]['minoBoard'])
-		document.getElementById('positionDisplay').value = bookPos
 		document.getElementById('commentBox').value = book[bookPos - 1]['comment']
 	}
 	window.requestAnimationFrame(render)
@@ -458,13 +457,13 @@ function prevPage() {
 function nextPage() {
 	bookPos = parseFloat(document.getElementById('positionDisplay').value)
 	if(bookPos < book.length) {
-		document.getElementById('positionDisplay').value = parseFloat(document.getElementById('positionDisplay').value)+1
+		document.getElementById('positionDisplay').value = bookPos+1
 		board = JSON.parse(book[bookPos]['board'])
 		minoModeBoard = JSON.parse(book[bookPos]['minoBoard'])
 		comment = book[bookPos]['comment']
 		flags = {lock: true}
 	} else {
-		document.getElementById('positionDisplay').value = parseFloat(document.getElementById('positionDisplay').value)+1
+		document.getElementById('positionDisplay').value = bookPos+1
 		document.getElementById('positionDisplayOver').value = '/' + (parseFloat(book.length) + 1)
 
 		// Solidifying minos
@@ -530,6 +529,23 @@ function nextPage() {
 	updateBook()
 }
 
+function gotoPage() {
+	// check for numeric input and within bounds
+	bookPos = parseFloat(document.getElementById('positionDisplay').value)
+	if(isNaN(bookPos)){
+		bookPos = 1
+	}
+	bookPos = Math.max(Math.min(book.length, bookPos), 1)
+
+	document.getElementById('positionDisplay').value = bookPos
+	board = JSON.parse(book[bookPos - 1]['board'])
+	minoModeBoard = JSON.parse(book[bookPos - 1]['minoBoard'])
+	document.getElementById('commentBox').value = book[bookPos - 1]['comment']
+	
+	window.requestAnimationFrame(render)
+	autoEncode()
+}
+
 function startPage(){
 	bookPos = 0
 	document.getElementById('positionDisplay').value = 1
@@ -576,8 +592,8 @@ function clearPage(){
 		operation: undefined,
 		flags: flags
 	}
-	board = book[bookPos]['board']
-	minoBoard = book[bookPos]['minoBoard']
+	board = JSON.parse(book[bookPos]['board'])
+	minoBoard = JSON.parse(book[bookPos]['minoBoard'])
 	window.requestAnimationFrame(render)
 	document.getElementById('commentBox').value = ''
 	autoEncode()
@@ -585,20 +601,10 @@ function clearPage(){
 
 function dupliPage(){
 	bookPos = parseFloat(document.getElementById('positionDisplay').value-1)
-	if(book.length == 1){
-		nextPage()
-	} else {
-		if (bookPos != book.length-1) {
-			book.splice(bookPos,0,book[bookPos])
-			document.getElementById('positionDisplay').value = bookPos+2
-			document.getElementById('positionDisplayOver').value = '/'+book.length
-			document.getElementById('commentBox').value = book[bookPos]['comment']
-		} else {
-			if(bookPos == book.length-1){
-				nextPage()
-			}
-		}
-	}
+	book.splice(bookPos,0,book[bookPos])
+	document.getElementById('positionDisplay').value = bookPos + 2
+	document.getElementById('positionDisplayOver').value = '/'+book.length
+	document.getElementById('commentBox').value = book[bookPos]['comment']
 	window.requestAnimationFrame(render)
 	autoEncode()
 }
@@ -961,7 +967,7 @@ function encode() {
 	page = {
 		comment: book[bookPos]['comment'],
 		operation: book[bookPos]['operation'],
-		field,
+		field: field,
 		flags: flags,
 		index: bookPos,
 	}
@@ -1218,7 +1224,7 @@ function mirror() {
 			if (board[row][i].t == 1) board[row][i].c = reversed[board[row][i].c];
 		}
 	}
-	updatebookory();
+	updateBook();
 	window.requestAnimationFrame(render);
 }
 
@@ -1234,7 +1240,7 @@ function fullMirror() {
 		book[i]['board'] = JSON.stringify(tempBoard);
 	}
 	board = tempBoard;
-	updatebookory();
+	updateBook();
 	window.requestAnimationFrame(render);
 }
 
