@@ -46,7 +46,9 @@
 			<div class="io">
 			<center><textarea id = "input" name = "input" onfocusin = "focused()" onfocusout = "unfocused()"></textarea><br></center>
 			</div>
+
 			<div class = "fumenOperations">
+				<button class = "ibtn" onclick = "document.getElementById('input').value = ''">Clear Input</button>
 				<button class = "ibtn" onclick = "glueFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))">Glue</button>
 				<button class = "ibtn" onclick = "unglueFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))">Unglue</button>
 				<button class = "ibtn" onclick = "mirrorFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))">Mirror</button>
@@ -214,7 +216,7 @@
 							<div class = "page">
 								<div class = "pager"><button class = "positionsub pagebutton" onclick = "startPage()"><span class = "material-icons">first_page</span></button></div>
 								<div class = "pager"><button class = "positionsub pagebutton" onclick = "prevPage()"><span class = "material-icons">navigate_before</span></button></div>
-								<div class = "pager"><input id = "positionDisplay" onfocusout="gotoPage()" inputmode = "numeric" value = "1"/></div>
+								<div class = "pager"><input id = "positionDisplay" inputmode = "numeric" value = "1" onchange="gotoPage()"/></div>
 								<div class = "pager"><input id = "positionDisplayOver" value = "/1" disabled/></div>
 								<div class = "pager"><button class = "positionadd pagebutton" onclick = "nextPage()"><span class = "material-icons">navigate_next</span></button></div>
 								<div class = "pager"><button class = "positionadd pagebutton" onclick = "endPage()"><span class = "material-icons">last_page</span></button></div>
