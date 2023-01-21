@@ -25,6 +25,7 @@
 <script type = "text/javascript" src = "./Fumen Utils_files/NeuQuant.js"></script>
 <script type = "text/javascript" src = "./Fumen Utils_files/GIFEncoder.js"></script>
 <script type = "text/javascript" src = "./Fumen Utils_files/b64.js"></script>
+<script type = "text/javascript" src = "./Fumen Utils_files/mousetrap.js"></script>
 <script src = "https://cdn.jsdelivr.net/npm/html2canvas@1.0.0-rc.5/dist/html2canvas.min.js"></script>
 
 	<body id = "main">		
@@ -44,7 +45,7 @@
 <!--Input-->			
 			<h3><b>Input</b></h3>
 			<div class="io">
-			<center><textarea id = "input" name = "input" onfocusin = "focused()" onfocusout = "unfocused()"></textarea><br></center>
+			<center><textarea id = "input" name = "input"></textarea><br></center>
 			</div>
 			<div class = "fumenOperations">
 				<button class = "ibtn" onclick = "glueFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))">Glue</button>
@@ -135,7 +136,7 @@
 <!--Output-->
 			<h3><b>Output</b></h3>
 			<div class="io">
-				<center><textarea id = "output" name = "output" onfocusin = "focused()" onfocusout = "unfocused()"></textarea><br></center>
+				<center><textarea id = "output" name = "output"></textarea><br></center>
 			</div>
 			<div class="fumenOperations">
 				<button class = "ibtn" onclick = "navigator.clipboard.writeText(document.getElementById('output').value)">Copy</button>
@@ -224,7 +225,7 @@
 							<center><div id = "board" oncontextmenu = "return false"><canvas id = "b"></canvas></div></center>
 
 							<!--Comment Box-->
-							<textarea id = "commentBox" onchange = "updateBook()" onfocusin = "focused()" onfocusout = "unfocused()"></textarea>
+							<textarea id = "commentBox" onchange = "updateBook()"></textarea>
 						</div>
 						
 						<div class = "right-fumen-panel">
@@ -300,7 +301,7 @@
 									</div>
 								</div>
 								<!--Output Box-->
-								<div><textarea id = "boardOutput" onfocusin = "focused()" onfocusout = "unfocused()">MINO MODE NOT FUNCTIONAL</textarea></div>
+								<div><textarea id = "boardOutput">MINO MODE NOT FUNCTIONAL</textarea></div>
 							</div>
 						</div>
 					</div>

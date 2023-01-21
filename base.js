@@ -53,7 +53,6 @@ document.getElementById('b').style.outline = '2px solid #ffffffcc'
 //USER INPUT
 mouseY = 0
 mouseX = 0
-userFocus = false
 mouseDown = false
 drawMode = true
 movingCoordinates = false
@@ -329,36 +328,23 @@ document.onmouseup = function mouseup() {
     requestAnimationFrame(render)
 }
 
-function focused() {userFocus = true}
-
-function unfocused() {userFocus = false}
-
-document.onkeydown = function hotkeys(e) {
-	console.log("checking userFocus: " + (userFocus))
-	if(userFocus == false){
-		if(e.ctrlKey == true){
-			switch (e.key) {
-				case 'z': undo(); break;
-				case 'y': redo(); break;
-			}
-		} else {
-			switch (e.key) {
-				case '1': paintbucket[0].checked = true; break;
-				case '2': paintbucket[1].checked = true; break;
-				case '3': paintbucket[2].checked = true; break;
-				case '4': paintbucket[3].checked = true; break;
-				case '5': paintbucket[4].checked = true; break;
-				case '6': paintbucket[5].checked = true; break;
-				case '7': paintbucket[6].checked = true; break;
-				case '8': paintbucket[7].checked = true; break;
-				case 'r': restart(); break;
-				case ',': prevPage(); break;
-				case '.': nextPage(); break;
-				default: break;			
-			}
-		}
-	}
+function setPaintBucket(index) {
+	document.paintbucket[index].checked = true;
 }
+
+Mousetrap.bind('1', function() {setPaintBucket(0);})
+Mousetrap.bind('2', function() {setPaintBucket(1);})
+Mousetrap.bind('3', function() {setPaintBucket(2);})
+Mousetrap.bind('4', function() {setPaintBucket(3);})
+Mousetrap.bind('5', function() {setPaintBucket(4);})
+Mousetrap.bind('6', function() {setPaintBucket(5);})
+Mousetrap.bind('7', function() {setPaintBucket(6);})
+Mousetrap.bind('8', function() {setPaintBucket(7);})
+Mousetrap.bind('r', restart)
+Mousetrap.bind(',', prevPage)
+Mousetrap.bind('.', nextPage)
+Mousetrap.bind(['command+z', 'ctrl+z'], undo)
+Mousetrap.bind(['command+y', 'ctrl+y'], redo)
 
 function paintbucketColor() {
 	for (i = 0; i < document.paintbucket.length; i++) {
