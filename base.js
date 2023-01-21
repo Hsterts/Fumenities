@@ -24,6 +24,7 @@ piece_O = ['0000110011000000']
 
 pieceMaps = [piece_T, piece_I, piece_L, piece_J, piece_S, piece_Z, piece_O]
 
+
 //MAKING FIRST EMPTY BOARD
 const aRow = []
 const emptyBoard = []
@@ -333,6 +334,7 @@ function focused() {userFocus = true}
 function unfocused() {userFocus = false}
 
 document.onkeydown = function hotkeys(e) {
+	console.log("checking userFocus: " + (userFocus))
 	if(userFocus == false){
 		if(e.ctrlKey == true){
 			switch (e.key) {
@@ -397,7 +399,7 @@ function updateBook() {
 		undoLog.push(JSON.stringify(book))
 	}
 	//Clearing redo if branch is overwritten
-	if(redoLog.length != 0) redoLog = [];
+	redoLog = [];
 
 	autoColor()
 	window.requestAnimationFrame(render)
@@ -837,15 +839,6 @@ function toField(board) {
     return Field.create(FieldString)
 }
 
-// TILJSZO order
-pieces = 	[['0000111001000000', '0100011001000000', '0100111000000000', '0100110001000000'],
-['', '0100010001000100', '0000111100000000'],
-['0000111010000000', '0100010001100000', '0010111000000000', '1100010001000000'],
-['0000111000100000', '0110010001000000', '1000111000000000', '0100010011000000'],
-['0000011011000000', '0100011000100000'],
-['0000110001100000', '0010011001000000'],
-['0000110011000000']]
-
 function decode() {
     bookPos = parseFloat(document.getElementById('positionDisplay').value)-1
 	bookInsert = []
@@ -1051,7 +1044,7 @@ function decodeOperation(operation){
 		
 		let pieceIndex = 'TILJSZO'.indexOf(c)
 		let rotIndex = ['reverse','right','spawn','left'].indexOf(rotation)
-		let pieceRef = pieces[pieceIndex]
+		let pieceRef = pieceMaps[pieceIndex]
 		let rotRef = pieceRef[rotIndex]
 
 		for(map = 0; map < 16; map++) {
