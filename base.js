@@ -329,7 +329,18 @@ document.onmouseup = function mouseup() {
     requestAnimationFrame(render)
 }
 
+<<<<<<< HEAD
 function focused() {userFocus = true}
+=======
+function setPositionDisplay(pageNum, totalPageNum) {
+	document.getElementById('positionDisplay').value = pageNum
+	document.getElementById('positionDisplayOver').value = '/' + totalPageNum
+}
+
+function setPaintBucket(index) {
+	document.paintbucket[index].checked = true;
+}
+>>>>>>> 8ec5356 (refactor positionDisplay)
 
 function unfocused() {userFocus = false}
 
@@ -447,11 +458,11 @@ function settoPage(newPagePos) { // I do not trust the global variable
 	// Bound bookPos to existing pages
 	newPagePos = Math.max(Math.min(book.length-1, newPagePos), 0)
 
-	document.getElementById('positionDisplay').value = newPagePos+1
+	setPositionDisplay(newPagePos+1, book.length)
 	board = JSON.parse(book[newPagePos]['board'])
 	minoModeBoard = JSON.parse(book[newPagePos]['minoBoard'])
 	document.getElementById('commentBox').value = book[newPagePos]['comment']
-	//what about operation?
+	// what about operation?
 }
 
 function prevPage() {
@@ -471,15 +482,14 @@ function gotoPage() {
 
 function nextPage() {
 	bookPos = parseFloat(document.getElementById('positionDisplay').value)-1
-	bookPos += 1 //next page
+	bookPos += 1 // next page
 	if(bookPos <= book.length-1) {
 		// Go to an existing page
 		settoPage(bookPos)
 		flags = {lock: true}
 	} else {
 		// Create new page
-		document.getElementById('positionDisplay').value = bookPos+1
-		document.getElementById('positionDisplayOver').value = '/' + (parseFloat(book.length) + 1)
+		setPositionDisplay(bookPos+1, book.length + 1)
 
 		// Solidifying minos
 		prevBoard = JSON.parse(book[bookPos-1]['board'])
@@ -567,8 +577,7 @@ function restart(){
     minoModeBoard = JSON.parse(JSON.stringify(emptyBoard))
 	book = []
 	book[0] = [{board: JSON.stringify(board),},]
-	document.getElementById('positionDisplay').value = 1
-	document.getElementById('positionDisplayOver').value = '/'+(book.length)
+	setPositionDisplay(1, book.length)
 	document.getElementById('boardOutput').value = ''
 	document.getElementById('commentBox').value = ''
 	comments = []
@@ -598,8 +607,7 @@ function dupliPage(){
 	} else {
 		if (bookPos != book.length-1) {
 			book.splice(bookPos,0,book[bookPos])
-			document.getElementById('positionDisplay').value = bookPos+2
-			document.getElementById('positionDisplayOver').value = '/'+book.length
+			setPositionDisplay(bookPos+2, book.length)
 			document.getElementById('commentBox').value = book[bookPos]['comment']
 		} else {
 			if(bookPos == book.length-1){
@@ -618,16 +626,12 @@ function deletePage(){
 	} else {
 		if (bookPos != book.length-1) {
 			board = JSON.parse(book[bookPos+1]['board'])
-			document.getElementById('positionDisplay').value = bookPos+1
 			book.splice(bookPos,1)
-			document.getElementById('positionDisplayOver').value = '/'+book.length
+			setPositionDisplay(bookPos+1, book.length)	
 		} else {
-			if(bookPos == book.length-1){
-				board = JSON.parse(book[bookPos-1]['board'])
-				book.pop()
-				document.getElementById('positionDisplay').value = bookPos
-				document.getElementById('positionDisplayOver').value = '/'+book.length
-			}
+			board = JSON.parse(book[bookPos-1]['board'])
+			book.pop()
+			setPositionDisplay(bookPos, book.length)
 		}
 	}
 	window.requestAnimationFrame(render)
@@ -925,8 +929,7 @@ function fullDecode(fumen) {
 	book = newBook;
 	bookPos = 0;
 	settoPage(bookPos)
-	document.getElementById('positionDisplay').value = 1;
-	document.getElementById('positionDisplayOver').value = '/'+book.length;
+	setPositionDisplay(1, book.length);
 	window.requestAnimationFrame(render);
 };
 
