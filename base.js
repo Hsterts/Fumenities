@@ -453,8 +453,12 @@ function prevPage() {
 
 function gotoPage() {
 	bookPos = parseFloat(document.getElementById('positionDisplay').value)-1
+	// Bound bookPos to existing region
+	bookPos = Math.max(Math.min(book.length-1, bookPos), 0)
+	
 	// Go to an existing page
 	settoPage(bookPos)
+	flags = {lock: true}
 	window.requestAnimationFrame(render)
 	autoEncode()
 }
@@ -533,6 +537,23 @@ function nextPage() {
 	updateBook()
 }
 
+function gotoPage() {
+	// check for numeric input and within bounds
+	bookPos = parseFloat(document.getElementById('positionDisplay').value)
+	if(isNaN(bookPos)){
+		bookPos = 1
+	}
+	bookPos = Math.max(Math.min(book.length, bookPos), 1)
+
+	document.getElementById('positionDisplay').value = bookPos
+	board = JSON.parse(book[bookPos - 1]['board'])
+	minoModeBoard = JSON.parse(book[bookPos - 1]['minoBoard'])
+	document.getElementById('commentBox').value = book[bookPos - 1]['comment']
+	
+	window.requestAnimationFrame(render)
+	autoEncode()
+}
+
 function startPage(){
 	bookPos = 0
 	settoPage(bookPos)
@@ -574,6 +595,8 @@ function clearPage(){
 		operation: undefined,
 		flags: flags
 	}
+	board = JSON.parse(book[bookPos]['board'])
+	minoBoard = JSON.parse(book[bookPos]['minoBoard'])
 	settoPage(bookPos)
 	window.requestAnimationFrame(render)
 	autoEncode()
@@ -944,7 +967,7 @@ function encode() {
 	page = {
 		comment: book[bookPos]['comment'],
 		operation: book[bookPos]['operation'],
-		field,
+		field: field,
 		flags: flags,
 		index: bookPos,
 	}
@@ -1201,7 +1224,7 @@ function mirror() {
 			if (board[row][i].t == 1) board[row][i].c = reversed[board[row][i].c];
 		}
 	}
-	updatebookory();
+	updateBook();
 	window.requestAnimationFrame(render);
 }
 
@@ -1217,7 +1240,7 @@ function fullMirror() {
 		book[i]['board'] = JSON.stringify(tempBoard);
 	}
 	board = tempBoard;
-	updatebookory();
+	updateBook();
 	window.requestAnimationFrame(render);
 }
 
