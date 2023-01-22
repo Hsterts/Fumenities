@@ -400,7 +400,7 @@ function updateBook() {
 		document.getElementById('commentBox').value = book[bookPos]['comment']
 	}
 
-	//Generating 100 undo logs
+	//Limit undos to 100 entries
 	if(undoLog.length <= 100){
 		undoLog.push(JSON.stringify(book))
 	} else {
@@ -456,7 +456,7 @@ function settoPage(newPagePos) { // I do not trust the global variable
 	// Bound bookPos to existing pages
 	newPagePos = Math.max(Math.min(book.length-1, newPagePos), 0)
 
-	setPositionDisplay(newPagePos+1, book.length)
+	setPositionDisplay(newPagePos, book.length)
 	board = JSON.parse(book[newPagePos]['board'])
 	minoModeBoard = JSON.parse(book[newPagePos]['minoBoard'])
 	document.getElementById('commentBox').value = book[newPagePos]['comment']
@@ -487,8 +487,6 @@ function nextPage() {
 		flags = {lock: true}
 	} else {
 		// Create new page
-		setPositionDisplay(bookPos+1, book.length + 1)
-
 		// Solidifying minos
 		prevBoard = JSON.parse(book[bookPos-1]['board'])
 		for (var row = 0; row < 20; row++){
@@ -500,7 +498,8 @@ function nextPage() {
 			}
 		}
 		book[bookPos-1]['board'] = JSON.stringify(prevBoard)
-
+		
+		//push minomode onto current board
 		if(book[bookPos-1]['operation'] != undefined){
 			for (var row = 0; row < 20; row++){
 				for (var col = 0; col < 10; col++) {
@@ -515,21 +514,13 @@ function nextPage() {
 
 		//Line clears if flag lock is on
 		if(book[bookPos-1]['flags']['lock'] === true) {
-			rowSum = []
-			//Check # of minos
-			for(var row = 0; row < 20; row++){
-				let cellCount = 0
-				for(var col = 0; col < 10; col++){	
-					cellCount += board[row][col].t
-				}
-				rowSum.push(cellCount)
-			}
-			//Clear lines
-			for(var row = 0; row < 20; row++){
-				if(rowSum[row] == 10) {
-					board.splice(row, 1)
-					board.splice(0, 0, aRow)
-				}
+			for(var row = 0; row < boardSize[1]; row++){
+				// delete a row if it is all filled
+				let isEmpty = (cell) => cell.t == 0
+				if(board[row].some(isEmpty)) continue;
+				
+				board.splice(row, 1)
+				board.splice(0, 0, aRow)
 			}
 		}
 
@@ -546,6 +537,8 @@ function nextPage() {
 			flags: {lock: lockFlag},
 		}
 		document.getElementById('commentBox').value = comment
+		
+		setPositionDisplay(bookPos, book.length + 1)
 	}
 	window.requestAnimationFrame(render)
 	autoEncode()
@@ -573,14 +566,14 @@ function restart(){
 		})
     })
     minoModeBoard = JSON.parse(JSON.stringify(emptyBoard))
-	book = []
-	book[0] = [{board: JSON.stringify(board),},]
-	setPositionDisplay(1, book.length)
+	book = [{board: JSON.stringify(board), flags: flags}]
+	setPositionDisplay(0, book.length)
 	document.getElementById('boardOutput').value = ''
 	document.getElementById('commentBox').value = ''
 	comments = []
 	document.getElementById('reset').style.display = 'inline-block'
 	document.getElementById('reset-angry').style.display = 'none'
+	updateBook() // record initial state in logs, testing
 	window.requestAnimationFrame(render)
 }
 
@@ -605,7 +598,7 @@ function dupliPage(){
 	} else {
 		if (bookPos != book.length-1) {
 			book.splice(bookPos,0,book[bookPos])
-			setPositionDisplay(bookPos+2, book.length)
+			setPositionDisplay(bookPos+1, book.length)
 			document.getElementById('commentBox').value = book[bookPos]['comment']
 		} else {
 			if(bookPos == book.length-1){
@@ -622,15 +615,10 @@ function deletePage(){
 	if(book.length == 1){
 		clearPage()
 	} else {
-		if (bookPos != book.length-1) {
-			board = JSON.parse(book[bookPos+1]['board'])
-			book.splice(bookPos,1)
-			setPositionDisplay(bookPos+1, book.length)	
-		} else {
-			board = JSON.parse(book[bookPos-1]['board'])
-			book.pop()
-			setPositionDisplay(bookPos, book.length)
-		}
+		book.splice(bookPos,1)
+		bookPos = Math.min(bookPos,book.length-1) // limit bookPos to end of book
+		board = JSON.parse(book[bookPos]['board'])
+		setPositionDisplay(bookPos, book.length)
 	}
 	window.requestAnimationFrame(render)
 	autoEncode()
@@ -657,10 +645,10 @@ function render() {
 }
 
 function drawCell(x, y, piece, type) {
-	var foureffectInput = document.getElementById('3dSetting').checked
 	var lockFlag = document.getElementById('lockFlagInput').checked
 	
 	if(style == 'four'){
+		var foureffectInput = document.getElementById('3dSetting').checked
 		var color = {Z: '#ef624d', L: '#ef9535', O: '#f7d33e', S: '#66c65c', I: '#41afde', J: '#1983bf', T: '#b451ac', X: '#999999'}
 		var lightercolor = {Z: '#fd7660', L: '#fea440', O: '#ffe34b', S: '#7cd97a', I: '#3dc0fb', J: '#1997e3', T: '#d161c9', X: '#bbbbbb'}
 		var lightestcolor = {Z: '#ff998c', L: '#feb86d', O: '#fbe97f', S: '#96f98b', I: '#75faf8', J: '#1fd7f7', T: '#fe89f7', X: '#dddddd'}
@@ -927,7 +915,7 @@ function fullDecode(fumen) {
 	book = newBook;
 	bookPos = 0;
 	settoPage(bookPos)
-	setPositionDisplay(1, book.length);
+	setPositionDisplay(0, book.length);
 	window.requestAnimationFrame(render);
 };
 
@@ -1341,37 +1329,38 @@ function renderImages(fumen) {
   }
 
 function undo() {
-	bookPos = parseFloat(document.getElementById('positionDisplay').value)-1
-	if(undoLog.length != 0){
-		book = JSON.parse(undoLog[undoLog.length-2])
-		redoLog.push(undoLog[undoLog.length-1])
-		undoLog.pop()
+	bookPos = getCurrentPosition()
+	if(undoLog.length <= 1){
+		console.log('No previous actions logged')
+	} else {
+		redoLog.push(undoLog.pop())
+		book = JSON.parse(undoLog[undoLog.length-1])
+		console.log(bookPos, book.length-1)
+		bookPos = Math.min(bookPos, book.length-1) // the board no longer exists if the last action was to add a new page, temporary measure
 		board = JSON.parse(book[bookPos]['board'])
 		minoModeBoard = JSON.parse(book[bookPos]['minoBoard'])
-		operation = book[bookPos]['operation']
-		comment = book[bookPos]['comment']
-		document.getElementById('commentBox').value = comment
+		operation = book[bookPos]['operation'] //unused?
+		setPositionDisplay(bookPos, book.length)
+		document.getElementById('commentBox').value = book[bookPos]['comment']
 		document.getElementById('lockFlagInput').checked = book[bookPos]['flags']['lock']
-	} else {
-		console.log('No previous actions logged')
 	}
 	window.requestAnimationFrame(render)
 }
 
 function redo() {
-	bookPos = parseFloat(document.getElementById('positionDisplay').value)-1
-	if(redoLog.length != 0){
-		book = JSON.parse(redoLog[redoLog.length-1])
-		undoLog.push(redoLog[redoLog.length-1])
-		redoLog.pop()
+	bookPos = getCurrentPosition()
+	if(redoLog.length == 0){
+		console.log('No following actions logged')
+	} else {
+		undoLog.push(redoLog.pop())
+		book = JSON.parse(undoLog[undoLog.length-1])
 		board = JSON.parse(book[bookPos]['board'])
 		minoModeBoard = JSON.parse(book[bookPos]['minoBoard'])
 		operation = book[bookPos]['operation']
 		comment = book[bookPos]['comment']
+		setPositionDisplay(bookPos, book.length)
 		document.getElementById('commentBox').value = comment
 		document.getElementById('lockFlagInput').checked = book[bookPos]['flags']['lock']
-	} else {
-		console.log('No following actions logged')
 	}
 	window.requestAnimationFrame(render)
 }
