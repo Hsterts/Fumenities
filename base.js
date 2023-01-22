@@ -35,7 +35,6 @@ minoModeBoard = JSON.parse(JSON.stringify(emptyBoard)) // the lazy way of doing 
 updateBook()
 
 // CANVAS
-style = 'four'
 var ctx = document.getElementById('b').getContext('2d')
 var gridCvs = document.createElement('canvas')
 gridCvs.height = cellSize
@@ -638,11 +637,16 @@ function render() {
 	})
 }
 
+function getCanvasStyle() {
+	return (document.getElementById('defaultRenderInput').checked ? 'fumen' : 'four')
+}
+
 function drawCell(x, y, piece, type) {
 	var foureffectInput = document.getElementById('3dSetting').checked
 	var lockFlag = document.getElementById('lockFlagInput').checked
+	let canvasStyle = getCanvasStyle()
 	
-	if(style == 'four'){
+	if(canvasStyle == 'four'){
 		var color = {Z: '#ef624d', L: '#ef9535', O: '#f7d33e', S: '#66c65c', I: '#41afde', J: '#1983bf', T: '#b451ac', X: '#999999'}
 		var lightercolor = {Z: '#fd7660', L: '#fea440', O: '#ffe34b', S: '#7cd97a', I: '#3dc0fb', J: '#1997e3', T: '#d161c9', X: '#bbbbbb'}
 		var lightestcolor = {Z: '#ff998c', L: '#feb86d', O: '#fbe97f', S: '#96f98b', I: '#75faf8', J: '#1fd7f7', T: '#fe89f7', X: '#dddddd'}
@@ -696,7 +700,7 @@ function drawCell(x, y, piece, type) {
 		}
 	}
 
-	if(style == 'fumen'){
+	if(canvasStyle == 'fumen'){
 		var color = {Z: '#990000', L: '#996600', O: '#999900', S: '#009900', I: '#009999', J: '#0000bb', T: '#990099', X: '#999999'}
 		var lightercolor = {Z: '#cc3333', L: '#cc9933', O: '#cccc33', S: '#33cc33', I: '#33cccc', J: '#3333cc', T: '#cc33cc', X: '#cccccc'}
 		if (type == 1) {
@@ -1305,18 +1309,15 @@ function toggleToolTips() {
 
 function toggleStyle() {
 	if(document.getElementById('defaultRenderInput').checked) {
-		style = 'fumen'
 		document.getElementById('3dToggle').style.opacity = 0.5
 	} else {
-		style = 'four'
 		document.getElementById('3dToggle').style.opacity = 1
 	}
 	render()
 }
 
 function renderImages(fumen) {
-	  style = document.getElementById('renderStyle').value
-	  switch(style){
+	  switch(document.getElementById('renderStyle').value){
 		  case 'four': fumencanvas(fumen); break;
 		  case 'fumen': fumenrender(fumen); break;
 	  }
