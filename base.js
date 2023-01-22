@@ -616,7 +616,7 @@ function deletePage(){
 		clearPage()
 	} else {
 		book.splice(bookPos,1)
-		bookPos = Math.min(bookPos,book.length-1) // limit bookPos to end of book
+		bookPos = Math.min(bookPos,book.length-1) // Bound bookPos to end of book
 		board = JSON.parse(book[bookPos]['board'])
 		setPositionDisplay(bookPos, book.length)
 	}
@@ -1336,7 +1336,7 @@ function undo() {
 		redoLog.push(undoLog.pop())
 		book = JSON.parse(undoLog[undoLog.length-1])
 		console.log(bookPos, book.length-1)
-		bookPos = Math.min(bookPos, book.length-1) // the board no longer exists if the last action was to add a new page, temporary measure
+		bookPos = Math.min(bookPos, book.length-1) // Bound bookPos to end of book, temporary measure
 		board = JSON.parse(book[bookPos]['board'])
 		minoModeBoard = JSON.parse(book[bookPos]['minoBoard'])
 		operation = book[bookPos]['operation'] //unused?
