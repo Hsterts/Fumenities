@@ -61,7 +61,7 @@ minoMode = false
 
 //FUNCTIONS
 document.getElementById('b').onmousedown = function mousedown(e) {
-	bookPos = parseFloat(document.getElementById('positionDisplay').value)-1
+	bookPos = getCurrentPosition()
 	rect = document.getElementById('b').getBoundingClientRect()
 	mouseY = Math.floor((e.clientY - rect.top) / cellSize)
 	mouseX = Math.floor((e.clientX - rect.left) / cellSize)
@@ -156,7 +156,7 @@ document.getElementById('b').onmousedown = function mousedown(e) {
 }
 
 document.getElementById('b').onmousemove = function mousemove(e) {
-	bookPos = parseFloat(document.getElementById('positionDisplay').value)-1
+	bookPos = getCurrentPosition()
 	rect = document.getElementById('b').getBoundingClientRect()
 	y = Math.floor((e.clientY - rect.top) / cellSize)
 	x = Math.floor((e.clientX - rect.left) / cellSize)
@@ -233,7 +233,7 @@ document.getElementById('b').onmousemove = function mousemove(e) {
 document.onmouseup = function mouseup() {
     mouseDown = false
 	drawn = []
-	bookPos = document.getElementById('positionDisplay').value-1
+	bookPos = getCurrentPosition()
 	if (minoMode) {
 		//count drawn pieces
 		drawnCount = minoModeBoard.reduce((count,row) => {
@@ -329,18 +329,16 @@ document.onmouseup = function mouseup() {
     requestAnimationFrame(render)
 }
 
-<<<<<<< HEAD
-function focused() {userFocus = true}
-=======
-function setPositionDisplay(pageNum, totalPageNum) {
-	document.getElementById('positionDisplay').value = pageNum
+function getCurrentPosition() {
+	return parseInt(document.getElementById('positionDisplay').value)-1
+}
+
+function setPositionDisplay(pageIndex, totalPageNum) {
+	document.getElementById('positionDisplay').value = pageIndex+1
 	document.getElementById('positionDisplayOver').value = '/' + totalPageNum
 }
 
-function setPaintBucket(index) {
-	document.paintbucket[index].checked = true;
-}
->>>>>>> 8ec5356 (refactor positionDisplay)
+function focused() {userFocus = true}
 
 function unfocused() {userFocus = false}
 
@@ -385,7 +383,7 @@ function inRange(number, min, max) {
 
 // Updates all of the board properties: board, minoBoard, operation, comments
 function updateBook() {
-	bookPos = parseFloat(document.getElementById('positionDisplay').value)-1
+	bookPos = getCurrentPosition()
 	book[bookPos] = {
 		board: JSON.stringify(board),
 		minoBoard: JSON.stringify(minoModeBoard),
@@ -466,14 +464,14 @@ function settoPage(newPagePos) { // I do not trust the global variable
 }
 
 function prevPage() {
-	bookPos = parseFloat(document.getElementById('positionDisplay').value)-1
+	bookPos = getCurrentPosition()
 	settoPage(bookPos-1)
 	window.requestAnimationFrame(render)
 	autoEncode()
 }
 
 function gotoPage() {
-	bookPos = parseFloat(document.getElementById('positionDisplay').value)-1
+	bookPos = getCurrentPosition()
 	// Go to an existing page
 	settoPage(bookPos)
 	window.requestAnimationFrame(render)
@@ -481,7 +479,7 @@ function gotoPage() {
 }
 
 function nextPage() {
-	bookPos = parseFloat(document.getElementById('positionDisplay').value)-1
+	bookPos = getCurrentPosition()
 	bookPos += 1 // next page
 	if(bookPos <= book.length-1) {
 		// Go to an existing page
@@ -587,7 +585,7 @@ function restart(){
 }
 
 function clearPage(){
-	bookPos = parseFloat(document.getElementById('positionDisplay').value)-1
+	bookPos = getCurrentPosition()
 	book[bookPos] = {
 		board: JSON.stringify(emptyBoard),
 		minoBoard: JSON.stringify(emptyBoard),
@@ -601,7 +599,7 @@ function clearPage(){
 }
 
 function dupliPage(){
-	bookPos = parseFloat(document.getElementById('positionDisplay').value-1)
+	bookPos = getCurrentPosition()
 	if(book.length == 1){
 		nextPage()
 	} else {
@@ -620,7 +618,7 @@ function dupliPage(){
 }
 
 function deletePage(){
-	bookPos = parseFloat(document.getElementById('positionDisplay').value-1)
+	bookPos = getCurrentPosition()
 	if(book.length == 1){
 		clearPage()
 	} else {
@@ -844,7 +842,7 @@ function toField(board) {
 }
 
 function decode() {
-    bookPos = parseFloat(document.getElementById('positionDisplay').value)-1
+    bookPos = getCurrentPosition()
 	bookInsert = []
 	fumen = document.getElementById('boardOutput').value
 	pages = decoder.decode(fumen)
@@ -934,7 +932,7 @@ function fullDecode(fumen) {
 };
 
 function encode() {
-	bookPos = document.getElementById('positionDisplay').value-1
+	bookPos = getCurrentPosition()
 	// Solidifying minos
 	for (var row = 0; row < 20; row++){
 		for (var col = 0; col < 10; col++) {
