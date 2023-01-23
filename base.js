@@ -266,8 +266,8 @@ Mousetrap.bind('8', function() {setPaintBucket(7);})
 Mousetrap.bind('r', restart)
 Mousetrap.bind(',', prevPage)
 Mousetrap.bind('.', nextPage)
-Mousetrap.bind(['command+z', 'ctrl+z'], undo)
-Mousetrap.bind(['command+y', 'ctrl+y'], redo)
+Mousetrap.bind(['mod+z'], undo)
+Mousetrap.bind(['mod+y'], redo)
 
 function paintbucketColor() {
 	for (i = 0; i < document.paintbucket.length; i++) {
@@ -641,91 +641,55 @@ function drawCell(x, y, piece, type) {
 
 
 
-var shape_table = {'Z': [[[1, 0], [0, 2], [1, 1], [0, 1]],  [[1, 0], [1, 1], [2, 1], [0, 0]]],
-               'L': [[[1, 0], [0, 1], [2, 0], [0, 0]], [[0, 1], [0, 2], [1, 2], [0, 0]], [[0, 1], [1, 1], [2, 0], [2, 1]], [[1, 0], [1, 1], [1, 2], [0, 0]]],
+var shape_table = {'Z': [[[0, 1], [1, 1], [1, 2], [0, 0]], [[1, 0], [1, 1], [2, 0], [0, 1]]],
+               'L': [[[0, 1], [1, 1], [2, 1], [0, 0]], [[0, 1], [1, 0], [0, 2], [0, 0]], [[1, 0], [2, 0], [2, 1], [0, 0]], [[1, 0], [1, 1], [1, 2], [0, 2]]],
                'O': [[[1, 0], [0, 1], [1, 1], [0, 0]]],
-               'S': [[[0, 1], [1, 1], [1, 2], [0, 0]], [[1, 0], [1, 1], [2, 0], [0, 1]]],
+               'S': [[[1, 0], [0, 2], [1, 1], [0, 1]],  [[1, 0], [1, 1], [2, 1], [0, 0]]],
                'I': [[[1, 0], [2, 0], [0, 0], [3, 0]],  [[0, 1], [0, 2], [0, 3], [0, 0]]],
-               'J': [[[0, 1], [1, 1], [2, 1], [0, 0]], [[0, 1], [1, 0], [0, 2], [0, 0]], [[1, 0], [2, 0], [2, 1], [0, 0]], [[1, 0], [1, 1], [1, 2], [0, 2]]],
+               'J': [[[1, 0], [0, 1], [2, 0], [0, 0]], [[0, 1], [0, 2], [1, 2], [0, 0]], [[0, 1], [1, 1], [2, 0], [2, 1]], [[1, 0], [1, 1], [1, 2], [0, 0]]],
                'T': [[[0, 1], [0, 2], [1, 1], [0, 0]], [[1, 0], [1, 1], [2, 0], [0, 0]], [[1, 0], [1, 1], [1, 2], [0, 1]], [[1, 0], [1, 1], [2, 1], [0, 1]]],
 }
 
 //CONTRIBUTED BY CONFIDENTIAL (confidential#1288)
-function readPiece(positions){
-	//currently reads upside-down, patched by mirror_fix()
-    // if (positions.length != 4){
-    //     return mirror_fix('X')
+function readPiece(mino_positions){
+    // if (mino_positions.length != 4){
+    //     return 'X'
     // }
-    var min_i=99
-    var min_j=99
-    
-    for (position of positions){
-        var j = position[0]
-        var i = position[1]
-        if (j < min_j){
-            min_j = j
-        }
-            
-        if (i < min_i){
-            min_i = i
-        }
-            
-    }
-    var offset_positions = []
 
-    for (var position of positions){
-        j = position[0]
-        i = position[1]
-        offset_positions.push([j-min_j, i-min_i])
-		// console.log([j-min_j, i-min_i])
+    var min_i=Infinity
+    var min_j=Infinity
+    for (let position of mino_positions){
+		min_j = Math.min(min_j, position[0])
+		min_i = Math.min(min_i, position[1])
+    }
+
+	offset_positions = []
+    for (let position of mino_positions){
+        offset_positions.push([position[0]-min_j, position[1]-min_i])
     }
     
-    for (var piece in shape_table) {
-        if (shape_table.hasOwnProperty(piece) && is_element(offset_positions, shape_table[piece])) {
-            return mirror_fix(piece)
+    for (let [piece, piece_table] of Object.entries(shape_table)) {
+        if (is_element(offset_positions, piece_table)) {
+            return piece
         }
     }
-	return mirror_fix('X') //fallback, if none of the table matches
-
-	function mirror_fix(result) {
-		switch(result){
-			case 'S': return 'Z';
-			case 'Z': return 'S';
-			case 'L': return 'J';
-			case 'J': return 'L';
-			case undefined: return 'X';
-			default: return result;
-		}
-	}
-
-    function positions_equal(positions1, positions2){
-        if (positions1.length != positions2.length){ //must be false when they are not the same piece?
-            return false
-        }
-        for (let position1 of positions1){
-            let found = false
-            for (let position2 of positions2){
-                if (position1[0] == position2[0] && position1[1] == position2[1]){
-                    found = true
-                }
-            }
-            if (found == false){
-                return false
-            }
-        }
-        return true
-    }
-
-    function is_element(positions1, query){
-        for (let positions of query){
-            if (positions_equal(positions1, positions)){
-                return true
-            }
-        }
-        return false
-    }
+	return 'X' //if none of the tables match, then it isn't a tetromino shape
 	
-            
+    function is_element(offset_positions, query){
+		return query.some((query_positions) => {return positions_match(offset_positions, query_positions)})
+
+		function positions_match(offset_positions, query_positions){
+			return query_positions.every((query_position) => {
+				return offset_positions.some((offset_position) => {
+					return position_match(offset_position, query_position)
+				})
+			})
+			
+			function position_match(offset_position, query_position) {
+				return offset_position[0] == query_position[0] && offset_position[1] == query_position[1]
+			}
+		}
+    }
 }
 
 function autoColor() {
