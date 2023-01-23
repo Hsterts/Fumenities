@@ -143,10 +143,22 @@ function drawCanvasCell(cellRow, cellCol) {
 	}
 	
 	function drawCanvasNormalMode() {
-		if (drawMode) {
-			board[cellCol][cellRow] = { t: 1, c: paintbucketColor() }
+		let rowFill = document.getElementById('rowFillInput').checked
+		if (rowFill) {
+			if (drawMode) {
+				for (let row=0;row<boardSize[0];row++) {
+					board[cellCol][row] = { t: 1, c: paintbucketColor() }
+				}
+				board[cellCol][cellRow] = { t: 0, c: '' }
+			} else {
+				board[cellCol] = JSON.parse(JSON.stringify(aRow))
+			}
 		} else {
-			board[cellCol][cellRow] = { t: 0, c: '' }
+			if (drawMode) {
+				board[cellCol][cellRow] = { t: 1, c: paintbucketColor() }
+			} else {
+				board[cellCol][cellRow] = { t: 0, c: '' }
+			}
 		}
 	}
 	
@@ -202,8 +214,7 @@ function finishMinoMode() {
 			//coloring in
 			for (let row = 0; row < 20; row++){
 				for (let col = 0; col < 10; col++) {
-					if(minoModeBoard[row][col].c == ''){
-					} else {
+					if (minoModeBoard[row][col].c != '') {
 						minoModeBoard[row][col].c = type
 					}	
 				}
@@ -228,10 +239,8 @@ function finishAutoColor() {
 
 	let pieceName = readPiece(positions)
 
-	for (var cell = 0; cell < positions.length; cell++){
-		let row = positions[cell][0]
-		let col = positions[cell][1]
-		board[row][col] = { t: 1, c: pieceName }
+	for (let position of positions) {
+		board[position[0]][position[1]] = { t: 1, c: pieceName }
 	}
 }
 
@@ -246,6 +255,10 @@ document.onmouseup = function mouseup() {
     requestAnimationFrame(render)
 }
 
+function setPaintBucket(index) {
+	document.paintbucket[index].checked = true;
+}
+
 function getCurrentPosition() {
 	return parseInt(document.getElementById('positionDisplay').value)-1
 }
@@ -255,36 +268,19 @@ function setPositionDisplay(pageIndex, totalPageNum) {
 	document.getElementById('positionDisplayOver').value = '/' + totalPageNum
 }
 
-function focused() {userFocus = true}
-
-function unfocused() {userFocus = false}
-
-document.onkeydown = function hotkeys(e) {
-	console.log("checking userFocus: " + (userFocus))
-	if(userFocus == false){
-		if(e.ctrlKey == true){
-			switch (e.key) {
-				case 'z': undo(); break;
-				case 'y': redo(); break;
-			}
-		} else {
-			switch (e.key) {
-				case '1': paintbucket[0].checked = true; break;
-				case '2': paintbucket[1].checked = true; break;
-				case '3': paintbucket[2].checked = true; break;
-				case '4': paintbucket[3].checked = true; break;
-				case '5': paintbucket[4].checked = true; break;
-				case '6': paintbucket[5].checked = true; break;
-				case '7': paintbucket[6].checked = true; break;
-				case '8': paintbucket[7].checked = true; break;
-				case 'r': restart(); break;
-				case ',': prevPage(); break;
-				case '.': nextPage(); break;
-				default: break;			
-			}
-		}
-	}
-}
+Mousetrap.bind('1', function() {setPaintBucket(0);})
+Mousetrap.bind('2', function() {setPaintBucket(1);})
+Mousetrap.bind('3', function() {setPaintBucket(2);})
+Mousetrap.bind('4', function() {setPaintBucket(3);})
+Mousetrap.bind('5', function() {setPaintBucket(4);})
+Mousetrap.bind('6', function() {setPaintBucket(5);})
+Mousetrap.bind('7', function() {setPaintBucket(6);})
+Mousetrap.bind('8', function() {setPaintBucket(7);})
+Mousetrap.bind('r', restart)
+Mousetrap.bind(',', prevPage)
+Mousetrap.bind('.', nextPage)
+Mousetrap.bind(['mod+z'], undo)
+Mousetrap.bind(['mod+y'], redo)
 
 function paintbucketColor() {
 	for (i = 0; i < document.paintbucket.length; i++) {
@@ -532,18 +528,13 @@ function clearPage(){
 
 function dupliPage(){
 	bookPos = getCurrentPosition()
-	if(book.length == 1){
+	if(bookPos == book.length-1){
 		nextPage()
 	} else {
-		if (bookPos != book.length-1) {
-			book.splice(bookPos,0,book[bookPos])
-			setPositionDisplay(bookPos+1, book.length)
-			document.getElementById('commentBox').value = book[bookPos]['comment']
-		} else {
-			if(bookPos == book.length-1){
-				nextPage()
-			}
-		}
+		book.splice(bookPos,0,book[bookPos])
+		setPositionDisplay(bookPos+1, book.length)
+		//nominally you don't need to "update" the display since it's the same
+		document.getElementById('commentBox').value = book[bookPos]['comment']
 	}
 	window.requestAnimationFrame(render)
 	autoEncode()
