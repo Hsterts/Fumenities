@@ -14,16 +14,16 @@ var bookPos = 0
 window.requestAnimationFrame(render)
 
 //PIECE MAPS
-piece_T = ['0000111001000000', '0100011001000000', '0100111000000000', '0100110001000000']
-piece_I = ['', '0100010001000100', '0000111100000000']
-piece_L = ['0000111010000000', '0100010001100000', '0010111000000000', '1100010001000000']
-piece_J = ['0000111000100000', '0110010001000000', '1000111000000000', '0100010011000000']
-piece_S = ['0000011011000000', '0100011000100000']
-piece_Z = ['0000110001100000', '0010011001000000']
-piece_O = ['0000110011000000']
+const piece_T = ['0000111001000000', '0100011001000000', '0100111000000000', '0100110001000000']
+const piece_I = ['0100010001000100', '0000111100000000']
+const piece_L = ['0000111010000000', '0100010001100000', '0010111000000000', '1100010001000000']
+const piece_J = ['0000111000100000', '0110010001000000', '1000111000000000', '0100010011000000']
+const piece_S = ['0000011011000000', '0100011000100000']
+const piece_Z = ['0000110001100000', '0010011001000000']
+const piece_O = ['0000110011000000']
 
-pieceMaps = [piece_T, piece_I, piece_L, piece_J, piece_S, piece_Z, piece_O]
-
+const pieceMaps = [piece_T, piece_I, piece_L, piece_J, piece_S, piece_Z, piece_O]
+const rotationNames = ['reverse','right','spawn','left']
 
 //MAKING FIRST EMPTY BOARD
 const aRow = []
@@ -45,7 +45,7 @@ gridCtx.fillRect(0, 0, cellSize, cellSize)
 gridCtx.strokeStyle = '#ffffff88'
 gridCtx.strokeRect(0, 0, cellSize + 1, cellSize + 1)
 var pattern = ctx.createPattern(gridCvs, 'repeat')
-document.getElementById('b').height = (boardSize[1]) * cellSize
+document.getElementById('b').height = boardSize[1] * cellSize
 document.getElementById('b').width = boardSize[0] * cellSize
 document.getElementById('b').style.outline = '2px solid #ffffffcc'
 
@@ -53,7 +53,7 @@ document.getElementById('b').style.outline = '2px solid #ffffffcc'
 mouseDown = false
 drawMode = true
 minoMode = document.getElementById('minoModeInput').checked
-autoColorBool = document.getElementById('autoColorInput').checked
+var autoColorBool = document.getElementById('autoColorInput').checked
 
 //FUNCTIONS
 function drawnMinos(someBoard, cellMatch) {
@@ -192,8 +192,9 @@ function finishMinoMode() {
 			for(let x = -1; x < 3; x++){
 				let row = drawn[cell]['row'] + y
 				let col = drawn[cell]['col'] + x
-				if(!inRange(row,0,19) || !inRange(col,0,9)) {
-				minoFieldString += '0'
+				let minoInBoard = inRange(row,0,19) && inRange(col,0,9)
+				if(!minoInBoard) {
+					minoFieldString += '0'
 				} else {
 					minoFieldString += minoModeBoard[row][col].t.toString()
 				}
@@ -206,15 +207,14 @@ function finishMinoMode() {
 			if(index == -1) continue;
 			//operations property items
 			type = 'TILJSZO'[piece]
-			rotations = ['reverse','right','spawn','left']
-			rotation = rotations[index]
+			rotation = rotationNames[index]
 			x = drawn[cell]['col']
 			y = 19 - drawn[cell]['row']
 			operation = new Mino(type, rotation, x, y)
 			//coloring in
 			for (let row = 0; row < 20; row++){
 				for (let col = 0; col < 10; col++) {
-					if (minoModeBoard[row][col].c != '') {
+					if (minoModeBoard[row][col].t != 0) {
 						minoModeBoard[row][col].c = type
 					}	
 				}
@@ -306,12 +306,7 @@ function updateBook() {
 			lock: document.getElementById('lockFlagInput').checked,
 			},
 	}
-
-	if(book[bookPos]['comment'] == undefined){
-		document.getElementById('commentBox').value = ''
-	} else {
-		document.getElementById('commentBox').value = book[bookPos]['comment']
-	}
+	document.getElementById('commentBox').value = (book[bookPos]['comment'] != undefined ? book[bookPos]['comment'] : '')
 
 	//Limit undos to 100 entries
 	if(undoLog.length <= 100){
@@ -329,12 +324,10 @@ function updateBook() {
 
 function toggleMinoMode() {
     minoMode = document.getElementById('minoModeInput').checked
-    if (!minoMode)  {
-		if(operation == undefined){
+    if (!minoMode && operation == undefined)  {
 		minoModeBoard = JSON.parse(JSON.stringify(emptyBoard))
 		operation = undefined
 		updateBook()
-		}
 	}
 }
 
@@ -405,8 +398,8 @@ function nextPage() {
 		// Create new page
 		// Solidifying minos
 		prevBoard = JSON.parse(book[bookPos-1]['board'])
-		for (var row = 0; row < 20; row++){
-			for (var col = 0; col < 10; col++) {
+		for (let row = 0; row < 20; row++){
+			for (let col = 0; col < 10; col++) {
 				if(board[row][col].t == 2){
 					prevBoard[row][col].t = 1
 					prevBoard[row][col].c = board[row][col].c
@@ -416,21 +409,21 @@ function nextPage() {
 		book[bookPos-1]['board'] = JSON.stringify(prevBoard)
 		
 		//push minomode onto current board
-		if(book[bookPos-1]['operation'] != undefined){
-			for (var row = 0; row < 20; row++){
-				for (var col = 0; col < 10; col++) {
+		if(book[bookPos-1]['operation'] == undefined){
+			board = JSON.parse(book[bookPos - 1]['board'])
+		} else {
+			for (let row = 0; row < 20; row++){
+				for (let col = 0; col < 10; col++) {
 					if(minoModeBoard[row][col].t != 0){
 						board[row][col] = minoModeBoard[row][col]
 					}
 				}
 			}
-		} else {
-			board = JSON.parse(book[bookPos - 1]['board'])
 		}
 
 		//Line clears if flag lock is on
 		if(book[bookPos-1]['flags']['lock'] === true) {
-			for(var row = 0; row < boardSize[1]; row++){
+			for(let row = 0; row < boardSize[1]; row++){
 				// delete a row if it is all filled
 				let isEmpty = (cell) => cell.t == 0
 				if(board[row].some(isEmpty)) continue;
@@ -454,7 +447,7 @@ function nextPage() {
 		}
 		document.getElementById('commentBox').value = comment
 		
-		setPositionDisplay(bookPos, book.length + 1)
+		setPositionDisplay(bookPos, book.length)
 	}
 	window.requestAnimationFrame(render)
 	autoEncode()
@@ -804,8 +797,8 @@ function fullDecode(fumen) {
 function encode() {
 	bookPos = getCurrentPosition()
 	// Solidifying minos
-	for (var row = 0; row < 20; row++){
-		for (var col = 0; col < 10; col++) {
+	for (let row = 0; row < 20; row++){
+		for (let col = 0; col < 10; col++) {
 			if(board[row][col].t == 2){
 				prevBoard[row][col].t = 1
 				prevBoard[row][col].c = board[row][col].c
@@ -814,9 +807,6 @@ function encode() {
 	}
 
 	pages = [];
-
-	page = [];
-	field = toField(JSON.parse(book[bookPos]['board']));
 	flags = {
 		rise: false,
 		mirror: false,
@@ -828,21 +818,18 @@ function encode() {
 	page = {
 		comment: book[bookPos]['comment'],
 		operation: book[bookPos]['operation'],
-		field: field,
+		field: toField(JSON.parse(book[bookPos]['board'])),
 		flags: flags,
 		index: bookPos,
 	}
 	pages.push(page);
 
-	var result = encoder.encode(pages);
-	document.getElementById('boardOutput').value = result;
+	document.getElementById('boardOutput').value = encoder.encode(pages);
 }
 
 function fullEncode() {
 	pages = [];
-	for (var i = 0; i < book.length; i++){
-		page = [];
-		field = toField(JSON.parse(book[i]['board']));
+	for (let i = 0; i < book.length; i++){
 		flags = {
 			rise: false,
 			mirror: false,
@@ -851,43 +838,36 @@ function fullEncode() {
 			lock: true,
 			piece: undefined,
 		}
-			page = {
-				comment: book[i]['comment'],
-				operation: book[i]['operation'],
-				field,
-				flags: flags,
-				index: i,
-			}
-		pages.push(page);
+		pages.push({
+			comment: book[i]['comment'],
+			operation: book[i]['operation'],
+			field: toField(JSON.parse(book[i]['board'])),
+			flags: flags,
+			index: i,
+		});
 	};
-	var result = encoder.encode(pages);
-	document.getElementById('boardOutput').value = result;
+	document.getElementById('boardOutput').value = encoder.encode(pages);
 }
 
 function autoEncode() {
-	var autoEncodeBool = document.getElementById('autoEncode').checked;
+	if (document.getElementById('autoEncode').checked == false) return;
 
-	var encodingType = document.getElementById('encodingType').value;
-	if(autoEncodeBool == true) {
-		if(encodingType == 'fullFumen') {
-			fumen = fullEncode();
-		};
-		if(encodingType == 'currentFumen') {
-			fumen = encode();
-		};
-	};
+	let encodingType = document.getElementById('encodingType').value;
+	
+	if (encodingType == 'fullFumen') fumen = fullEncode();
+	if (encodingType == 'currentFumen') fumen = encode();
 }
 
 function decodeOperation(operation){
 	decodedMinoBoard = JSON.parse(JSON.stringify(emptyBoard))
-	if(operation != undefined){
-		let c = operation.type
+	if (operation != undefined){
+		let color = operation.type
 		let rotation = operation.rotation
 		let x = operation.x - 1
 		let y = 19 - operation.y - 1
 		
 		//hardcoding rotations because why distinguish between I, SZ, and O rotations :tf: (i wont work on it)
-		switch(c){
+		switch(color){
 			case 'I':
 				switch(rotation){
 					case 'reverse': rotation = 'spawn'; x--; break;
@@ -913,8 +893,8 @@ function decodeOperation(operation){
 				}
 			}
 		
-		let pieceIndex = 'TILJSZO'.indexOf(c)
-		let rotIndex = ['reverse','right','spawn','left'].indexOf(rotation)
+		let pieceIndex = 'TILJSZO'.indexOf(color)
+		let rotIndex = rotationNames.indexOf(rotation)
 		let pieceRef = pieceMaps[pieceIndex]
 		let rotRef = pieceRef[rotIndex]
 
@@ -922,9 +902,7 @@ function decodeOperation(operation){
 			let row = Math.floor(map/4) + y
 			let col = (map % 4) + x
 			let type = rotRef[map]
-			if(type == 1){
-					decodedMinoBoard[row][col] = {t: 1, c: c}
-			}
+			if (type == 1) decodedMinoBoard[row][col] = {t: 1, c: color}
 		}
 	}
 	return decodedMinoBoard
@@ -1283,7 +1261,7 @@ function encodeString(fieldString) {
 	return encoder.encode(pages)
 }
 
-delimiter = document.getElementById('delim').value
+delimiter = updateDelim()
 
 function updateDelim() {
 	delimiter = document.getElementById('delim').value;
