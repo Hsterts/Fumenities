@@ -674,7 +674,7 @@ function readPiece(mino_positions){
         }
     }
 	return 'X' //if none of the tables match, then it isn't a tetromino shape
-	
+
     function is_element(offset_positions, query){
 		return query.some((query_positions) => {return positions_match(offset_positions, query_positions)})
 
@@ -695,10 +695,10 @@ function readPiece(mino_positions){
 function autoColor() {
 	autoColorBool = document.getElementById('autoColorInput').checked
 	if(autoColorBool == false) {
-		for (var row = 0; row < 20; row++){
-			for (var col = 0; col < 10; col++) {
-				if (board[row][col].t == 2){
-					board[row][col].t = 1
+		for (let row of board){
+			for (let cell of row) {
+				if (cell.t == 2){
+					cell.t = 1
 				}
 			}
 		}
@@ -707,11 +707,12 @@ function autoColor() {
 
 //from io.js
 function toField(board) {
-    FieldString = board.reduce((boardString, row) => {
-		return boardString += row.reduce((rowString, cell) => {
-			return rowString += (cell.t == 0 ? '_' : cell.c)
-		}, '')
-	}, '')
+    FieldString = ''
+	for (let row of board){
+		for (let cell of row) {
+			FieldString += (cell.c == '' ? '_' : cell.c)
+		}
+	}
     return Field.create(FieldString)
 }
 
