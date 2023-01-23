@@ -376,7 +376,6 @@ function settoPage(newPagePos) { // I do not trust the global variable
 }
 
 function prevPage() {
-<<<<<<< HEAD
 	bookPos = getCurrentPosition()
 	settoPage(bookPos-1)
 	window.requestAnimationFrame(render)
@@ -391,21 +390,11 @@ function gotoPage() {
 	// Go to an existing page
 	settoPage(bookPos)
 	flags = {lock: true}
-=======
-	bookPos = parseFloat(document.getElementById('positionDisplay').value)-1
-	if (bookPos > 0) {
-		document.getElementById('positionDisplay').value = bookPos
-        board = JSON.parse(book[bookPos - 1]['board'])
-        minoModeBoard = JSON.parse(book[bookPos - 1]['minoBoard'])
-		document.getElementById('commentBox').value = book[bookPos - 1]['comment']
-	}
->>>>>>> upstream/main
 	window.requestAnimationFrame(render)
 	autoEncode()
 }
 
 function nextPage() {
-<<<<<<< HEAD
 	bookPos = getCurrentPosition()
 	bookPos += 1 // next page
 	if(bookPos <= book.length-1) {
@@ -414,19 +403,6 @@ function nextPage() {
 		flags = {lock: true}
 	} else {
 		// Create new page
-=======
-	bookPos = parseFloat(document.getElementById('positionDisplay').value)
-	if(bookPos < book.length) {
-		document.getElementById('positionDisplay').value = bookPos+1
-		board = JSON.parse(book[bookPos]['board'])
-		minoModeBoard = JSON.parse(book[bookPos]['minoBoard'])
-		comment = book[bookPos]['comment']
-		flags = {lock: true}
-	} else {
-		document.getElementById('positionDisplay').value = bookPos+1
-		document.getElementById('positionDisplayOver').value = '/' + (parseFloat(book.length) + 1)
-
->>>>>>> upstream/main
 		// Solidifying minos
 		prevBoard = JSON.parse(book[bookPos-1]['board'])
 		for (var row = 0; row < 20; row++){
@@ -487,11 +463,7 @@ function nextPage() {
 
 function gotoPage() {
 	// check for numeric input and within bounds
-<<<<<<< HEAD
 	bookPos = getCurrentPosition()
-=======
-	bookPos = parseFloat(document.getElementById('positionDisplay').value)
->>>>>>> upstream/main
 	if(isNaN(bookPos)){
 		bookPos = 1
 	}
@@ -549,16 +521,12 @@ function clearPage(){
 	}
 	board = JSON.parse(book[bookPos]['board'])
 	minoBoard = JSON.parse(book[bookPos]['minoBoard'])
-<<<<<<< HEAD
 	settoPage(bookPos)
-=======
->>>>>>> upstream/main
 	window.requestAnimationFrame(render)
 	autoEncode()
 }
 
 function dupliPage(){
-<<<<<<< HEAD
 	bookPos = getCurrentPosition()
 	if(bookPos == book.length-1){
 		nextPage()
@@ -568,13 +536,6 @@ function dupliPage(){
 		//nominally you don't need to "update" the display since it's the same
 		document.getElementById('commentBox').value = book[bookPos]['comment']
 	}
-=======
-	bookPos = parseFloat(document.getElementById('positionDisplay').value-1)
-	book.splice(bookPos,0,book[bookPos])
-	document.getElementById('positionDisplay').value = bookPos + 2
-	document.getElementById('positionDisplayOver').value = '/'+book.length
-	document.getElementById('commentBox').value = book[bookPos]['comment']
->>>>>>> upstream/main
 	window.requestAnimationFrame(render)
 	autoEncode()
 }
