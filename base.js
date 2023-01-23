@@ -64,96 +64,17 @@ function drawnMinos(someBoard, cellMatch) {
 	}, 0)
 }
 
-function drawMinoMode(cellRow, cellCol) {
-	//safeguarding, can remove if it's guarenteed that minoModeBoard will not contain cells with {t: 2}.
-	isCellTypeTwo = (cell) => cell.t === 2
-	for (let row = 0; row < 20; row++) {
-		if (minoModeBoard[row].some(isCellTypeTwo)) console.log("I refactored this code assuming that this state is impossible. Please check if the logic holds.")
-	}
-	//
-	
-	let drawnCount = drawnMinos(minoModeBoard, (cell) => cell.t == 1)
-
-	if (drawMode && drawnCount < 4 && board[cellCol][cellRow].t == 0) {
-		console.log("draw")
-		minoModeBoard[cellCol][cellRow] = {t: 1, c: 'X'}
-	} else if (!drawMode) {
-		minoModeBoard[cellCol][cellRow] = {t: 0, c: ''}
-		//remove colors when there are four minos and user deletes one
-		if (drawnCount == 4) {
-			for (let row = 0; row < 20; row++){
-				for (let col = 0; col < 10; col++) {
-					if(minoModeBoard[row][col].t != 0) {
-						minoModeBoard[row][col].c = 'X'
-					}	
-				}
-			}
-		}
-	}
-}
-
-function drawNormalMode(cellRow, cellCol) {
-	if (drawMode) {
-		board[cellCol][cellRow] = { t: 1, c: paintbucketColor() }
-	} else {
-		board[cellCol][cellRow] = { t: 0, c: '' }
-	}
-}
-
-function drawAutoColorMode(cellRow, cellCol) {
-	//auto color is basically mino mode and normal combined.
-	if (drawMode && drawnMinos(board, (cell) => cell.t == 2) < 4) {
-		board[cellCol][cellRow] = { t: 2, c: 'X' }
-	} else if (!drawMode) {
-		board[cellCol][cellRow] = { t: 0, c: '' }
-	}
-}
-
 document.getElementById('b').onmousedown = function mousedown(e) {
 	bookPos = parseFloat(document.getElementById('positionDisplay').value)-1
 	rect = document.getElementById('b').getBoundingClientRect()
 	let cellCol = Math.floor((e.clientY - rect.top) / cellSize)
 	let cellRow = Math.floor((e.clientX - rect.left) / cellSize)
 
-	drawMode = (e.button == 0 && board[cellCol][cellRow]['t'] == 0 && minoModeBoard[cellCol][cellRow]['t'] == 0)
-	console.log(drawMode)
-	if (minoMode) {
-		drawMinoMode(cellRow, cellCol)
-	} else if (autoColorBool) {
-		drawAutoColorMode(cellRow, cellCol)
-		drawnCount = drawnMinos(board, (cell) => cell.t == 2)
-		positions = []
-		for (let row = 0; row < 20; row++){
-			for (let col = 0; col < 10; col++) {
-				if(board[row][col].t == 2){
-					positions.push([row,col])
-				}
-			}
-		}
+	//implicitly insideCanvas from onmousedown
 
-		if (drawnCount == 4) {
-			if (drawMode) { //this duplicated code is to make sure dragging locks at 4 minos, but adding new minos by mousedown still creates new minos
-				board[cellCol][cellRow] = { t: 2, c: 'X' }
-			} else {
-				board[cellCol][cellRow] = { t: 0, c: '' }
-			}
-			if (board[cellCol][cellRow].t == 0) {
-				for (let cell = 0; cell < positions.length; cell++){
-					let row = positions[cell][0]
-					let col = positions[cell][1]
-					board[row][col].t = 1 //disable highlight; become part of board
-				}
-			} else {
-				for (let cell = 0; cell < positions.length; cell++){
-					let row = positions[cell][0]
-					let col = positions[cell][1]
-					board[row][col].c = 'X'
-				}
-			}
-		}
-	} else {
-		drawNormalMode(cellRow, cellCol)
-	}
+	drawMode = (e.button == 0 && board[cellCol][cellRow]['t'] == 0 && minoModeBoard[cellCol][cellRow]['t'] == 0)
+	drawCanvasCell(cellRow, cellCol)
+
 	updateBook()
 	autoEncode()
 	mouseDown = true
@@ -163,13 +84,13 @@ document.getElementById('b').onmousemove = function mousemove(e) {
 	bookPos = parseFloat(document.getElementById('positionDisplay').value)-1
 	rect = document.getElementById('b').getBoundingClientRect()
 
-	let cellCol = Math.floor((e.clientX - rect.left) / cellSize)
-	let cellRow = Math.floor((e.clientY - rect.top) / cellSize)
+	let cellCol = Math.floor((e.clientY - rect.top) / cellSize)
+	let cellRow = Math.floor((e.clientX - rect.left) / cellSize)
 	
 	let marginX = (e.clientX - rect.left) % cellSize
 	let marginY = (e.clientY - rect.top) % cellSize
 	
-	let insideCanvas = inRange(cellCol, 0, boardSize[0]-1) && inRange(cellRow, 0, boardSize[1]-1)
+	let insideCanvas = inRange(cellRow, 0, boardSize[0]-1) && inRange(cellCol, 0, boardSize[1]-1)
 	if (!insideCanvas) return;
 	
 	let inSameCell = inRange(marginX-e.movementX, 0, cellSize-1) && inRange(marginY-e.movementY, 0, cellSize-1) // check if previous position crossed cell boundary
@@ -177,20 +98,70 @@ document.getElementById('b').onmousemove = function mousemove(e) {
 	let updateCanvas = mouseDown && !inSameCell
     if (!updateCanvas) return;
 	
-	if (minoMode) {
-		drawMinoMode(cellCol, cellRow)
-    } else {
-		if(autoColorBool) {
-			drawAutoColorMode(cellCol, cellRow)
-		} else {
-			drawNormalMode()
-		}
-	}
+	drawCanvasCell(cellRow, cellCol)
+	
 	updateBook()
 	autoEncode()
 }
 
+function drawCanvasCell(cellRow, cellCol) {
+	if (minoMode) {
+		drawCanvasMinoMode()
+	} else if (autoColorBool) {
+		drawCanvasAutoColorMode()
+	} else {
+		drawCanvasNormalMode()
+	}
+
+	function drawCanvasMinoMode() {
+		//safeguarding, can remove if it's guarenteed that minoModeBoard will not contain cells with {t: 2}.
+		isCellTypeTwo = (cell) => cell.t === 2
+		for (let row = 0; row < 20; row++) {
+			if (minoModeBoard[row].some(isCellTypeTwo)) console.log("I refactored this code assuming that this state is impossible. Please check if the logic holds.")
+		}
+		//
+
+		//when minoModeBoard is merged into board, more refactoring similar to drawCell() can be done.
+		
+		let drawnCount = drawnMinos(minoModeBoard, (cell) => cell.t == 1)
+	
+		if (drawMode && drawnCount < 4 && board[cellCol][cellRow].t == 0) {
+			minoModeBoard[cellCol][cellRow] = {t: 1, c: 'X'}
+		} else if (!drawMode) {
+			minoModeBoard[cellCol][cellRow] = {t: 0, c: ''}
+			//remove colors when there are four minos and user deletes one
+			if (drawnCount == 4) {
+				for (let row = 0; row < 20; row++){
+					for (let col = 0; col < 10; col++) {
+						if(minoModeBoard[row][col].t != 0) {
+							minoModeBoard[row][col].c = 'X'
+						}	
+					}
+				}
+			}
+		}
+	}
+	
+	function drawCanvasNormalMode() {
+		if (drawMode) {
+			board[cellCol][cellRow] = { t: 1, c: paintbucketColor() }
+		} else {
+			board[cellCol][cellRow] = { t: 0, c: '' }
+		}
+	}
+	
+	function drawCanvasAutoColorMode() {
+		//auto color is basically mino mode and normal combined.	
+		if (drawMode && drawnMinos(board, (cell) => cell.t == 2) < 4) {
+			board[cellCol][cellRow] = { t: 2, c: 'X' }
+		} else if (!drawMode) {
+			board[cellCol][cellRow] = { t: 0, c: '' }
+		}
+	}
+}
+
 function finishMinoMode() {
+	drawn = []
 	if(drawnMinos(minoModeBoard, (cell) => cell == 1) != 4) return;
 	//get all drawn cells + their coords
 	for (let row = 0; row < 20; row++){
@@ -244,7 +215,7 @@ function finishMinoMode() {
 }
 
 function finishAutoColor() {
-	positions = []
+	let positions = []
 	for (var row = 0; row < 20; row++){
 		for (var col = 0; col < 10; col++) {
 			if(board[row][col].t == 2){
@@ -252,24 +223,25 @@ function finishAutoColor() {
 			}
 		}
 	}
+	
+	if (positions.length != 4) return;
 
-	piece = readPiece(positions)
+	let pieceName = readPiece(positions)
 
 	for (var cell = 0; cell < positions.length; cell++){
 		let row = positions[cell][0]
 		let col = positions[cell][1]
-		if(board[row][col].c == 'X' && positions.length % 4 == 0) board[row][col].c = piece
+		board[row][col] = { t: 1, c: pieceName }
 	}
 }
 
 document.onmouseup = function mouseup() {
-    mouseDown = false
-	drawn = []
 	bookPos = document.getElementById('positionDisplay').value-1 //used by program, only updates bookPos
 	
 	if (minoMode) finishMinoMode()
 	if (autoColorBool) finishAutoColor()
-
+	
+    mouseDown = false
 	autoEncode()
     requestAnimationFrame(render)
 }
@@ -306,7 +278,7 @@ function paintbucketColor() {
 }
 
 function inRange(number, min, max) {
-    return (number >= min && number <= max)
+    return (min <= number && number <= max)
 }
 
 // Updates all of the board properties: board, minoBoard, operation, comments
@@ -591,114 +563,83 @@ function render() {
 	ctx.clearRect(0, 0, boardSize[0] * cellSize, boardSize[1] * cellSize)
 	ctx.fillStyle = pattern
 	ctx.fillRect(0, 0, boardSize[0] * cellSize, boardSize[1] * cellSize)
-	board.map((y, i) => {
-		y.map((x, ii) => {
-			if (x.t != 0) {
-				drawCell(ii, i, x.c, x.t)
+	board.map((row, i) => {
+		row.map((cell, j) => {
+			if (cell.t != 0) {
+				drawCell(j, i, cell.c, cell.t)
 			}
 		})
 	})
-	minoModeBoard.map((y, i) => {
-		y.map((x, ii) => {
-			if(x.t == 1) {
-				drawCell(ii, i, x.c, 2)
+	minoModeBoard.map((row, i) => {
+		row.map((cell, j) => {
+			if(cell.t == 1) {
+				drawCell(j, i, cell.c, 2)
 			}
 		})
 	})
 }
 
-function getCanvasStyle() {
-	return (document.getElementById('defaultRenderInput').checked ? 'fumen' : 'four')
-}
+
 
 function drawCell(x, y, piece, type) {
-	var foureffectInput = document.getElementById('3dSetting').checked
-	var lockFlag = document.getElementById('lockFlagInput').checked
+	const FourPalette = [
+		{ Z: '#ef624d', L: '#ef9535', O: '#f7d33e', S: '#66c65c', I: '#41afde', J: '#1983bf', T: '#b451ac', X: '#999999' },
+		{ Z: '#fd7660', L: '#fea440', O: '#ffe34b', S: '#7cd97a', I: '#3dc0fb', J: '#1997e3', T: '#d161c9', X: '#bbbbbb' },
+		{ Z: '#ff998c', L: '#feb86d', O: '#fbe97f', S: '#96f98b', I: '#75faf8', J: '#1fd7f7', T: '#fe89f7', X: '#dddddd' }
+	]
+	const FumenPalette = [
+		{ Z: '#990000', L: '#996600', O: '#999900', S: '#009900', I: '#009999', J: '#0000bb', T: '#990099', X: '#999999' },
+		{ Z: '#cc3333', L: '#cc9933', O: '#cccc33', S: '#33cc33', I: '#33cccc', J: '#3333cc', T: '#cc33cc', X: '#cccccc' },
+		{ Z: '#cc3333', L: '#cc9933', O: '#cccc33', S: '#33cc33', I: '#33cccc', J: '#3333cc', T: '#cc33cc', X: '#cccccc' } //unused row, failsafe
+	]
+
 	let canvasStyle = getCanvasStyle()
 	
-	if(canvasStyle == 'four'){
-		var color = {Z: '#ef624d', L: '#ef9535', O: '#f7d33e', S: '#66c65c', I: '#41afde', J: '#1983bf', T: '#b451ac', X: '#999999'}
-		var lightercolor = {Z: '#fd7660', L: '#fea440', O: '#ffe34b', S: '#7cd97a', I: '#3dc0fb', J: '#1997e3', T: '#d161c9', X: '#bbbbbb'}
-		var lightestcolor = {Z: '#ff998c', L: '#feb86d', O: '#fbe97f', S: '#96f98b', I: '#75faf8', J: '#1fd7f7', T: '#fe89f7', X: '#dddddd'}
-		if(y == 0){
-			var cellAbove = 1
-		} else {
-			var cellAbove = (board[y-1][x]['t'] != 0) + (minoModeBoard[y-1][x]['t'] != 0)
-		}
+	function getCanvasStyle() {
+		return (document.getElementById('defaultRenderInput').checked ? 'fumen' : 'four')
+	}
+	
+	let lockFlag = document.getElementById('lockFlagInput').checked
+	let cellCount = 0
+	for (let col = 0; col < 10; col++) {
+		cellCount += ((board[y][col].t != 0) || (minoModeBoard[y][col].t != 0)) // I think i can collapse minoModeBoard onto board, then the counting can be done more expediently using .some()
+	}
+	let drawLineClear = (lockFlag && cellCount == 10)
 
-		if (type == 1) {
-			//Normal colors
-			if (cellAbove == 0){
-				ctx.fillStyle = lightercolor[piece]
-				if(foureffectInput){
-					ctx.fillRect((x) * cellSize + 1, y * cellSize + 1 - cellSize/5, cellSize - 0, cellSize/5)
-				}
-			}
-			ctx.fillStyle = color[piece]
-			ctx.fillRect((x) * cellSize + 1, y * cellSize + 1, cellSize - 0, cellSize - 0)
-			//Light locked row colors
-			if (lockFlag == true) {
-				//check row mino count
-				var cellCount = 0
-				for(var col = 0; col < 10; col++){	
-					cellCount += (board[y][col].t != 0)
-					cellCount += (minoModeBoard[y][col].t != 0)
-				}
-				//color in if 10
-				if(cellCount == 10){
-					if (cellAbove != 1){
-						ctx.fillStyle = lightestcolor[piece]
-						if(foureffectInput){
-							ctx.fillRect((x) * cellSize + 1, y * cellSize + 1 - cellSize/5, cellSize - 0, cellSize/5)
-						}
-					}
-					ctx.fillStyle = lightercolor[piece]
-					ctx.fillRect((x) * cellSize + 1, y * cellSize + 1, cellSize - 0, cellSize - 0)
-				}
-			}
-		}
-		//Light mino colors
-		if (type == 2) {
-			if (cellAbove == 0){
-				ctx.fillStyle = lightestcolor[piece]
-				if(foureffectInput){
-				ctx.fillRect((x) * cellSize + 1, y * cellSize + 1 - cellSize/5, cellSize - 0, cellSize/5)
-				}
-			}
-			ctx.fillStyle = lightercolor[piece]
-			ctx.fillRect((x) * cellSize + 1, y * cellSize + 1, cellSize - 0, cellSize - 0)
-		}
+	let showGrid = (canvasStyle == 'fumen')
+	currentPalette = (canvasStyle == 'fumen' ? FumenPalette : FourPalette)
+
+	let foureffectInput = document.getElementById('3dSetting').checked
+	let cellAbove = (y == 0) || (board[y - 1][x].t != 0) || (minoModeBoard[y - 1][x].t != 0)
+	let have3dHighlight = (canvasStyle == 'four' && foureffectInput && !cellAbove)
+
+
+	if (type == 2 || drawLineClear) drawLightCell()
+	else if (type == 1) 			drawNormalCell()
+	
+	function drawLightCell() {
+		if (have3dHighlight) draw3dHighlight(currentPalette[2][piece])
+		drawMinoRect(currentPalette[1][piece])
+	}
+	
+	function drawNormalCell() {
+		if (have3dHighlight) draw3dHighlight(currentPalette[1][piece])
+		drawMinoRect(currentPalette[0][piece])
 	}
 
-	if(canvasStyle == 'fumen'){
-		var color = {Z: '#990000', L: '#996600', O: '#999900', S: '#009900', I: '#009999', J: '#0000bb', T: '#990099', X: '#999999'}
-		var lightercolor = {Z: '#cc3333', L: '#cc9933', O: '#cccc33', S: '#33cc33', I: '#33cccc', J: '#3333cc', T: '#cc33cc', X: '#cccccc'}
-		if (type == 1) {
-			//Normal colors
-			ctx.fillStyle = color[piece]
-			ctx.fillRect((x) * cellSize + 1, y * cellSize + 1, cellSize - 1, cellSize - 1)
-			//Light locked row colors
-			if (lockFlag == true) {
-				//check row mino count
-				var cellCount = 0
-				for(var col = 0; col < 10; col++){	
-					cellCount += (board[y][col].t != 0)
-					cellCount += (minoModeBoard[y][col].t != 0)
-				}
-				//color in if 10
-				if(cellCount == 10){
-					ctx.fillStyle = lightercolor[piece]
-					ctx.fillRect((x) * cellSize + 1, y * cellSize + 1, cellSize - 1, cellSize - 1)
-				}
-			}
-		}
-		//Light mino colors
-		if (type == 2) {
-			ctx.fillStyle = lightercolor[piece]
-			ctx.fillRect((x) * cellSize + 1, y * cellSize + 1, cellSize - 1, cellSize - 1)
-		}
+	function drawMinoRect(color) {
+		ctx.fillStyle = color
+		if (showGrid) 	ctx.fillRect(x * cellSize + 1, y * cellSize + 1, cellSize - 1, cellSize - 1)
+		else 			ctx.fillRect(x * cellSize + 1, y * cellSize + 1, cellSize, cellSize)
+	}
+
+	function draw3dHighlight(color) {
+		ctx.fillStyle = color
+		ctx.fillRect(x * cellSize + 1, y * cellSize + 1 - cellSize / 5, cellSize, cellSize / 5)
 	}
 }
+
+
 
 var shape_table = {'Z': [[[1, 0], [0, 2], [1, 1], [0, 1]],  [[1, 0], [1, 1], [2, 1], [0, 0]]],
                'L': [[[1, 0], [0, 1], [2, 0], [0, 0]], [[0, 1], [0, 2], [1, 2], [0, 0]], [[0, 1], [1, 1], [2, 0], [2, 1]], [[1, 0], [1, 1], [1, 2], [0, 0]]],
@@ -712,9 +653,9 @@ var shape_table = {'Z': [[[1, 0], [0, 2], [1, 1], [0, 1]],  [[1, 0], [1, 1], [2,
 //CONTRIBUTED BY CONFIDENTIAL (confidential#1288)
 function readPiece(positions){
 	//currently reads upside-down, patched by mirror_fix()
-    if (positions.length != 4){
-        return mirror_fix('X')
-    }
+    // if (positions.length != 4){
+    //     return mirror_fix('X')
+    // }
     var min_i=99
     var min_j=99
     
@@ -736,7 +677,7 @@ function readPiece(positions){
         j = position[0]
         i = position[1]
         offset_positions.push([j-min_j, i-min_i])
-		console.log([j-min_j, i-min_i])
+		// console.log([j-min_j, i-min_i])
     }
     
     for (var piece in shape_table) {
@@ -744,6 +685,7 @@ function readPiece(positions){
             return mirror_fix(piece)
         }
     }
+	return mirror_fix('X') //fallback, if none of the table matches
 
 	function mirror_fix(result) {
 		switch(result){
@@ -757,12 +699,12 @@ function readPiece(positions){
 	}
 
     function positions_equal(positions1, positions2){
-        if (positions1.length != positions2.length){
+        if (positions1.length != positions2.length){ //must be false when they are not the same piece?
             return false
         }
-        for (var position1 of positions1){
-            var found = false
-            for (var position2 of positions2){
+        for (let position1 of positions1){
+            let found = false
+            for (let position2 of positions2){
                 if (position1[0] == position2[0] && position1[1] == position2[1]){
                     found = true
                 }
@@ -773,8 +715,9 @@ function readPiece(positions){
         }
         return true
     }
+
     function is_element(positions1, query){
-        for (var positions of query){
+        for (let positions of query){
             if (positions_equal(positions1, positions)){
                 return true
             }
@@ -787,10 +730,10 @@ function readPiece(positions){
 
 function autoColor() {
 	autoColorBool = document.getElementById('autoColorInput').checked
-	if(autoColorBool == false){
+	if(autoColorBool == false) {
 		for (var row = 0; row < 20; row++){
 			for (var col = 0; col < 10; col++) {
-				if(board[row][col].t == 2){
+				if (board[row][col].t == 2){
 					board[row][col].t = 1
 				}
 			}
@@ -800,14 +743,11 @@ function autoColor() {
 
 //from io.js
 function toField(board) {
-    FieldString = ''
-    for (let row = 0; row < board.length; row++) {
-        for (let col = 0; col < 10; col++) {
-            if (board[row][col]['t'] != 0) {
-                FieldString += board[row][col]['c']
-            } else FieldString += '_'
-        }
-    }
+    FieldString = board.reduce((boardString, row) => {
+		return boardString += row.reduce((rowString, cell) => {
+			return rowString += (cell.t == 0 ? '_' : cell.c)
+		}, '')
+	}, '')
     return Field.create(FieldString)
 }
 
