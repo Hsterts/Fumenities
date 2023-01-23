@@ -66,7 +66,7 @@ function drawnMinos(someBoard) {
 	}, 0)
 }
 
-function drawMinoMode(mouseX, mouseY) {
+function drawMinoMode(cellRow, cellCol) {
 	//safeguarding, can remove if it's guarenteed that minoModeBoard will not contain cells with {t: 2}.
 	isCellTypeTwo = (cell) => cell.t === 2
 	for (let row = 0; row < 20; row++) {
@@ -76,10 +76,10 @@ function drawMinoMode(mouseX, mouseY) {
 	
 	let drawnCount = drawnMinos(minoModeBoard)
 
-	if (drawMode && drawnCount < 4 && board[mouseY][mouseX].t == 0) {
-		minoModeBoard[mouseY][mouseX] = {t: 1, c: 'X'}
+	if (drawMode && drawnCount < 4 && board[cellCol][cellRow].t == 0) {
+		minoModeBoard[cellCol][cellRow] = {t: 1, c: 'X'}
 	} else if (!drawMode) {
-		minoModeBoard[mouseY][mouseX] = {t: 0, c: ''}
+		minoModeBoard[cellCol][cellRow] = {t: 0, c: ''}
 		//remove colors when there are four minos and user deletes one
 		if (drawnCount == 4) {
 			for (let row = 0; row < 20; row++){
@@ -93,21 +93,21 @@ function drawMinoMode(mouseX, mouseY) {
 	}
 }
 
-function drawNormalMode(mouseX, mouseY) {
+function drawNormalMode(cellRow, cellCol) {
 	if (drawMode) {
-		board[mouseY][mouseX] = { t: 1, c: paintbucketColor() }
+		board[cellCol][cellRow] = { t: 1, c: paintbucketColor() }
 	} else {
-		board[mouseY][mouseX] = { t: 0, c: '' }
+		board[cellCol][cellRow] = { t: 0, c: '' }
 	}
 }
 
-function drawAutoColorMode(mouseX, mouseY) {
+function drawAutoColorMode(cellRow, cellCol) {
 	//auto color is basically mino mode and normal combined.
 	if (drawnMinos(board) < 4) { //locks up dragging to 4 minos
 		if (drawMode) {
-			board[mouseY][mouseX] = { t: 2, c: 'X' }
+			board[cellCol][cellRow] = { t: 2, c: 'X' }
 		} else {
-			board[mouseY][mouseX] = { t: 0, c: '' }
+			board[cellCol][cellRow] = { t: 0, c: '' }
 		}
 	}
 }
@@ -115,15 +115,15 @@ function drawAutoColorMode(mouseX, mouseY) {
 document.getElementById('b').onmousedown = function mousedown(e) {
 	bookPos = parseFloat(document.getElementById('positionDisplay').value)-1
 	rect = document.getElementById('b').getBoundingClientRect()
-	let mouseY = Math.floor((e.clientY - rect.top) / cellSize)
-	let mouseX = Math.floor((e.clientX - rect.left) / cellSize)
+	let cellCol = Math.floor((e.clientY - rect.top) / cellSize)
+	let cellRow = Math.floor((e.clientX - rect.left) / cellSize)
 
-	drawMode = (e.button == 0 && board[mouseY][mouseX]['t'] == 0 && minoModeBoard[mouseY][mouseX]['t'] == 0)
+	drawMode = (e.button == 0 && board[cellCol][cellRow]['t'] == 0 && minoModeBoard[cellCol][cellRow]['t'] == 0)
 	console.log(mouseDown)
 	if (minoMode) {
-		drawMinoMode(mouseX, mouseY)
+		drawMinoMode(cellRow, cellCol)
 	} else if (autoColorBool) {
-		drawAutoColorMode(mouseX, mouseY)
+		drawAutoColorMode(cellRow, cellCol)
 		drawnCount = drawnMinos(board)
 		positions = []
 		for (let row = 0; row < 20; row++){
@@ -136,11 +136,11 @@ document.getElementById('b').onmousedown = function mousedown(e) {
 
 		if (drawnCount == 4) {
 			if (drawMode) { //this duplicated code is to make sure dragging locks at 4 minos, but adding new minos by mousedown still creates new minos
-				board[mouseY][mouseX] = { t: 2, c: 'X' }
+				board[cellCol][cellRow] = { t: 2, c: 'X' }
 			} else {
-				board[mouseY][mouseX] = { t: 0, c: '' }
+				board[cellCol][cellRow] = { t: 0, c: '' }
 			}
-			if (board[mouseY][mouseX].t == 0) {
+			if (board[cellCol][cellRow].t == 0) {
 				for (let cell = 0; cell < positions.length; cell++){
 					let row = positions[cell][0]
 					let col = positions[cell][1]
@@ -155,7 +155,7 @@ document.getElementById('b').onmousedown = function mousedown(e) {
 			}
 		}
 	} else {
-		drawNormalMode(mouseX, mouseY)
+		drawNormalMode(cellRow, cellCol)
 	}
 	updateBook()
 	autoEncode()
@@ -166,10 +166,10 @@ document.getElementById('b').onmousemove = function mousemove(e) {
 	bookPos = parseFloat(document.getElementById('positionDisplay').value)-1
 	rect = document.getElementById('b').getBoundingClientRect()
 
-	let mouseX = Math.floor((e.clientX - rect.left) / cellSize)
-	let mouseY = Math.floor((e.clientY - rect.top) / cellSize)
+	let cellCol = Math.floor((e.clientX - rect.left) / cellSize)
+	let cellRow = Math.floor((e.clientY - rect.top) / cellSize)
 
-	let insideCanvas = inRange(mouseX, 0, boardSize[0]-1) && inRange(mouseY, 0, boardSize[1]-1)
+	let insideCanvas = inRange(cellCol, 0, boardSize[0]-1) && inRange(cellRow, 0, boardSize[1]-1)
 	if (!insideCanvas) return;
 	
 	let marginX = (e.clientX - rect.left) % cellSize
@@ -179,10 +179,10 @@ document.getElementById('b').onmousemove = function mousemove(e) {
 	// now triggers even when re-entering the same cell, but the effect is inconsequential
     if (mouseDown && !inSameCell) {
 		if (minoMode) {
-			drawMinoMode(mouseX, mouseY)
+			drawMinoMode(cellCol, cellRow)
         } else {
 			if(autoColorBool) {
-				drawAutoColorMode(mouseX, mouseY)
+				drawAutoColorMode(cellCol, cellRow)
 			} else {
 				drawNormalMode()
 			}
@@ -195,8 +195,8 @@ document.getElementById('b').onmousemove = function mousemove(e) {
 function finishMinoMode() {
 	if(drawnMinos(minoModeBoard) != 4) return;
 	//get all drawn cells + their coords
-	for (var row = 0; row < 20; row++){
-		for (var col = 0; col < 10; col++) {
+	for (let row = 0; row < 20; row++){
+		for (let col = 0; col < 10; col++) {
 			if(minoModeBoard[row][col].c != ''){
 				cellData = {row: row, col: col, info: minoModeBoard[row][col]}
 				drawn.push(cellData)
@@ -204,11 +204,11 @@ function finishMinoMode() {
 		}
 	}
 	
-	for(var cell = 0; cell < 4; cell++) {
+	for(let cell = 0; cell < 4; cell++) {
 		minoFieldString = ''
 		//making map
-		for(var y = -1; y < 3; y++){
-			for(var x = -1; x < 3; x++){
+		for(let y = -1; y < 3; y++){
+			for(let x = -1; x < 3; x++){
 				let row = drawn[cell]['row'] + y
 				let col = drawn[cell]['col'] + x
 				if(!inRange(row,0,19) || !inRange(col,0,9)) {
@@ -219,7 +219,7 @@ function finishMinoMode() {
 			}
 		}
 		//matching map to piece
-		for(var piece = 0; piece < 7; piece++){
+		for(let piece = 0; piece < 7; piece++){
 			pieceMap = pieceMaps[piece]
 			index = pieceMap.findIndex((pieceString) => pieceString === minoFieldString)
 			if(index == -1) continue;
@@ -231,8 +231,8 @@ function finishMinoMode() {
 			y = 19 - drawn[cell]['row']
 			operation = new Mino(type, rotation, x, y)
 			//coloring in
-			for (var row = 0; row < 20; row++){
-				for (var col = 0; col < 10; col++) {
+			for (let row = 0; row < 20; row++){
+				for (let col = 0; col < 10; col++) {
 					if(minoModeBoard[row][col].c == ''){
 					} else {
 						minoModeBoard[row][col].c = type
