@@ -1,5 +1,3 @@
-const { isDeepEqual } = require("assert/build/internal/util/comparisons")
-
 // default settings
 var cellSize = 22
 var boardSize = [10, 20]
@@ -58,10 +56,10 @@ minoMode = document.getElementById('minoModeInput').checked
 autoColorBool = document.getElementById('autoColorInput').checked
 
 //FUNCTIONS
-function drawnMinos(someBoard) {
+function drawnMinos(someBoard, cellMatch) {
 	return someBoard.reduce((count,row) => {
 		return count += row.reduce((tval,cell) => {
-			return tval += (cell.t != 0)
+			return tval += cellMatch(cell)
 		}, 0)
 	}, 0)
 }
@@ -74,9 +72,10 @@ function drawMinoMode(cellRow, cellCol) {
 	}
 	//
 	
-	let drawnCount = drawnMinos(minoModeBoard)
+	let drawnCount = drawnMinos(minoModeBoard, (cell) => cell.t == 1)
 
 	if (drawMode && drawnCount < 4 && board[cellCol][cellRow].t == 0) {
+		console.log("draw")
 		minoModeBoard[cellCol][cellRow] = {t: 1, c: 'X'}
 	} else if (!drawMode) {
 		minoModeBoard[cellCol][cellRow] = {t: 0, c: ''}
@@ -103,12 +102,10 @@ function drawNormalMode(cellRow, cellCol) {
 
 function drawAutoColorMode(cellRow, cellCol) {
 	//auto color is basically mino mode and normal combined.
-	if (drawnMinos(board) < 4) { //locks up dragging to 4 minos
-		if (drawMode) {
-			board[cellCol][cellRow] = { t: 2, c: 'X' }
-		} else {
-			board[cellCol][cellRow] = { t: 0, c: '' }
-		}
+	if (drawMode && drawnMinos(board, (cell) => cell.t == 2) < 4) {
+		board[cellCol][cellRow] = { t: 2, c: 'X' }
+	} else if (!drawMode) {
+		board[cellCol][cellRow] = { t: 0, c: '' }
 	}
 }
 
@@ -119,12 +116,12 @@ document.getElementById('b').onmousedown = function mousedown(e) {
 	let cellRow = Math.floor((e.clientX - rect.left) / cellSize)
 
 	drawMode = (e.button == 0 && board[cellCol][cellRow]['t'] == 0 && minoModeBoard[cellCol][cellRow]['t'] == 0)
-	console.log(mouseDown)
+	console.log(drawMode)
 	if (minoMode) {
 		drawMinoMode(cellRow, cellCol)
 	} else if (autoColorBool) {
 		drawAutoColorMode(cellRow, cellCol)
-		drawnCount = drawnMinos(board)
+		drawnCount = drawnMinos(board, (cell) => cell.t == 2)
 		positions = []
 		for (let row = 0; row < 20; row++){
 			for (let col = 0; col < 10; col++) {
@@ -168,32 +165,33 @@ document.getElementById('b').onmousemove = function mousemove(e) {
 
 	let cellCol = Math.floor((e.clientX - rect.left) / cellSize)
 	let cellRow = Math.floor((e.clientY - rect.top) / cellSize)
-
-	let insideCanvas = inRange(cellCol, 0, boardSize[0]-1) && inRange(cellRow, 0, boardSize[1]-1)
-	if (!insideCanvas) return;
 	
 	let marginX = (e.clientX - rect.left) % cellSize
 	let marginY = (e.clientY - rect.top) % cellSize
 	
+	let insideCanvas = inRange(cellCol, 0, boardSize[0]-1) && inRange(cellRow, 0, boardSize[1]-1)
+	if (!insideCanvas) return;
+	
 	let inSameCell = inRange(marginX-e.movementX, 0, cellSize-1) && inRange(marginY-e.movementY, 0, cellSize-1) // check if previous position crossed cell boundary
 	// now triggers even when re-entering the same cell, but the effect is inconsequential
-    if (mouseDown && !inSameCell) {
-		if (minoMode) {
-			drawMinoMode(cellCol, cellRow)
-        } else {
-			if(autoColorBool) {
-				drawAutoColorMode(cellCol, cellRow)
-			} else {
-				drawNormalMode()
-			}
+	let updateCanvas = mouseDown && !inSameCell
+    if (!updateCanvas) return;
+	
+	if (minoMode) {
+		drawMinoMode(cellCol, cellRow)
+    } else {
+		if(autoColorBool) {
+			drawAutoColorMode(cellCol, cellRow)
+		} else {
+			drawNormalMode()
 		}
-		updateBook()
-		autoEncode()
 	}
+	updateBook()
+	autoEncode()
 }
 
 function finishMinoMode() {
-	if(drawnMinos(minoModeBoard) != 4) return;
+	if(drawnMinos(minoModeBoard, (cell) => cell == 1) != 4) return;
 	//get all drawn cells + their coords
 	for (let row = 0; row < 20; row++){
 		for (let col = 0; col < 10; col++) {
@@ -255,12 +253,12 @@ function finishAutoColor() {
 		}
 	}
 
-	result = readPiece(positions)
+	piece = readPiece(positions)
 
 	for (var cell = 0; cell < positions.length; cell++){
 		let row = positions[cell][0]
 		let col = positions[cell][1]
-		if(board[row][col].c == 'X' && positions.length % 4 == 0) board[row][col].c = result
+		if(board[row][col].c == 'X' && positions.length % 4 == 0) board[row][col].c = piece
 	}
 }
 
@@ -738,6 +736,7 @@ function readPiece(positions){
         j = position[0]
         i = position[1]
         offset_positions.push([j-min_j, i-min_i])
+		console.log([j-min_j, i-min_i])
     }
     
     for (var piece in shape_table) {
