@@ -636,7 +636,7 @@ function drawCell(x, y, piece, type) {
 
 
 
-var shape_table = {'Z': [[[0, 1], [1, 1], [1, 2], [0, 0]], [[1, 0], [1, 1], [2, 0], [0, 1]]],
+const shape_table = {'Z': [[[0, 1], [1, 1], [1, 2], [0, 0]], [[1, 0], [1, 1], [2, 0], [0, 1]]],
                'L': [[[0, 1], [1, 1], [2, 1], [0, 0]], [[0, 1], [1, 0], [0, 2], [0, 0]], [[1, 0], [2, 0], [2, 1], [0, 0]], [[1, 0], [1, 1], [1, 2], [0, 2]]],
                'O': [[[1, 0], [0, 1], [1, 1], [0, 0]]],
                'S': [[[1, 0], [0, 2], [1, 1], [0, 1]],  [[1, 0], [1, 1], [2, 1], [0, 0]]],
@@ -651,8 +651,8 @@ function readPiece(mino_positions){
     //     return 'X'
     // }
 
-    var min_i=Infinity
-    var min_j=Infinity
+    let min_i=Infinity
+    let min_j=Infinity
     for (let position of mino_positions){
 		min_j = Math.min(min_j, position[0])
 		min_i = Math.min(min_i, position[1])
@@ -1056,10 +1056,6 @@ function nearestColor(h, s, v) {
 	return '.';
 }
 
-function inRange(x, min, max) {
-	return x >= min && x <= max;
-}
-
 function median(values) {
 	// if this is too computationally expensive maybe switch to mean
 	if (values.length === 0) throw new Error('No inputs');
@@ -1112,13 +1108,8 @@ function restartCheck(){
 }
 
 function toggleBGSelect() {
-	var x = document.getElementById('bgselect')
-	if (x.style.display === 'none') {
-	  x.style.display = 'block'
-	} else {
-	  x.style.display = 'none'
-	}
-  }
+	document.getElementById('bgselect').style.display = (document.getElementById('transparency').checked ? 'none' : 'block')
+}
 
 function toggleDownloadSettings() {
 	var x = document.getElementById('downloadSettings')
@@ -1267,12 +1258,7 @@ function takeshot() {
 
 function toggleGrid() {
 	gridToggle = document.getElementById('gridToggle').checked
-	var x = document.getElementById('gridColorPicker')
-	if(gridToggle){
-		x.style.display = 'block';
-	} else {
-		x.style.display = 'none';
-	}
+	document.getElementById('gridColorPicker').style.display = (gridToggle ? 'block' : 'none')
 }
 
 function encodeString(fieldString) {
