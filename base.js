@@ -83,8 +83,6 @@ document.getElementById('b').onmousedown = function mousedown(e) {
 	let cellCol = Math.floor((e.clientY - rect.top) / cellSize)
 	let cellRow = Math.floor((e.clientX - rect.left) / cellSize)
 
-	//implicitly insideCanvas from onmousedown
-
 	drawMode = (e.button == 0 && board[cellCol][cellRow]['t'] == 0 && minoModeBoard[cellCol][cellRow]['t'] == 0)
 	drawCanvasCell(cellRow, cellCol)
 
@@ -102,9 +100,6 @@ document.getElementById('b').onmousemove = function mousemove(e) {
 	
 	let marginX = (e.clientX - rect.left) % cellSize
 	let marginY = (e.clientY - rect.top) % cellSize
-	
-	let insideCanvas = inRange(cellRow, 0, boardSize[0]-1) && inRange(cellCol, 0, boardSize[1]-1)
-	if (!insideCanvas) return;
 	
 	let inSameCell = inRange(marginX-e.movementX, 0, cellSize-1) && inRange(marginY-e.movementY, 0, cellSize-1) // check if previous position crossed cell boundary
 	// now triggers even when re-entering the same cell, but the effect is inconsequential
@@ -303,7 +298,7 @@ function paintbucketColor() {
 	}
 }
 
-function inRange(number, min, max) {
+function inRange(number, min, max) { // [min, max] inclusive
     return (min <= number && number <= max)
 }
 
