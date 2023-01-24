@@ -67,6 +67,7 @@ updateDownloadSettings()
 updateMinoMode()
 updateAutoColor()
 updateRowFillInput() //unnecessary
+updateAutoEncoding()
 
 //FUNCTIONS
 function drawnMinos(someBoard, cellMatch) {
@@ -235,8 +236,8 @@ function finishMinoMode() {
 
 function finishAutoColor() {
 	let positions = []
-	for (let row = 0; row < 20; row++){
-		for (let col = 0; col < 10; col++) {
+	for (let row = 0; row < boardSize[1]; row++){
+		for (let col = 0; col < boardSize[0]; col++) {
 			if(board[row][col].t == 2){
 				positions.push([row,col])
 			}
@@ -284,7 +285,7 @@ Mousetrap.bind('5', function() {setPaintBucket(4);})
 Mousetrap.bind('6', function() {setPaintBucket(5);})
 Mousetrap.bind('7', function() {setPaintBucket(6);})
 Mousetrap.bind('8', function() {setPaintBucket(7);})
-Mousetrap.bind('r', restart)
+Mousetrap.bind('r', increaseRestartLevel)
 Mousetrap.bind(',', prevPage)
 Mousetrap.bind('.', nextPage)
 Mousetrap.bind(['mod+z'], undo)
@@ -492,25 +493,6 @@ function endPage(){
 	settoPage(book.length-1)
 	window.requestAnimationFrame(render)
 	autoEncode()
-}
-
-function restart(){
-	board.map((y, i) => {
-		y.map((x, ii) => {
-			x.t = 0
-			x.c = ''
-		})
-    })
-    minoModeBoard = JSON.parse(JSON.stringify(emptyBoard))
-	book = [{board: JSON.stringify(board), flags: flags}]
-	setPositionDisplay(0, book.length)
-	document.getElementById('boardOutput').value = ''
-	document.getElementById('commentBox').value = ''
-	comments = []
-	document.getElementById('reset').style.display = 'inline-block'
-	document.getElementById('reset-angry').style.display = 'none'
-	updateBook() // record initial state in logs, testing
-	window.requestAnimationFrame(render)
 }
 
 function clearPage(){
@@ -1083,9 +1065,31 @@ function fullMirror() {
 }
 
 //HTML FUNCTIONS
-function restartCheck(){
-	document.getElementById('reset').style.display = 'none'
-	document.getElementById('reset-angry').style.display = 'inline-block'
+function increaseRestartLevel() {
+	let confirmedReset = (document.getElementById('reset-angry').style.display == 'inline-block')
+	if (!confirmedReset) {
+		document.getElementById('reset').style.display = 'none'
+		document.getElementById('reset-angry').style.display = 'inline-block'
+	} else {
+		document.getElementById('reset').style.display = 'inline-block'
+		document.getElementById('reset-angry').style.display = 'none'
+
+		board.map((y, i) => {
+			y.map((x, ii) => {
+				x.t = 0
+				x.c = ''
+			})
+		})
+		minoModeBoard = JSON.parse(JSON.stringify(emptyBoard))
+		book = [{board: JSON.stringify(board), flags: flags}]
+		setPositionDisplay(0, book.length)
+		document.getElementById('boardOutput').value = ''
+		document.getElementById('commentBox').value = ''
+		comments = []
+		autoEncode()
+		updateBook() // record initial state in logs, testing
+		window.requestAnimationFrame(render)
+	}
 }
 
 function updateBGSelect() {
@@ -1096,7 +1100,7 @@ function updateDownloadSettings() {
 	document.getElementById('downloadSettings').style.display = (document.getElementById('downloadOutput').checked ? 'block' : 'none')
 }
 
-function toggleAutoEncoding() {
+function updateAutoEncoding() {
 	var autoEncodeOptions = document.getElementById('autoEncodeOptions')
 	var boardOutput = document.getElementById('boardOutput')
 	var isAutoEncode = document.getElementById('autoEncode').checked
