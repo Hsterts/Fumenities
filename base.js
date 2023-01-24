@@ -50,10 +50,18 @@ document.getElementById('b').width = boardSize[0] * cellSize
 document.getElementById('b').style.outline = '2px solid #ffffffcc'
 
 //USER INPUT
-mouseDown = false
-drawMode = true
-minoMode = document.getElementById('minoModeInput').checked
+var mouseDown = false
+var drawMode = true
+var minoMode = document.getElementById('minoModeInput').checked
 var autoColorBool = document.getElementById('autoColorInput').checked
+// I'm not sure where I should place this function call for initialization
+delimiter = updateDelim()
+updateToolTips()
+updateBGSelect()
+updateDownloadSettings()
+updateMinoMode()
+updateAutoColor()
+updateRowFillInput() //unnecessary
 
 //FUNCTIONS
 function drawnMinos(someBoard, cellMatch) {
@@ -227,8 +235,8 @@ function finishMinoMode() {
 
 function finishAutoColor() {
 	let positions = []
-	for (var row = 0; row < 20; row++){
-		for (var col = 0; col < 10; col++) {
+	for (let row = 0; row < 20; row++){
+		for (let col = 0; col < 10; col++) {
 			if(board[row][col].t == 2){
 				positions.push([row,col])
 			}
@@ -318,17 +326,19 @@ function updateBook() {
 	//Clearing redo if branch is overwritten
 	redoLog = [];
 
-	autoColor()
+	updateAutoColor()
 	window.requestAnimationFrame(render)
 }
 
-function toggleMinoMode() {
+function updateMinoMode() {
     minoMode = document.getElementById('minoModeInput').checked
     if (!minoMode && operation == undefined)  {
 		minoModeBoard = JSON.parse(JSON.stringify(emptyBoard))
 		operation = undefined
 		updateBook()
 	}
+	updateAutoColor()
+	updateRowFillInput() //unnecessary
 }
 
 function shift(direction){
@@ -680,13 +690,16 @@ function readPiece(mino_positions){
     }
 }
 
-function autoColor() {
+function updateAutoColor() {
 	autoColorBool = document.getElementById('autoColorInput').checked
-	if(autoColorBool == false) {
-		for (let row of board){
-			for (let cell of row) {
-				if (cell.t == 2){
-					cell.t = 1
+	var isAutoColorUsable = !document.getElementById('minoModeInput').checked
+	document.getElementById('autoColorInput').style.opacity = (isAutoColorUsable ? 1 : 0.5)
+	updateRowFillInput()
+	if(!(isAutoColorUsable && autoColorBool)) {
+		for (let row = 0; row < boardSize[1]; row++) {
+			for (let col = 0; col < boardSize[0]; col++) {
+				if (board[row][col].t == 2){
+					board[row][col].t = 1 //solidify any minos
 				}
 			}
 		}
@@ -910,13 +923,11 @@ function decodeOperation(operation){
 
 //IMAGE IMPORT
 document.addEventListener('paste', (event) => {
-    var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+    let items = (event.clipboardData || event.originalEvent.clipboardData).items;
     for (index in items) {
-        var item = items[index];
-        if (item.kind === 'file') {
-            var blob = item.getAsFile();
-            importImage(blob);
-        }
+        let item = items[index];
+        if (item.kind != 'file') continue;
+        importImage(item.getAsFile());
     }
 });
 
@@ -1085,44 +1096,40 @@ function restartCheck(){
 	document.getElementById('reset-angry').style.display = 'inline-block'
 }
 
-function toggleBGSelect() {
+function updateBGSelect() {
 	document.getElementById('bgselect').style.display = (document.getElementById('transparency').checked ? 'none' : 'block')
 }
 
-function toggleDownloadSettings() {
-	var x = document.getElementById('downloadSettings')
-	if (x.style.display === 'none') {
-	  x.style.display = 'block'
-	} else {
-	  x.style.display = 'none'
-	}
-  }
+function updateDownloadSettings() {
+	document.getElementById('downloadSettings').style.display = (document.getElementById('downloadOutput').checked ? 'block' : 'none')
+}
 
 function toggleAutoEncoding() {
-	var x = document.getElementById('autoEncodeOptions')
-	var y = document.getElementById('boardOutput')
-	if (x.style.display == 'none') {
-	  x.style.display = 'block'
-	  y.style.height = 50
-	  autoEncode()
+	var autoEncodeOptions = document.getElementById('autoEncodeOptions')
+	var boardOutput = document.getElementById('boardOutput')
+	var isAutoEncode = document.getElementById('autoEncode').checked
+	if (isAutoEncode) {
+		autoEncodeOptions.style.display = 'block'
+		boardOutput.style.height = 50
+		autoEncode()
 	} else {
-	  x.style.display = 'none'
-	  y.style.height = 79
+		autoEncodeOptions.style.display = 'none'
+		boardOutput.style.height = 79
 	}
-  }
+}
 
 function toggleSidePanel() {
-	var x = document.getElementById('fumenSidebar')
-	var y = document.getElementById('settingsSidebar')
-	var open = document.getElementById('openFumenSettings')
-	var close = document.getElementById('closeFumenSettings')
-	if (x.style.display === 'none') {
-		x.style.display = 'block'
+	var fumenSidebar = document.getElementById('fumenSidebar')
+	var settingsSidebar = document.getElementById('settingsSidebar')
+	var openLogo = document.getElementById('openFumenSettings')
+	var closeLogo = document.getElementById('closeFumenSettings')
+	if (fumenSidebar.style.display === 'none') {
+		fumenSidebar.style.display = 'block'
 	} else {
-		x.style.display = 'none'
-		y.style.display = 'none'
-		open.style.display = 'block'
-		close.style.display = 'none'
+		fumenSidebar.style.display = 'none'
+		settingsSidebar.style.display = 'none'
+		openLogo.style.display = 'block'
+		closeLogo.style.display = 'none'
 	}
 }
 
@@ -1149,23 +1156,21 @@ function toggleFumenSettings() {
 	
   }
 
-function toggleToolTips() {
-	var x = document.getElementsByClassName('tooltiptext')
-	for(let z = 0; z<x.length; z++) {
-		if(x[z].style.display === 'none' || x[z].style.display === ''){
-			x[z].style.display = 'block'
-		} else {
-			x[z].style.display = 'none'
-		};
+function updateToolTips() {
+	var tooltipTextElements = document.getElementsByClassName('tooltiptext')
+	var newDisplayStyle = (document.getElementById('tooltipSetting').checked ? 'block' : 'none')
+	for (let i=0; i<tooltipTextElements.length; i++) {
+		tooltipTextElements[i].style.display = newDisplayStyle
 	};
 }
 
+function updateRowFillInput() {
+	var isRowFillUsable = !document.getElementById('minoModeInput').checked && !document.getElementById('autoColorInput').checked
+	document.getElementById('rowFillInput').style.opacity = (isRowFillUsable ? 1 : 0.5)
+}
+
 function toggleStyle() {
-	if(document.getElementById('defaultRenderInput').checked) {
-		document.getElementById('3dToggle').style.opacity = 0.5
-	} else {
-		document.getElementById('3dToggle').style.opacity = 1
-	}
+	document.getElementById('3dToggle').style.opacity = (document.getElementById('defaultRenderInput').checked ? 0.5 : 1)
 	render()
 }
 
@@ -1197,7 +1202,7 @@ function undo() {
 
 function redo() {
 	bookPos = getCurrentPosition()
-	if(redoLog.length == 0){
+	if (redoLog.length == 0){
 		console.log('No following actions logged')
 	} else {
 		undoLog.push(redoLog.pop())
@@ -1260,8 +1265,6 @@ function encodeString(fieldString) {
 
 	return encoder.encode(pages)
 }
-
-delimiter = updateDelim()
 
 function updateDelim() {
 	delimiter = document.getElementById('delim').value;
