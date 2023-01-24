@@ -14,15 +14,17 @@ var bookPos = 0
 window.requestAnimationFrame(render)
 
 //PIECE MAPS
-const piece_T = ['0000111001000000', '0100011001000000', '0100111000000000', '0100110001000000']
-const piece_I = ['0100010001000100', '0000111100000000']
-const piece_L = ['0000111010000000', '0100010001100000', '0010111000000000', '1100010001000000']
-const piece_J = ['0000111000100000', '0110010001000000', '1000111000000000', '0100010011000000']
-const piece_S = ['0000011011000000', '0100011000100000']
-const piece_Z = ['0000110001100000', '0010011001000000']
-const piece_O = ['0000110011000000']
+{
+	let piece_T = ['0000111001000000', '0100011001000000', '0100111000000000', '0100110001000000']
+	let piece_I = ['0100010001000100', '0000111100000000']
+	let piece_L = ['0000111010000000', '0100010001100000', '0010111000000000', '1100010001000000']
+	let piece_J = ['0000111000100000', '0110010001000000', '1000111000000000', '0100010011000000']
+	let piece_S = ['0000011011000000', '0100011000100000']
+	let piece_Z = ['0000110001100000', '0010011001000000']
+	let piece_O = ['0000110011000000']
 
-const pieceMaps = [piece_T, piece_I, piece_L, piece_J, piece_S, piece_Z, piece_O]
+	var pieceMaps = [piece_T, piece_I, piece_L, piece_J, piece_S, piece_Z, piece_O]
+}
 const rotationNames = ['reverse','right','spawn','left']
 
 //MAKING FIRST EMPTY BOARD
@@ -30,21 +32,23 @@ const aRow = []
 const emptyBoard = []
 for(let i = 0; i < boardSize[0]; i++) {aRow.push({ t: 0, c: '' })}
 for (let i = 0; i < boardSize[1]; i++) {emptyBoard.push(aRow)}
-board = JSON.parse(JSON.stringify(emptyBoard)) // the lazy way of doing a deep copy
-minoModeBoard = JSON.parse(JSON.stringify(emptyBoard)) // the lazy way of doing a deep copy
+var board = JSON.parse(JSON.stringify(emptyBoard)) // the lazy way of doing a deep copy
+var minoModeBoard = JSON.parse(JSON.stringify(emptyBoard)) // the lazy way of doing a deep copy
 updateBook()
 
 // CANVAS
 var ctx = document.getElementById('b').getContext('2d')
-var gridCvs = document.createElement('canvas')
-gridCvs.height = cellSize
-gridCvs.width = cellSize
-var gridCtx = gridCvs.getContext('2d')
-gridCtx.fillStyle = '#000000CC'
-gridCtx.fillRect(0, 0, cellSize, cellSize)
-gridCtx.strokeStyle = '#ffffff88'
-gridCtx.strokeRect(0, 0, cellSize + 1, cellSize + 1)
-var pattern = ctx.createPattern(gridCvs, 'repeat')
+{
+	let gridCvs = document.createElement('canvas')
+	gridCvs.height = cellSize
+	gridCvs.width = cellSize
+	let gridCtx = gridCvs.getContext('2d')
+	gridCtx.fillStyle = '#000000CC'
+	gridCtx.fillRect(0, 0, cellSize, cellSize)
+	gridCtx.strokeStyle = '#ffffff88'
+	gridCtx.strokeRect(0, 0, cellSize + 1, cellSize + 1)
+	var pattern = ctx.createPattern(gridCvs, 'repeat')
+}
 document.getElementById('b').height = boardSize[1] * cellSize
 document.getElementById('b').width = boardSize[0] * cellSize
 document.getElementById('b').style.outline = '2px solid #ffffffcc'
@@ -55,7 +59,8 @@ var drawMode = true
 var minoMode = document.getElementById('minoModeInput').checked
 var autoColorBool = document.getElementById('autoColorInput').checked
 // I'm not sure where I should place this function call for initialization
-delimiter = updateDelim()
+setPositionDisplay(bookPos, book.length)
+delimiter = updateDelim() //shared with other scripts
 updateToolTips()
 updateBGSelect()
 updateDownloadSettings()
@@ -472,9 +477,9 @@ function gotoPage() {
 	}
 	bookPos = Math.max(Math.min(book.length, bookPos), 1)
 
-	document.getElementById('positionDisplay').value = bookPos
 	board = JSON.parse(book[bookPos - 1]['board'])
 	minoModeBoard = JSON.parse(book[bookPos - 1]['minoBoard'])
+	setPositionDisplay(bookPos, book.length)
 	document.getElementById('commentBox').value = book[bookPos - 1]['comment']
 	
 	window.requestAnimationFrame(render)
@@ -557,7 +562,7 @@ function deletePage(){
 	autoEncode()
 }
 
-function render() {
+function render() { 
 	ctx.clearRect(0, 0, boardSize[0] * cellSize, boardSize[1] * cellSize)
 	ctx.fillStyle = pattern
 	ctx.fillRect(0, 0, boardSize[0] * cellSize, boardSize[1] * cellSize)
@@ -942,38 +947,39 @@ async function importImage(blob) {
     // Once the image loads, render the img on the canvas
     img.onload = function () {
         console.log(this.width, this.height);
-        scale = this.width / 10.0;
-        x = 10;
-        y = Math.min(Math.round(this.height / scale), 22);
+        let scale = this.width / 10.0;
+        let x = 10;
+        let y = Math.min(Math.round(this.height / scale), 22);
         console.log(x, y);
         mycanvas.width = this.width;
         mycanvas.height = this.height;
 
         // Draw the image
         ctx.drawImage(img, 0, 0, this.width, this.height);
-        var data = Object.values(ctx.getImageData(0, 0, this.width, this.height).data);
-        var nDat = [];
-        for (row = 0; row < y; row++) {
-            for (col = 0; col < 10; col++) {
+        let data = Object.values(ctx.getImageData(0, 0, this.width, this.height).data);
+        let nDat = [];
+        for (let row = 0; row < y; row++) {
+            for (let col = 0; col < 10; col++) {
                 // get median value of pixels that should correspond to [row col] mino
+				// if this is too computationally expensive maybe switch to mean
 
-                minoPixelsR = [];
-                minoPixelsG = [];
-                minoPixelsB = [];
+                let minoPixelsR = [];
+                let minoPixelsG = [];
+                let minoPixelsB = [];
 
-                for (pixelRow = Math.floor(row * scale); pixelRow < row * scale + scale; pixelRow++) {
-                    for (pixelCol = Math.floor(col * scale); pixelCol < col * scale + scale; pixelCol++) {
-                        index = (pixelRow * this.width + pixelCol) * 4;
+                for (let pixelRow = Math.floor(row * scale); pixelRow < row * scale + scale; pixelRow++) {
+                    for (let pixelCol = Math.floor(col * scale); pixelCol < col * scale + scale; pixelCol++) {
+                        let index = (pixelRow * this.width + pixelCol) * 4;
                         minoPixelsR.push(data[index]);
                         minoPixelsG.push(data[index + 1]);
                         minoPixelsB.push(data[index + 2]);
                     }
                 }
 
-                medianR = median(minoPixelsR);
-                medianG = median(minoPixelsG);
-                medianB = median(minoPixelsB);
-                var hsv = rgb2hsv(medianR, medianG, medianB);
+                let medianR = median(minoPixelsR);
+                let medianG = median(minoPixelsG);
+                let medianB = median(minoPixelsB);
+                let hsv = rgb2hsv(medianR, medianG, medianB);
                 console.log(hsv, nearestColor(hsv[0], hsv[1], hsv[2])); // debugging purposes
                 nDat.push(nearestColor(hsv[0], hsv[1], hsv[2]));
             }
@@ -986,12 +992,12 @@ async function importImage(blob) {
             nDat.push(nearestColor(hsv[0], hsv[1], hsv[2]));
         }*/
 
-        tempBoard = new Array(20 - y).fill(new Array(10).fill({ t: 0, c: '' })); // empty top [40-y] rows
-        for (rowIndex = 0; rowIndex < y; rowIndex++) {
+        let tempBoard = new Array(20 - y).fill(new Array(10).fill({ t: 0, c: '' })); // empty top [40-y] rows
+        for (let rowIndex = 0; rowIndex < y; rowIndex++) {
             let row = [];
-            for (colIndex = 0; colIndex < 10; colIndex++) {
-                index = rowIndex * 10 + colIndex;
-                temp = nDat[index];
+            for (let colIndex = 0; colIndex < 10; colIndex++) {
+                let index = rowIndex * 10 + colIndex;
+                let temp = nDat[index];
                 if (temp == '.') row.push({ t: 0, c: '' });
                 else row.push({ t: 1, c: temp });
             }
@@ -1004,6 +1010,23 @@ async function importImage(blob) {
 
     var URLObj = window.URL || window.webkitURL;
     img.src = URLObj.createObjectURL(blob);
+
+	function nearestColor(h, s, v) {
+		if (inRange(h, 0, 30) && inRange(s, 0, 1) && (inRange(v, 133, 135) || inRange(v, 63, 88))) return 'X'; // attempted manual override specifically for four.lol idk
+		if (inRange(h, 220, 225) && inRange(s, 0, 0.2) && v == 65) return '.';
+	
+		if (s <= 0.2 && v / 2.55 >= 55) return 'X';
+		if (v / 2.55 <= 55) return '.';
+	
+		if (inRange(h, 0, 16) || inRange(h, 325, 360)) return 'Z';
+		else if (inRange(h, 16, 41)) return 'L';
+		else if (inRange(h, 41, 70)) return 'O';
+		else if (inRange(h, 70, 149)) return 'S';
+		else if (inRange(h, 149, 200)) return 'I';
+		else if (inRange(h, 200, 266)) return 'J';
+		else if (inRange(h, 266, 325)) return 'T';
+		return '.';
+	}
 }
 
 async function importImageButton() {
@@ -1028,25 +1051,9 @@ function rgb2hsv(r, g, b) {
 	return [60 * (h < 0 ? h + 6 : h), v && c / v, v];
 }
 
-function nearestColor(h, s, v) {
-	if (inRange(h, 0, 30) && inRange(s, 0, 1) && (inRange(v, 133, 135) || inRange(v, 63, 88))) return 'X'; // attempted manual override specifically for four.lol idk
-	if (inRange(h, 220, 225) && inRange(s, 0, 0.2) && v == 65) return '.';
 
-	if (s <= 0.2 && v / 2.55 >= 55) return 'X';
-	if (v / 2.55 <= 55) return '.';
-
-	if (inRange(h, 0, 16) || inRange(h, 325, 360)) return 'Z';
-	else if (inRange(h, 16, 41)) return 'L';
-	else if (inRange(h, 41, 70)) return 'O';
-	else if (inRange(h, 70, 149)) return 'S';
-	else if (inRange(h, 149, 200)) return 'I';
-	else if (inRange(h, 200, 266)) return 'J';
-	else if (inRange(h, 266, 325)) return 'T';
-	return '.';
-}
 
 function median(values) {
-	// if this is too computationally expensive maybe switch to mean
 	if (values.length === 0) throw new Error('No inputs');
 
 	values.sort(function (a, b) {
