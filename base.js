@@ -54,7 +54,7 @@ document.getElementById('b').width = boardSize[0] * cellSize
 document.getElementById('b').style.outline = '2px solid #ffffffcc'
 
 //USER INPUT
-var mouseDown = false
+var mouseHeld = false
 var drawMode = true
 var minoMode = document.getElementById('minoModeInput').checked
 var autoColorBool = document.getElementById('autoColorInput').checked
@@ -88,7 +88,7 @@ document.getElementById('b').onmousedown = function mousedown(e) {
 
 	updateBook()
 	autoEncode()
-	mouseDown = true
+	mouseHeld = true
 }
 
 document.getElementById('b').onmousemove = function mousemove(e) {
@@ -103,7 +103,7 @@ document.getElementById('b').onmousemove = function mousemove(e) {
 	
 	let inSameCell = inRange(marginX-e.movementX, 0, cellSize-1) && inRange(marginY-e.movementY, 0, cellSize-1) // check if previous position crossed cell boundary
 	// now triggers even when re-entering the same cell, but the effect is inconsequential
-	let updateCanvas = mouseDown && !inSameCell
+	let updateCanvas = mouseHeld && !inSameCell
     if (!updateCanvas) return;
 	
 	drawCanvasCell(cellRow, cellCol)
@@ -258,7 +258,7 @@ document.onmouseup = function mouseup() {
 	if (minoMode) finishMinoMode()
 	if (autoColorBool) finishAutoColor()
 	
-    mouseDown = false
+    mouseHeld = false
 	autoEncode()
     requestAnimationFrame(render)
 }
