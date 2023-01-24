@@ -269,7 +269,9 @@ function setPaintBucket(index) {
 }
 
 function getCurrentPosition() {
-	return parseInt(document.getElementById('positionDisplay').value)-1
+	let Position = parseInt(document.getElementById('positionDisplay').value)-1
+	if (isNaN(Position)) return 0
+	else return Position
 }
 
 function setPositionDisplay(pageIndex, totalPageNum) {
@@ -286,8 +288,10 @@ Mousetrap.bind('6', function() {setPaintBucket(5);})
 Mousetrap.bind('7', function() {setPaintBucket(6);})
 Mousetrap.bind('8', function() {setPaintBucket(7);})
 Mousetrap.bind('r', increaseRestartLevel)
-Mousetrap.bind(',', prevPage)
-Mousetrap.bind('.', nextPage)
+Mousetrap.bind('left', prevPage)
+Mousetrap.bind('mod+left', startPage)
+Mousetrap.bind('right', nextPage)
+Mousetrap.bind('mod+right', endPage)
 Mousetrap.bind(['mod+z'], undo)
 Mousetrap.bind(['mod+y'], redo)
 
@@ -327,6 +331,7 @@ function updateBook() {
 	//Clearing redo if branch is overwritten
 	redoLog = [];
 
+	setPositionDisplay(bookPos, book.length)
 	updateAutoColor()
 	window.requestAnimationFrame(render)
 }
@@ -1264,6 +1269,13 @@ function encodeString(fieldString) {
 
 function updateDelim() {
 	delimiter = document.getElementById('delim').value;
+}
+
+function moveOutputToInput() {
+	let OutputTextArea = document.getElementById('output')
+	let InputTextArea = document.getElementById('input')
+	InputTextArea.value = OutputTextArea
+	OutputTextArea.value = ''
 }
 
 //gonna just leave this here, used it to convert wirelyre mino-board strings to fumens
