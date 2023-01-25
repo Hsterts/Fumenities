@@ -286,7 +286,7 @@ document.onmouseup = function mouseup() {
 	
     mouseHeld = false
 	updateBook()
-	autoEncode()
+	//autoEncode() prevent overwriting text pasted in
     requestAnimationFrame(render)
 
 	function finishMinoMode() {
