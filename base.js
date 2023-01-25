@@ -234,8 +234,8 @@ function drawCanvasCell(cellRow, cellCol) {
 		let rowFill = document.getElementById('rowFillInput').checked
 		if (rowFill) {
 			if (drawMode) {
-				for (let row=0;row<boardSize[0];row++) {
-					board[row][cellCol] = { t: 1, c: paintbucketColor() }
+				for (let col=0;col<boardSize[0];col++) {
+					board[cellRow][col] = { t: 1, c: paintbucketColor() }
 				}
 				board[cellRow][cellCol] = { t: 0, c: '' }
 			} else {
