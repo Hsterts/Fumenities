@@ -69,6 +69,68 @@ updateAutoColor()
 updateRowFillInput() //unnecessary
 updateAutoEncoding()
 
+//SHORTCUTS
+Mousetrap.bind({
+	'esc': function() { decreaseResetLevel(); decreaseseClearInputLevel();},
+
+	'backspace': increaseClearInputLevel,
+	'g': function() {glueFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))},
+	'u': function() {unglueFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))},
+	'm': function() {mirrorFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))},
+	'c': function() {combineFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))},
+	's': function() {splitFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))},
+	'R c': function() {removeComments(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))},
+	'enter': function() {renderImages(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))},
+	
+	'shift+enter': moveOutputToInput,
+	
+	'1': function() {setPaintBucket(0);},
+	'2': function() {setPaintBucket(1);},
+	'3': function() {setPaintBucket(2);},
+	'4': function() {setPaintBucket(3);},
+	'5': function() {setPaintBucket(4);},
+	'6': function() {setPaintBucket(5);},
+	'7': function() {setPaintBucket(6);},
+	'8': function() {setPaintBucket(7);},
+	'0': updateMinoMode,
+	
+	'left': prevPage,
+	'mod+left': startPage,
+	'right': nextPage,
+	'mod+right': endPage,
+	
+	'shift+up': function() {shift('up')},
+	'shift+down': function() {shift('down')},
+	'shift+left': function() {shift('left')},
+	'shift+right': function() {shift('right')},
+	
+	'M p': mirror,
+	'M f': fullMirror,
+	'D': dupliPage,
+	'alt+backspace': clearPage,
+	'del': deletePage,
+	'r': increaseResetLevel,
+	
+	//Import image binded to paste already
+	'ins': decode,
+	'E p': encode,
+	'I f': fullDecode,
+	'E f': fullEncode,
+
+	'A e': updateAutoEncoding,
+	
+	'l': toggleLock,
+	'A c': toggleAutoColor,
+	'R f': toggleRowFillInput,
+	
+	't t': toggleToolTips,
+	'3 d': toggle3dSetting,
+	'd s': toggleStyle,
+	
+	'mod+z': undo,
+	'mod+y': redo,
+})
+
 //FUNCTIONS
 function drawnMinos(someBoard, cellMatch) {
 	return someBoard.reduce((count,row) => {
@@ -251,6 +313,8 @@ function finishAutoColor() {
 	for (let position of positions) {
 		board[position[0]][position[1]] = { t: 1, c: pieceName }
 	}
+
+	updateBook()
 }
 
 document.onmouseup = function mouseup() {
@@ -279,22 +343,6 @@ function setPositionDisplay(pageIndex, totalPageNum) {
 	document.getElementById('positionDisplayOver').value = '/' + totalPageNum
 }
 
-Mousetrap.bind('1', function() {setPaintBucket(0);})
-Mousetrap.bind('2', function() {setPaintBucket(1);})
-Mousetrap.bind('3', function() {setPaintBucket(2);})
-Mousetrap.bind('4', function() {setPaintBucket(3);})
-Mousetrap.bind('5', function() {setPaintBucket(4);})
-Mousetrap.bind('6', function() {setPaintBucket(5);})
-Mousetrap.bind('7', function() {setPaintBucket(6);})
-Mousetrap.bind('8', function() {setPaintBucket(7);})
-Mousetrap.bind('r', increaseRestartLevel)
-Mousetrap.bind('left', prevPage)
-Mousetrap.bind('mod+left', startPage)
-Mousetrap.bind('right', nextPage)
-Mousetrap.bind('mod+right', endPage)
-Mousetrap.bind(['mod+z'], undo)
-Mousetrap.bind(['mod+y'], redo)
-
 function paintbucketColor() {
 	for (i = 0; i < document.paintbucket.length; i++) {
 		if (document.paintbucket[i].checked) {
@@ -305,6 +353,11 @@ function paintbucketColor() {
 
 function inRange(number, min, max) { // [min, max] inclusive
     return (min <= number && number <= max)
+}
+
+function toggleLock() {
+	document.getElementById('lockFlagInput').checked = !document.getElementById('lockFlagInput').checked
+	updateBook()
 }
 
 // Updates all of the board properties: board, minoBoard, operation, comments
@@ -1070,15 +1123,19 @@ function fullMirror() {
 }
 
 //HTML FUNCTIONS
-function increaseRestartLevel() {
-	let confirmedReset = (document.getElementById('reset-angry').style.display == 'inline-block')
-	if (!confirmedReset) {
-		document.getElementById('reset').style.display = 'none'
-		document.getElementById('reset-angry').style.display = 'inline-block'
-	} else {
-		document.getElementById('reset').style.display = 'inline-block'
-		document.getElementById('reset-angry').style.display = 'none'
 
+// not present in html but affects html elements
+function decreaseResetLevel() {
+	document.getElementById('reset').classList.remove('confirm-delete-data')
+}
+
+function decreaseseClearInputLevel() {
+	document.getElementById('clear-input').classList.remove('confirm-delete-data')
+}
+
+function increaseResetLevel() {
+	let confirmedReset = document.getElementById('reset').classList.contains('confirm-delete-data')
+	if (confirmedReset)  {
 		board.map((y, i) => {
 			y.map((x, ii) => {
 				x.t = 0
@@ -1095,26 +1152,33 @@ function increaseRestartLevel() {
 		updateBook() // record initial state in logs, testing
 		window.requestAnimationFrame(render)
 	}
+	document.getElementById('reset').classList.toggle('confirm-delete-data')
+}
+
+function increaseClearInputLevel() {
+	let confirmedReset = document.getElementById('clear-input').classList.contains('confirm-delete-data')
+	if (confirmedReset)  {
+		document.getElementById('clear-input').value = ''
+	}
+	document.getElementById('clear-input').classList.toggle('confirm-delete-data')
 }
 
 function updateBGSelect() {
-	document.getElementById('bgselect').style.display = (document.getElementById('transparency').checked ? 'none' : 'block')
+	document.getElementById('bgselect').classList.toggle('hide-element', document.getElementById('transparency').checked)
 }
 
 function updateDownloadSettings() {
-	document.getElementById('downloadSettings').style.display = (document.getElementById('downloadOutput').checked ? 'block' : 'none')
+	document.getElementById('downloadSettings').classList.toggle('hide-element', !document.getElementById('downloadOutput').checked)
 }
 
 function updateAutoEncoding() {
-	var autoEncodeOptions = document.getElementById('autoEncodeOptions')
 	var boardOutput = document.getElementById('boardOutput')
 	var isAutoEncode = document.getElementById('autoEncode').checked
+	document.getElementById('autoEncodeOptions').classList.toggle('hide-element', !isAutoEncode)
 	if (isAutoEncode) {
-		autoEncodeOptions.style.display = 'block'
 		boardOutput.style.height = 50
 		autoEncode()
 	} else {
-		autoEncodeOptions.style.display = 'none'
 		boardOutput.style.height = 79
 	}
 }
@@ -1124,14 +1188,12 @@ function toggleSidePanel() {
 	var settingsSidebar = document.getElementById('settingsSidebar')
 	var openLogo = document.getElementById('openFumenSettings')
 	var closeLogo = document.getElementById('closeFumenSettings')
-	if (fumenSidebar.style.display === 'none') {
-		fumenSidebar.style.display = 'block'
-	} else {
-		fumenSidebar.style.display = 'none'
+	if (fumenSidebar.style.display != 'none') {
 		settingsSidebar.style.display = 'none'
 		openLogo.style.display = 'block'
 		closeLogo.style.display = 'none'
 	}
+	fumenSidebar.classList.toggle('hide-element')
 }
 
 function toggleFumenSettings() {
@@ -1155,24 +1217,44 @@ function toggleFumenSettings() {
 	    closeLogo.style.display = 'none'
 	}
 	
-  }
+}
+
+function toggleToolTips() {
+	document.getElementById('tooltipSetting').checked = !document.getElementById('tooltipSetting').checked
+	updateToolTips() 
+}
+
+function toggle3dSetting() {
+	document.getElementById('3dSetting').checked = !document.getElementById('3dSetting').checked
+	requestAnimationFrame(render)
+}
 
 function updateToolTips() {
 	var tooltipTextElements = document.getElementsByClassName('tooltiptext')
-	var newDisplayStyle = (document.getElementById('tooltipSetting').checked ? 'block' : 'none')
+	var enableToolTips = document.getElementById('tooltipSetting').checked
 	for (let i=0; i<tooltipTextElements.length; i++) {
-		tooltipTextElements[i].style.display = newDisplayStyle
+		tooltipTextElements[i].classList.toggle('hide-element', !enableToolTips)
 	};
+}
+
+function toggleRowFillInput() {
+	document.getElementById('rowFillInput').checked = !document.getElementById('rowFillInput').checked
+	updateRowFillInput()
 }
 
 function updateRowFillInput() {
 	var isRowFillUsable = !document.getElementById('minoModeInput').checked && !document.getElementById('autoColorInput').checked
-	document.getElementById('rowFillInput').style.opacity = (isRowFillUsable ? 1 : 0.5)
+	document.getElementById('rowFillInput').classList.toggle('disabled', !isRowFillUsable)
 }
 
 function toggleStyle() {
-	document.getElementById('3dToggle').style.opacity = (document.getElementById('defaultRenderInput').checked ? 0.5 : 1)
-	render()
+	document.getElementById('defaultRenderInput').checked = !document.getElementById('defaultRenderInput').checked
+	updateStyle()
+}
+
+function updateStyle() {
+	document.getElementById('3dToggle').classList.toggle('disabled', document.getElementById('defaultRenderInput').checked)
+	requestAnimationFrame(render)
 }
 
 function renderImages(fumen) {
@@ -1180,7 +1262,7 @@ function renderImages(fumen) {
 		  case 'four': fumencanvas(fumen); break;
 		  case 'fumen': fumenrender(fumen); break;
 	  }
-  }
+}
 
 function undo() {
 	bookPos = getCurrentPosition()
@@ -1274,7 +1356,8 @@ function updateDelim() {
 function moveOutputToInput() {
 	let OutputTextArea = document.getElementById('output')
 	let InputTextArea = document.getElementById('input')
-	InputTextArea.value = OutputTextArea
+	if (OutputTextArea.value == '') return; //prevent overwriting input with empty output
+	InputTextArea.value = OutputTextArea.value
 	OutputTextArea.value = ''
 }
 

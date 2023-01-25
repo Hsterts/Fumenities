@@ -376,7 +376,7 @@ input[type='radio'] {
     height:79px;
 }
 
-.fumen-option, #reset{
+.fumen-option {
     background:#1e1e30;
     border: none;
     padding-left: 6px;
@@ -392,23 +392,19 @@ input[type='radio'] {
     height: 24px;
 }
 
-#reset-angry{
+.confirm-delete-data{
     background-color: rgb(131, 43, 43);
     border: 1px solid #ffb5b5da;
-    padding-left: 6px;
-    padding-right: 6px;
     color: rgb(255, 0, 0);
     font-family: Montserrat, Sans-Serif;
-    text-align: left;
-    display: none;
     font-size: 14px;
+    font-weight: bold;
     margin: 4px 2px;
     cursor: pointer;
     border-radius: 2px;
-    width: 180px;
 }
 
-.fumen-option:hover, #reset:hover, .addonButton:hover, .pageButton:hover{
+.fumen-option:hover, .addonButton:hover, .pageButton:hover{
     background-color: #5f5e81;
     height: 24px;
     padding-top: 2px;
@@ -416,10 +412,9 @@ input[type='radio'] {
     transition-duration: 0.1s;
 }
 
-#reset-angry:hover{
+.confirm-delete-data:hover{
     background-color: #ff0000;
     color: rgb(71, 0, 0);
-    margin: 4px 2px;
     transition: linear;
     transition-duration: 0.1s;
 }
@@ -461,12 +456,12 @@ input[type='radio'] {
 .pager {
     display: inline-block;
     vertical-align: middle;
-    }
+}
 
 .shifter{
     display: inline-block;
     vertical-align: middle;
-    }
+}
 
 #positionDisplay, #positionDisplayOver{
     width: 35px;
@@ -493,7 +488,7 @@ input[type='radio'] {
     margin-left: -3px;
 }
 
-#ae-label{
+#ae-label{ /*not used?*/
     height: 25px;
     width: 100px;
     background-color: rgb(214, 214, 214);
@@ -527,7 +522,6 @@ input[type='radio'] {
     }
 
 .tooltip .tooltiptext {
-    display: none;
     visibility: hidden;
     width: 120px;
     background-color: #00000088;
@@ -544,7 +538,15 @@ input[type='radio'] {
 }
   
 .tooltip:hover .tooltiptext {
-visibility: visible;
-top: -5px;
-right: 105%;
+    visibility: visible;
+    top: -5px;
+    right: 105%;
+}
+
+.hide-element {
+    display: none !important;
+}
+
+.disabled {
+    opacity: 0.5;
 }

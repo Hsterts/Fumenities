@@ -25,7 +25,8 @@
 <script type = "text/javascript" src = "./Fumen Utils_files/NeuQuant.js"></script>
 <script type = "text/javascript" src = "./Fumen Utils_files/GIFEncoder.js"></script>
 <script type = "text/javascript" src = "./Fumen Utils_files/b64.js"></script>
-<script type = "text/javascript" src = "./Fumen Utils_files/mousetrap.js"></script>
+<script type = "text/javascript" src = "./Fumen Utils_files/mousetrap.min.js"></script>
+<script type = "text/javascript" src = "./Fumen Utils_files/mousetrap-bind-dictionary.min.js"></script>
 <script src = "https://cdn.jsdelivr.net/npm/html2canvas@1.0.0-rc.5/dist/html2canvas.min.js"></script>
 
 	<body id = "main">		
@@ -49,14 +50,14 @@
 			</div>
 
 			<div class = "fumenOperations">
-				<button class = "ibtn" onclick = "document.getElementById('input').value = ''">Clear Input</button>
-				<button class = "ibtn" onclick = "glueFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))">Glue</button>
-				<button class = "ibtn" onclick = "unglueFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))">Unglue</button>
-				<button class = "ibtn" onclick = "mirrorFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))">Mirror</button>
-				<button class = "ibtn" onclick = "combineFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))">Combine</button>
-				<button class = "ibtn" onclick = "splitFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))">Split</button>
-				<button class = "ibtn" onclick = "removeComments(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))">Remove Comments</button>
-				<button class = "ibtn" onclick = "renderImages(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))">Output Image</button>
+				<button id="clear-input" class = "ibtn" onclick = "increaseClearInputLevel()">Clear Input</button>
+				<button id="glue-fumen" class = "ibtn" onclick = "glueFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))">Glue</button>
+				<button id="unglue-fumen" class = "ibtn" onclick = "unglueFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))">Unglue</button>
+				<button id="mirror-fumen" class = "ibtn" onclick = "mirrorFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))">Mirror</button>
+				<button id="combine-fumen" class = "ibtn" onclick = "combineFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))">Combine</button>
+				<button id="split-fumen" class = "ibtn" onclick = "splitFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))">Split</button>
+				<button id="remove-comments" class = "ibtn" onclick = "removeComments(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))">Remove Comments</button>
+				<button id="render-images" class = "ibtn" onclick = "renderImages(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))">Output Image</button>
 			</div>
 
 			<div class = "row" id = "settings">
@@ -150,7 +151,7 @@
 				<button class = "ibtn" onclick = "takeshot()">Copy Outputs As Image</button><br>
 			</div><br>
 				<!--Fumen Sidebar-->
-			<div id = "fumenSidebar" style = "display: none;">
+			<div id = "fumenSidebar" class="hide-element">
 				<div id = "settingsButton">
 					<button class = "option option-left" onclick = "toggleFumenSettings()" style = "display:show;">
 						<span class = "material-icons" id = "openFumenSettings">keyboard_arrow_left</span>
@@ -206,7 +207,7 @@
 						<div class = "minoMode top-panel">
 							<div class = "tooltip">
 								<input id = "minoModeInput" type = "checkbox" onclick = "updateMinoMode()"><span class = "pepega">  Mino Mode</span></input>
-								<span class = "tooltiptext">Draw four minos as a piece placement.</span>
+								<span class = "tooltiptext">Draw four minos as a piece placement. Shortcut: 0</span>
 							</div>
 						</div>
 					</div>
@@ -246,8 +247,8 @@
 									<span class = "tooltiptext">Mirror the current page.</span>
 								</div>
 								<div class = "tooltip">
-									<button class = "fumen-option" onclick = "this.blur(); fullMirror()"><b>Mirror</b></button>
-									<span class = "tooltiptext">Mirror all pages.</span>
+									<button class = "fumen-option" onclick = "this.blur(); fullMirror()"><b>Mirror Fumen</b></button>
+									<span class = "tooltiptext">Mirror all pages of the fumen.</span>
 								</div>	
 								<div class = "tooltip">
 									<button class = "fumen-option" onclick = "this.blur(); dupliPage()"><b>Duplicate Page</b></button>
@@ -262,11 +263,7 @@
 									<span class = "tooltiptext">Delete the current page.</span>
 								</div>
 								<div class = "tooltip">
-									<button id = "reset" onclick = "this.blur(); increaseRestartLevel()"><b>Reset</b></button>
-									<span class = "tooltiptext">Delete all data.</span>
-								</div>
-								<div class = "tooltip">
-									<button id = "reset-angry" onclick = "this.blur(); increaseRestartLevel()"><b>Reset</b></button>
+									<button id = "reset" class="fumen-option" onclick = "this.blur(); increaseResetLevel()"><b>Reset</b></button>
 									<span class = "tooltiptext">Delete all data.</span>
 								</div><hr class="small-hr">
 								<div class = "tooltip">
@@ -282,18 +279,18 @@
 									<span class = "tooltiptext">Export the current page.</span>
 								</div>
 								<div class = "tooltip">
-									<button class = "fumen-option" onclick = "this.blur(); fullDecode()"><b>Import</b></button>
+									<button class = "fumen-option" onclick = "this.blur(); fullDecode()"><b>Import Fumen</b></button>
 									<span class = "tooltiptext">Import and replace the current data.</span>
 								</div>
 								<div class = "tooltip">
-									<button class = "fumen-option" onclick = "this.blur(); fullEncode()"><b>Export</b></button>
+									<button class = "fumen-option" onclick = "this.blur(); fullEncode()"><b>Export Fumen</b></button>
 									<span class = "tooltiptext">Export all pages.</span>
 								</div>
 								<hr class="small-hr">
 							<!--Auto-Encoding-->
 								<div class = "autoEncodingInputs">
 									<div class = "autoEncoding">
-										<input id = "autoEncode" type = "checkbox" onclick = "toggleAutoEncoding()"></input>
+										<input id = "autoEncode" type = "checkbox" onclick = "updateAutoEncoding()"></input>
 										<label for = "autoEncode"><b>Auto-Encode</b></label>
 									</div>
 									<div class = "autoEncoding" id = "autoEncodeOptions" style = "display:none;">
@@ -344,7 +341,7 @@
 							<label for = "3dSetting"><span class = "pepega">Show 3D Effect</span></label>
 						</div>
 						<div id = "defaultRenderToggle">
-							<input id = "defaultRenderInput" type = "checkbox" onclick = "toggleStyle()"></input>
+							<input id = "defaultRenderInput" type = "checkbox" onclick = "updateStyle()"></input>
 							<label for = "defaultRenderInput"><span class = "pepega">Use Default Style</span></label>
 						</div>
 					</div>
