@@ -14,319 +14,258 @@ var bookPos = 0
 window.requestAnimationFrame(render)
 
 //PIECE MAPS
-piece_T = ['0000111001000000', '0100011001000000', '0100111000000000', '0100110001000000']
-piece_I = ['', '0100010001000100', '0000111100000000']
-piece_L = ['0000111010000000', '0100010001100000', '0010111000000000', '1100010001000000']
-piece_J = ['0000111000100000', '0110010001000000', '1000111000000000', '0100010011000000']
-piece_S = ['0000011011000000', '0100011000100000']
-piece_Z = ['0000110001100000', '0010011001000000']
-piece_O = ['0000110011000000']
+{
+	let piece_T = ['0000111001000000', '0100011001000000', '0100111000000000', '0100110001000000']
+	let piece_I = ['0100010001000100', '0000111100000000']
+	let piece_L = ['0000111010000000', '0100010001100000', '0010111000000000', '1100010001000000']
+	let piece_J = ['0000111000100000', '0110010001000000', '1000111000000000', '0100010011000000']
+	let piece_S = ['0000011011000000', '0100011000100000']
+	let piece_Z = ['0000110001100000', '0010011001000000']
+	let piece_O = ['0000110011000000']
 
-pieceMaps = [piece_T, piece_I, piece_L, piece_J, piece_S, piece_Z, piece_O]
-
+	var pieceMaps = [piece_T, piece_I, piece_L, piece_J, piece_S, piece_Z, piece_O]
+}
+const rotationNames = ['reverse','right','spawn','left']
 
 //MAKING FIRST EMPTY BOARD
 const aRow = []
 const emptyBoard = []
 for(let i = 0; i < boardSize[0]; i++) {aRow.push({ t: 0, c: '' })}
 for (let i = 0; i < boardSize[1]; i++) {emptyBoard.push(aRow)}
-board = JSON.parse(JSON.stringify(emptyBoard)) // the lazy way of doing a deep copy
-minoModeBoard = JSON.parse(JSON.stringify(emptyBoard)) // the lazy way of doing a deep copy
+var board = JSON.parse(JSON.stringify(emptyBoard)) // the lazy way of doing a deep copy
+var minoModeBoard = JSON.parse(JSON.stringify(emptyBoard)) // the lazy way of doing a deep copy
 updateBook()
 
 // CANVAS
-style = 'four'
 var ctx = document.getElementById('b').getContext('2d')
-var gridCvs = document.createElement('canvas')
-gridCvs.height = cellSize
-gridCvs.width = cellSize
-var gridCtx = gridCvs.getContext('2d')
-gridCtx.fillStyle = '#000000CC'
-gridCtx.fillRect(0, 0, cellSize, cellSize)
-gridCtx.strokeStyle = '#ffffff88'
-gridCtx.strokeRect(0, 0, cellSize + 1, cellSize + 1)
-var pattern = ctx.createPattern(gridCvs, 'repeat')
-document.getElementById('b').height = (boardSize[1]) * cellSize
+{
+	let gridCvs = document.createElement('canvas')
+	gridCvs.height = cellSize
+	gridCvs.width = cellSize
+	let gridCtx = gridCvs.getContext('2d')
+	gridCtx.fillStyle = '#000000CC'
+	gridCtx.fillRect(0, 0, cellSize, cellSize)
+	gridCtx.strokeStyle = '#ffffff88'
+	gridCtx.strokeRect(0, 0, cellSize + 1, cellSize + 1)
+	var pattern = ctx.createPattern(gridCvs, 'repeat')
+}
+document.getElementById('b').height = boardSize[1] * cellSize
 document.getElementById('b').width = boardSize[0] * cellSize
 document.getElementById('b').style.outline = '2px solid #ffffffcc'
 
 //USER INPUT
-mouseY = 0
-mouseX = 0
-userFocus = false
-mouseDown = false
-drawMode = true
-movingCoordinates = false
-minoMode = false
+var mouseHeld = false
+var drawMode = true
+var minoMode = document.getElementById('minoModeInput').checked
+var autoColorBool = document.getElementById('autoColorInput').checked
+// I'm not sure where I should place this function call for initialization
+setPositionDisplay(bookPos, book.length)
+delimiter = updateDelim() //shared with other scripts
+updateToolTips()
+updateBGSelect()
+updateDownloadSettings()
+updateMinoMode()
+updateAutoColor()
+updateRowFillInput() //unnecessary
+updateAutoEncoding()
 
 //FUNCTIONS
+function drawnMinos(someBoard, cellMatch) {
+	return someBoard.reduce((count,row) => {
+		return count += row.reduce((tval,cell) => {
+			return tval += cellMatch(cell)
+		}, 0)
+	}, 0)
+}
+
 document.getElementById('b').onmousedown = function mousedown(e) {
 	bookPos = getCurrentPosition()
 	rect = document.getElementById('b').getBoundingClientRect()
-	mouseY = Math.floor((e.clientY - rect.top) / cellSize)
-	mouseX = Math.floor((e.clientX - rect.left) / cellSize)
-	if(!mouseDown && e.button == 0) {
-		movingCoordinates = false
-			//mino mode
-		if (minoMode) {
-			drawnCount = minoModeBoard.reduce((count,row) => {
-				return count += row.reduce((xcount,cell) => {
-					return xcount += (cell.t != 0)
-				}, 0)
-			}, 0)
-			if (board[mouseY][mouseX].t != 1 && drawnCount != 4 && minoModeBoard[mouseY][mouseX].t != 1) {
-				minoModeBoard[mouseY][mouseX] = {t: 1, c: 'X'}
-			} else {
-				if(minoModeBoard[mouseY][mouseX].t == 1 && drawnCount == 4) {
-					for (var row = 0; row < 20; row++){
-						for (var col = 0; col < 10; col++) {
-							if(minoModeBoard[row][col].c == ''){
-							} else {
-								minoModeBoard[row][col].c = 'X'
-							}	
-						}
-					}
-				}
-				minoModeBoard[mouseY][mouseX] = {t: 0, c: ''}
-			}
-		} else {
-			//auto color is basically mino mode and normal combined.
-			if(autoColorBool) {			
-				drawMode = e.button == 0 && board[mouseY][mouseX]['t'] == 2
-				drawnCount = board.reduce((count,row) => {
-					return count += row.reduce((xcount,cell) => {
-						return xcount += (cell.t == 2)
-					}, 0)
-				}, 0)
-				positions = []
-				for (var row = 0; row < 20; row++){
-					for (var col = 0; col < 10; col++) {
-						if(board[row][col].t == 2){
-							positions.push([row,col])
-						}
-					}
-				}
+	let cellCol = Math.floor((e.clientY - rect.top) / cellSize)
+	let cellRow = Math.floor((e.clientX - rect.left) / cellSize)
 
-				if (board[mouseY][mouseX]['t'] == 0 && drawnCount <= 3) {
-					board[mouseY][mouseX] = { t: 2, c: 'X' }
-				} else if(drawnCount <= 3){
-					board[mouseY][mouseX] = { t: 0, c: '' }
-				}
-				
-				if (board[mouseY][mouseX]['t'] == 0 && drawnCount == 4) {
-					for (var cell = 0; cell < positions.length; cell++){
-						let row = positions[cell][0]
-						let col = positions[cell][1]
-						board[row][col].t = 1
-					}
-					board[mouseY][mouseX] = { t: 2, c: 'X' }
-				} else if(drawnCount == 4) {
-					for (var cell = 0; cell < positions.length; cell++){
-						let row = positions[cell][0]
-						let col = positions[cell][1]
-						board[row][col].c = 'X'
-					}
-					board[mouseY][mouseX] = { t: 0, c: '' }
-				}
+	drawMode = (e.button == 0 && board[cellCol][cellRow]['t'] == 0 && minoModeBoard[cellCol][cellRow]['t'] == 0)
+	drawCanvasCell(cellRow, cellCol)
 
-			//normal draw mode
-			} else {
-				drawMode = e.button == 0 && board[mouseY][mouseX]['t'] == 1
-				if (board[mouseY][mouseX]['t'] == 0) {
-					board[mouseY][mouseX] = { t: 1, c: paintbucketColor() }
-				} else {
-					if (board[mouseY][mouseX]['c'] != paintbucketColor()) {
-						board[mouseY][mouseX] = { t: 1, c: paintbucketColor() }
-					} else {
-						board[mouseY][mouseX] = { t: 0, c: '' }
-					}
-				}
-			}
-		}
-		updateBook()
-		autoEncode()
-	} else {
-		board[mouseY][mouseX] = { t: 0, c: '' }
-		minoModeBoard[mouseY][mouseX] = { t: 0, c: ''}
-		updateBook()
-		autoEncode()
-	}
-	mouseDown = true
-	drawMode = board[mouseY][mouseX]['t'] == 1
+	updateBook()
+	autoEncode()
+	mouseHeld = true
 }
 
 document.getElementById('b').onmousemove = function mousemove(e) {
 	bookPos = getCurrentPosition()
 	rect = document.getElementById('b').getBoundingClientRect()
-	y = Math.floor((e.clientY - rect.top) / cellSize)
-	x = Math.floor((e.clientX - rect.left) / cellSize)
-		if (inRange(x, 0, boardSize[0]-1) && inRange(y, 0, boardSize[1]-1)) {
-		movingCoordinates = y != mouseY || x != mouseX
-		mouseY = y
-		mouseX = x
-        if (mouseDown && movingCoordinates) {
-			//mino mode
-			if (minoMode) {
-				drawnCount = minoModeBoard.reduce((count,row) => {
-					return count += row.reduce((xcount,cell) => {
-						return xcount += (cell.t != 0)
-					}, 0)
-				}, 0)
-                if (board[mouseY][mouseX].t != 1 && minoModeBoard[mouseY][mouseX].t != 1 && drawnCount < 4) {
-                    minoModeBoard[mouseY][mouseX] = { t: 1, c: 'X' }
-	            } else {
-					if(minoModeBoard[mouseY][mouseX].t == 1 && drawnCount == 4) {
-						//remove colors when there are four minos and user deletes one
-						for (var row = 0; row < 20; row++){
-							for (var col = 0; col < 10; col++) {
-								if(minoModeBoard[row][col].c != ''){
-									minoModeBoard[row][col].c = 'X'
-								}
-							}
-						}
-					}
-					minoModeBoard[mouseY][mouseX] = {t: 0, c: ''}
-				}
-            } else {
-				//auto color is basically mino an- :ResidentSleeper:
-				if(autoColorBool) {
-					drawnCount = board.reduce((count,row) => {
-						return count += row.reduce((xcount,cell) => {
-							return xcount += (cell.t == 2)
-						}, 0)
-					}, 0)
-					positions = []
-					for (var row = 0; row < 20; row++){
-						for (var col = 0; col < 10; col++) {
-							if(board[row][col].t == 2){
-								positions.push([row,col])
-							}
-						}
-					}
 
-					if (board[mouseY][mouseX]['t'] == 0 && drawnCount <= 3) {
-						board[mouseY][mouseX] = { t: 2, c: 'X' }
-					} else if(drawnCount <= 3){
-						board[mouseY][mouseX] = { t: 0, c: '' }
-					}
-				} else {
-					//normal mode
-					if (drawMode) {
-						if (board[mouseY][mouseX]['t'] == 0) {
-							board[mouseY][mouseX] = { t: 1, c: paintbucketColor() }
-						} else {
-							if (board[mouseY][mouseX]['c'] != paintbucketColor()) {
-								board[mouseY][mouseX] = { t: 1, c: paintbucketColor() }
-							}
-						}
-					} else {
-						board[mouseY][mouseX] = { t: 0, c: '' }
+	let cellCol = Math.floor((e.clientY - rect.top) / cellSize)
+	let cellRow = Math.floor((e.clientX - rect.left) / cellSize)
+	
+	let marginX = (e.clientX - rect.left) % cellSize
+	let marginY = (e.clientY - rect.top) % cellSize
+	
+	let inSameCell = inRange(marginX-e.movementX, 0, cellSize-1) && inRange(marginY-e.movementY, 0, cellSize-1) // check if previous position crossed cell boundary
+	// now triggers even when re-entering the same cell, but the effect is inconsequential
+	let updateCanvas = mouseHeld && !inSameCell
+    if (!updateCanvas) return;
+	
+	drawCanvasCell(cellRow, cellCol)
+	
+	updateBook()
+	autoEncode()
+}
+
+function drawCanvasCell(cellRow, cellCol) {
+	if (minoMode) {
+		drawCanvasMinoMode()
+	} else if (autoColorBool) {
+		drawCanvasAutoColorMode()
+	} else {
+		drawCanvasNormalMode()
+	}
+
+	function drawCanvasMinoMode() {
+		//safeguarding, can remove if it's guarenteed that minoModeBoard will not contain cells with {t: 2}.
+		isCellTypeTwo = (cell) => cell.t === 2
+		for (let row = 0; row < 20; row++) {
+			if (minoModeBoard[row].some(isCellTypeTwo)) console.log("I refactored this code assuming that this state is impossible. Please check if the logic holds.")
+		}
+		//
+
+		//when minoModeBoard is merged into board, more refactoring similar to drawCell() can be done.
+		
+		let drawnCount = drawnMinos(minoModeBoard, (cell) => cell.t == 1)
+	
+		if (drawMode && drawnCount < 4 && board[cellCol][cellRow].t == 0) {
+			minoModeBoard[cellCol][cellRow] = {t: 1, c: 'X'}
+		} else if (!drawMode) {
+			minoModeBoard[cellCol][cellRow] = {t: 0, c: ''}
+			//remove colors when there are four minos and user deletes one
+			if (drawnCount == 4) {
+				for (let row = 0; row < 20; row++){
+					for (let col = 0; col < 10; col++) {
+						if(minoModeBoard[row][col].t != 0) {
+							minoModeBoard[row][col].c = 'X'
+						}	
 					}
 				}
 			}
-			updateBook()
-			autoEncode()
+		}
+	}
+	
+	function drawCanvasNormalMode() {
+		let rowFill = document.getElementById('rowFillInput').checked
+		if (rowFill) {
+			if (drawMode) {
+				for (let row=0;row<boardSize[0];row++) {
+					board[cellCol][row] = { t: 1, c: paintbucketColor() }
+				}
+				board[cellCol][cellRow] = { t: 0, c: '' }
+			} else {
+				board[cellCol] = JSON.parse(JSON.stringify(aRow))
+			}
+		} else {
+			if (drawMode) {
+				board[cellCol][cellRow] = { t: 1, c: paintbucketColor() }
+			} else {
+				board[cellCol][cellRow] = { t: 0, c: '' }
+			}
+		}
+	}
+	
+	function drawCanvasAutoColorMode() {
+		//auto color is basically mino mode and normal combined.	
+		if (drawMode && drawnMinos(board, (cell) => cell.t == 2) < 4) {
+			board[cellCol][cellRow] = { t: 2, c: 'X' }
+		} else if (!drawMode) {
+			board[cellCol][cellRow] = { t: 0, c: '' }
 		}
 	}
 }
 
-document.onmouseup = function mouseup() {
-    mouseDown = false
+function finishMinoMode() {
 	drawn = []
-	bookPos = getCurrentPosition()
-	if (minoMode) {
-		//count drawn pieces
-		drawnCount = minoModeBoard.reduce((count,row) => {
-			return count += row.reduce((tval,cell) => {
-				return tval += (cell.t != 0)
-			}, 0)
-		}, 0)
-
-		if(drawnCount == 4){
-			//get all drawn cells + their coords
-			for (var row = 0; row < 20; row++){
-				for (var col = 0; col < 10; col++) {
-					if(minoModeBoard[row][col].c == ''){
-					} else {
-						cellData = {row: row, col: col, info: minoModeBoard[row][col]}
-						drawn.push(cellData)
+	if(drawnMinos(minoModeBoard, (cell) => cell == 1) != 4) return;
+	//get all drawn cells + their coords
+	for (let row = 0; row < 20; row++){
+		for (let col = 0; col < 10; col++) {
+			if(minoModeBoard[row][col].c != ''){
+				cellData = {row: row, col: col, info: minoModeBoard[row][col]}
+				drawn.push(cellData)
+			}	
+		}
+	}
+	
+	for(let cell = 0; cell < 4; cell++) {
+		minoFieldString = ''
+		//making map
+		for(let y = -1; y < 3; y++){
+			for(let x = -1; x < 3; x++){
+				let row = drawn[cell]['row'] + y
+				let col = drawn[cell]['col'] + x
+				let minoInBoard = inRange(row,0,19) && inRange(col,0,9)
+				if(!minoInBoard) {
+					minoFieldString += '0'
+				} else {
+					minoFieldString += minoModeBoard[row][col].t.toString()
+				}
+			}
+		}
+		//matching map to piece
+		for(let piece = 0; piece < 7; piece++){
+			pieceMap = pieceMaps[piece]
+			index = pieceMap.findIndex((pieceString) => pieceString === minoFieldString)
+			if(index == -1) continue;
+			//operations property items
+			type = 'TILJSZO'[piece]
+			rotation = rotationNames[index]
+			x = drawn[cell]['col']
+			y = 19 - drawn[cell]['row']
+			operation = new Mino(type, rotation, x, y)
+			//coloring in
+			for (let row = 0; row < 20; row++){
+				for (let col = 0; col < 10; col++) {
+					if (minoModeBoard[row][col].t != 0) {
+						minoModeBoard[row][col].c = type
 					}	
 				}
 			}
-			
-			for(var cell = 0; cell < 4; cell++) {
-				minoFieldString = ''
-				//making map
-				for(var y = -1; y < 3; y++){
-					for(var x = -1; x < 3; x++){
-						let row = drawn[cell]['row'] + y
-						let col = drawn[cell]['col'] + x
-						if(!inRange(row,0,19) || !inRange(col,0,9)) {
-						minoFieldString += '0'
-						} else {
-						 	minoFieldString += minoModeBoard[row][col].t.toString()
-						}
-					}
-				}
-				//matching map to piece
-				for(var piece = 0; piece < 7; piece++){
-					pieceMap = pieceMaps[piece]
-					index = pieceMap.findIndex((pieceString) => pieceString === minoFieldString)
-					if(index != -1){
-						//operations property items
-						type = 'TILJSZO'[piece]
-						rotations = ['reverse','right','spawn','left']
-						rotation = rotations[index]
-						x = drawn[cell]['col']
-						y = 19 - drawn[cell]['row']
-						operation = new Mino(type, rotation, x, y)
-						//coloring in
-						for (var row = 0; row < 20; row++){
-							for (var col = 0; col < 10; col++) {
-								if(minoModeBoard[row][col].c == ''){
-								} else {
-									minoModeBoard[row][col].c = type
-								}	
-							}
-						}
-						//saving matched piece
-						updateBook()
-					}
-				}
-			}
-		}
-    }
-
-	if(autoColorBool){
-		positions = []
-		for (var row = 0; row < 20; row++){
-			for (var col = 0; col < 10; col++) {
-				if(board[row][col].t == 2){
-					positions.push([row,col])
-				}
-			}
-		}
-
-		result = readPiece(positions)
-		//because why fix the readPiece function from reading upside down :kappa:
-		switch(result){
-			case 'S': result = 'Z'; break;
-			case 'Z': result = 'S'; break;
-			case 'L': result = 'J'; break;
-			case 'J': result = 'L'; break;
-			case undefined: result = 'X'; break;
-			default: break;
-		}
-
-		for (var cell = 0; cell < positions.length; cell++){
-			let row = positions[cell][0]
-			let col = positions[cell][1]
-			if(board[row][col].c == 'X' && positions.length % 4 == 0) board[row][col].c = result
+			//saving matched piece
+			updateBook()
 		}
 	}
+}
 
+function finishAutoColor() {
+	let positions = []
+	for (let row = 0; row < boardSize[1]; row++){
+		for (let col = 0; col < boardSize[0]; col++) {
+			if(board[row][col].t == 2){
+				positions.push([row,col])
+			}
+		}
+	}
+	
+	if (positions.length != 4) return;
+
+	let pieceName = readPiece(positions)
+
+	for (let position of positions) {
+		board[position[0]][position[1]] = { t: 1, c: pieceName }
+	}
+}
+
+document.onmouseup = function mouseup() {
+	bookPos = document.getElementById('positionDisplay').value-1 //used by program, only updates bookPos
+	
+	if (minoMode) finishMinoMode()
+	if (autoColorBool) finishAutoColor()
+	
+    mouseHeld = false
 	autoEncode()
     requestAnimationFrame(render)
+}
+
+function setPaintBucket(index) {
+	document.paintbucket[index].checked = true;
 }
 
 function getCurrentPosition() {
@@ -338,36 +277,19 @@ function setPositionDisplay(pageIndex, totalPageNum) {
 	document.getElementById('positionDisplayOver').value = '/' + totalPageNum
 }
 
-function focused() {userFocus = true}
-
-function unfocused() {userFocus = false}
-
-document.onkeydown = function hotkeys(e) {
-	console.log("checking userFocus: " + (userFocus))
-	if(userFocus == false){
-		if(e.ctrlKey == true){
-			switch (e.key) {
-				case 'z': undo(); break;
-				case 'y': redo(); break;
-			}
-		} else {
-			switch (e.key) {
-				case '1': paintbucket[0].checked = true; break;
-				case '2': paintbucket[1].checked = true; break;
-				case '3': paintbucket[2].checked = true; break;
-				case '4': paintbucket[3].checked = true; break;
-				case '5': paintbucket[4].checked = true; break;
-				case '6': paintbucket[5].checked = true; break;
-				case '7': paintbucket[6].checked = true; break;
-				case '8': paintbucket[7].checked = true; break;
-				case 'r': restart(); break;
-				case ',': prevPage(); break;
-				case '.': nextPage(); break;
-				default: break;			
-			}
-		}
-	}
-}
+Mousetrap.bind('1', function() {setPaintBucket(0);})
+Mousetrap.bind('2', function() {setPaintBucket(1);})
+Mousetrap.bind('3', function() {setPaintBucket(2);})
+Mousetrap.bind('4', function() {setPaintBucket(3);})
+Mousetrap.bind('5', function() {setPaintBucket(4);})
+Mousetrap.bind('6', function() {setPaintBucket(5);})
+Mousetrap.bind('7', function() {setPaintBucket(6);})
+Mousetrap.bind('8', function() {setPaintBucket(7);})
+Mousetrap.bind('r', increaseRestartLevel)
+Mousetrap.bind(',', prevPage)
+Mousetrap.bind('.', nextPage)
+Mousetrap.bind(['mod+z'], undo)
+Mousetrap.bind(['mod+y'], redo)
 
 function paintbucketColor() {
 	for (i = 0; i < document.paintbucket.length; i++) {
@@ -377,8 +299,8 @@ function paintbucketColor() {
 	}
 }
 
-function inRange(number, min, max) {
-    return (number >= min && number <= max)
+function inRange(number, min, max) { // [min, max] inclusive
+    return (min <= number && number <= max)
 }
 
 // Updates all of the board properties: board, minoBoard, operation, comments
@@ -393,12 +315,7 @@ function updateBook() {
 			lock: document.getElementById('lockFlagInput').checked,
 			},
 	}
-
-	if(book[bookPos]['comment'] == undefined){
-		document.getElementById('commentBox').value = ''
-	} else {
-		document.getElementById('commentBox').value = book[bookPos]['comment']
-	}
+	document.getElementById('commentBox').value = (book[bookPos]['comment'] != undefined ? book[bookPos]['comment'] : '')
 
 	//Limit undos to 100 entries
 	if(undoLog.length <= 100){
@@ -410,44 +327,43 @@ function updateBook() {
 	//Clearing redo if branch is overwritten
 	redoLog = [];
 
-	autoColor()
+	updateAutoColor()
 	window.requestAnimationFrame(render)
 }
 
-function toggleMinoMode() {
+function updateMinoMode() {
     minoMode = document.getElementById('minoModeInput').checked
-    if (minoMode) {
-	} else {
-		if(operation == undefined){
+    if (!minoMode && operation == undefined)  {
 		minoModeBoard = JSON.parse(JSON.stringify(emptyBoard))
 		operation = undefined
 		updateBook()
-		}
 	}
+	updateAutoColor()
+	updateRowFillInput() //unnecessary
 }
 
 function shift(direction){
 	switch(direction) {
-	case 'left':		
-			board.map((y) => {
-				y.splice(0,1)
-				y.push({t: '0', c: ''})
-			})
-		break;
-	case 'up':
-			board.splice(0,1)
-			board.push(JSON.parse(JSON.stringify(aRow)))
-		break;
-	case 'down':
-			board.pop()
-			board.splice(0,0,JSON.parse(JSON.stringify(aRow)))
-		break;
-	case 'right':
-			board.map((y) => {
-				y.splice(0,0,{t: '0', c: ''})
-				y.pop()
-			})
-		break;
+		case 'left':		
+				board.map((y) => {
+					y.shift()
+					y.push({t: 0, c: ''})
+				})
+			break;
+		case 'up':
+				board.shift()
+				board.push(JSON.parse(JSON.stringify(aRow)))
+			break;
+		case 'down':
+				board.unshift(JSON.parse(JSON.stringify(aRow)))
+				board.pop()
+			break;
+		case 'right':
+				board.map((y) => {
+					y.unshift({t: 0, c: ''})
+					y.pop()
+				})
+			break;
 	}
 	updateBook()
 }
@@ -472,8 +388,12 @@ function prevPage() {
 
 function gotoPage() {
 	bookPos = getCurrentPosition()
+	// Bound bookPos to existing region (redundant)
+	bookPos = Math.max(Math.min(book.length-1, bookPos), 0)
+	
 	// Go to an existing page
 	settoPage(bookPos)
+	flags = {lock: true}
 	window.requestAnimationFrame(render)
 	autoEncode()
 }
@@ -489,8 +409,8 @@ function nextPage() {
 		// Create new page
 		// Solidifying minos
 		prevBoard = JSON.parse(book[bookPos-1]['board'])
-		for (var row = 0; row < 20; row++){
-			for (var col = 0; col < 10; col++) {
+		for (let row = 0; row < 20; row++){
+			for (let col = 0; col < 10; col++) {
 				if(board[row][col].t == 2){
 					prevBoard[row][col].t = 1
 					prevBoard[row][col].c = board[row][col].c
@@ -500,21 +420,21 @@ function nextPage() {
 		book[bookPos-1]['board'] = JSON.stringify(prevBoard)
 		
 		//push minomode onto current board
-		if(book[bookPos-1]['operation'] != undefined){
-			for (var row = 0; row < 20; row++){
-				for (var col = 0; col < 10; col++) {
+		if(book[bookPos-1]['operation'] == undefined){
+			board = JSON.parse(book[bookPos - 1]['board'])
+		} else {
+			for (let row = 0; row < 20; row++){
+				for (let col = 0; col < 10; col++) {
 					if(minoModeBoard[row][col].t != 0){
 						board[row][col] = minoModeBoard[row][col]
 					}
 				}
 			}
-		} else {
-			board = JSON.parse(book[bookPos - 1]['board'])
 		}
 
 		//Line clears if flag lock is on
 		if(book[bookPos-1]['flags']['lock'] === true) {
-			for(var row = 0; row < boardSize[1]; row++){
+			for(let row = 0; row < boardSize[1]; row++){
 				// delete a row if it is all filled
 				let isEmpty = (cell) => cell.t == 0
 				if(board[row].some(isEmpty)) continue;
@@ -538,11 +458,28 @@ function nextPage() {
 		}
 		document.getElementById('commentBox').value = comment
 		
-		setPositionDisplay(bookPos, book.length + 1)
+		setPositionDisplay(bookPos, book.length)
 	}
 	window.requestAnimationFrame(render)
 	autoEncode()
 	updateBook()
+}
+
+function gotoPage() {
+	// check for numeric input and within bounds
+	bookPos = getCurrentPosition()
+	if(isNaN(bookPos)){
+		bookPos = 1
+	}
+	bookPos = Math.max(Math.min(book.length, bookPos), 1)
+
+	board = JSON.parse(book[bookPos - 1]['board'])
+	minoModeBoard = JSON.parse(book[bookPos - 1]['minoBoard'])
+	setPositionDisplay(bookPos, book.length)
+	document.getElementById('commentBox').value = book[bookPos - 1]['comment']
+	
+	window.requestAnimationFrame(render)
+	autoEncode()
 }
 
 function startPage(){
@@ -558,25 +495,6 @@ function endPage(){
 	autoEncode()
 }
 
-function restart(){
-	board.map((y, i) => {
-		y.map((x, ii) => {
-			x.t = 0
-			x.c = ''
-		})
-    })
-    minoModeBoard = JSON.parse(JSON.stringify(emptyBoard))
-	book = [{board: JSON.stringify(board), flags: flags}]
-	setPositionDisplay(0, book.length)
-	document.getElementById('boardOutput').value = ''
-	document.getElementById('commentBox').value = ''
-	comments = []
-	document.getElementById('reset').style.display = 'inline-block'
-	document.getElementById('reset-angry').style.display = 'none'
-	updateBook() // record initial state in logs, testing
-	window.requestAnimationFrame(render)
-}
-
 function clearPage(){
 	bookPos = getCurrentPosition()
 	book[bookPos] = {
@@ -586,6 +504,8 @@ function clearPage(){
 		operation: undefined,
 		flags: flags
 	}
+	board = JSON.parse(book[bookPos]['board'])
+	minoBoard = JSON.parse(book[bookPos]['minoBoard'])
 	settoPage(bookPos)
 	window.requestAnimationFrame(render)
 	autoEncode()
@@ -593,18 +513,13 @@ function clearPage(){
 
 function dupliPage(){
 	bookPos = getCurrentPosition()
-	if(book.length == 1){
+	if(bookPos == book.length-1){
 		nextPage()
 	} else {
-		if (bookPos != book.length-1) {
-			book.splice(bookPos,0,book[bookPos])
-			setPositionDisplay(bookPos+1, book.length)
-			document.getElementById('commentBox').value = book[bookPos]['comment']
-		} else {
-			if(bookPos == book.length-1){
-				nextPage()
-			}
-		}
+		book.splice(bookPos,0,book[bookPos])
+		setPositionDisplay(bookPos+1, book.length)
+		//nominally you don't need to "update" the display since it's the same
+		document.getElementById('commentBox').value = book[bookPos]['comment']
 	}
 	window.requestAnimationFrame(render)
 	autoEncode()
@@ -624,192 +539,149 @@ function deletePage(){
 	autoEncode()
 }
 
-function render() {
+function render() { 
 	ctx.clearRect(0, 0, boardSize[0] * cellSize, boardSize[1] * cellSize)
 	ctx.fillStyle = pattern
 	ctx.fillRect(0, 0, boardSize[0] * cellSize, boardSize[1] * cellSize)
-	board.map((y, i) => {
-		y.map((x, ii) => {
-			if (x.t != 0) {
-				drawCell(ii, i, x.c, x.t)
+	board.map((row, i) => {
+		row.map((cell, j) => {
+			if (cell.t != 0) {
+				drawCell(j, i, cell.c, cell.t)
 			}
 		})
 	})
-	minoModeBoard.map((y, i) => {
-		y.map((x, ii) => {
-			if(x.t == 1) {
-				drawCell(ii, i, x.c, 2)
+	minoModeBoard.map((row, i) => {
+		row.map((cell, j) => {
+			if(cell.t == 1) {
+				drawCell(j, i, cell.c, 2)
 			}
 		})
 	})
 }
+
+
 
 function drawCell(x, y, piece, type) {
-	var lockFlag = document.getElementById('lockFlagInput').checked
-	
-	if(style == 'four'){
-		var foureffectInput = document.getElementById('3dSetting').checked
-		var color = {Z: '#ef624d', L: '#ef9535', O: '#f7d33e', S: '#66c65c', I: '#41afde', J: '#1983bf', T: '#b451ac', X: '#999999'}
-		var lightercolor = {Z: '#fd7660', L: '#fea440', O: '#ffe34b', S: '#7cd97a', I: '#3dc0fb', J: '#1997e3', T: '#d161c9', X: '#bbbbbb'}
-		var lightestcolor = {Z: '#ff998c', L: '#feb86d', O: '#fbe97f', S: '#96f98b', I: '#75faf8', J: '#1fd7f7', T: '#fe89f7', X: '#dddddd'}
-		if(y == 0){
-			var cellAbove = 1
-		} else {
-			var cellAbove = (board[y-1][x]['t'] != 0) + (minoModeBoard[y-1][x]['t'] != 0)
-		}
+	const FourPalette = [
+		{ Z: '#ef624d', L: '#ef9535', O: '#f7d33e', S: '#66c65c', I: '#41afde', J: '#1983bf', T: '#b451ac', X: '#999999' },
+		{ Z: '#fd7660', L: '#fea440', O: '#ffe34b', S: '#7cd97a', I: '#3dc0fb', J: '#1997e3', T: '#d161c9', X: '#bbbbbb' },
+		{ Z: '#ff998c', L: '#feb86d', O: '#fbe97f', S: '#96f98b', I: '#75faf8', J: '#1fd7f7', T: '#fe89f7', X: '#dddddd' }
+	]
+	const FumenPalette = [
+		{ Z: '#990000', L: '#996600', O: '#999900', S: '#009900', I: '#009999', J: '#0000bb', T: '#990099', X: '#999999' },
+		{ Z: '#cc3333', L: '#cc9933', O: '#cccc33', S: '#33cc33', I: '#33cccc', J: '#3333cc', T: '#cc33cc', X: '#cccccc' },
+		{ Z: '#cc3333', L: '#cc9933', O: '#cccc33', S: '#33cc33', I: '#33cccc', J: '#3333cc', T: '#cc33cc', X: '#cccccc' } //unused row, failsafe
+	]
 
-		if (type == 1) {
-			//Normal colors
-			if (cellAbove == 0){
-				ctx.fillStyle = lightercolor[piece]
-				if(foureffectInput){
-					ctx.fillRect((x) * cellSize + 1, y * cellSize + 1 - cellSize/5, cellSize - 0, cellSize/5)
-				}
-			}
-			ctx.fillStyle = color[piece]
-			ctx.fillRect((x) * cellSize + 1, y * cellSize + 1, cellSize - 0, cellSize - 0)
-			//Light locked row colors
-			if (lockFlag == true) {
-				//check row mino count
-				var cellCount = 0
-				for(var col = 0; col < 10; col++){	
-					cellCount += (board[y][col].t != 0)
-					cellCount += (minoModeBoard[y][col].t != 0)
-				}
-				//color in if 10
-				if(cellCount == 10){
-					if (cellAbove != 1){
-						ctx.fillStyle = lightestcolor[piece]
-						if(foureffectInput){
-							ctx.fillRect((x) * cellSize + 1, y * cellSize + 1 - cellSize/5, cellSize - 0, cellSize/5)
-						}
-					}
-					ctx.fillStyle = lightercolor[piece]
-					ctx.fillRect((x) * cellSize + 1, y * cellSize + 1, cellSize - 0, cellSize - 0)
-				}
-			}
-		}
-		//Light mino colors
-		if (type == 2) {
-			if (cellAbove == 0){
-				ctx.fillStyle = lightestcolor[piece]
-				if(foureffectInput){
-				ctx.fillRect((x) * cellSize + 1, y * cellSize + 1 - cellSize/5, cellSize - 0, cellSize/5)
-				}
-			}
-			ctx.fillStyle = lightercolor[piece]
-			ctx.fillRect((x) * cellSize + 1, y * cellSize + 1, cellSize - 0, cellSize - 0)
-		}
+	let canvasStyle = getCanvasStyle()
+	
+	function getCanvasStyle() {
+		return (document.getElementById('defaultRenderInput').checked ? 'fumen' : 'four')
+	}
+	
+	let lockFlag = document.getElementById('lockFlagInput').checked
+	let cellCount = 0
+	for (let col = 0; col < 10; col++) {
+		cellCount += ((board[y][col].t != 0) || (minoModeBoard[y][col].t != 0)) // I think i can collapse minoModeBoard onto board, then the counting can be done more expediently using .some()
+	}
+	let drawLineClear = (lockFlag && cellCount == 10)
+
+	let showGrid = (canvasStyle == 'fumen')
+	currentPalette = (canvasStyle == 'fumen' ? FumenPalette : FourPalette)
+
+	let foureffectInput = document.getElementById('3dSetting').checked
+	let cellAbove = (y == 0) || (board[y - 1][x].t != 0) || (minoModeBoard[y - 1][x].t != 0)
+	let have3dHighlight = (canvasStyle == 'four' && foureffectInput && !cellAbove)
+
+
+	if (type == 2 || drawLineClear) drawLightCell()
+	else if (type == 1) 			drawNormalCell()
+	
+	function drawLightCell() {
+		if (have3dHighlight) draw3dHighlight(currentPalette[2][piece])
+		drawMinoRect(currentPalette[1][piece])
+	}
+	
+	function drawNormalCell() {
+		if (have3dHighlight) draw3dHighlight(currentPalette[1][piece])
+		drawMinoRect(currentPalette[0][piece])
 	}
 
-	if(style == 'fumen'){
-		var color = {Z: '#990000', L: '#996600', O: '#999900', S: '#009900', I: '#009999', J: '#0000bb', T: '#990099', X: '#999999'}
-		var lightercolor = {Z: '#cc3333', L: '#cc9933', O: '#cccc33', S: '#33cc33', I: '#33cccc', J: '#3333cc', T: '#cc33cc', X: '#cccccc'}
-		if (type == 1) {
-			//Normal colors
-			ctx.fillStyle = color[piece]
-			ctx.fillRect((x) * cellSize + 1, y * cellSize + 1, cellSize - 1, cellSize - 1)
-			//Light locked row colors
-			if (lockFlag == true) {
-				//check row mino count
-				var cellCount = 0
-				for(var col = 0; col < 10; col++){	
-					cellCount += (board[y][col].t != 0)
-					cellCount += (minoModeBoard[y][col].t != 0)
-				}
-				//color in if 10
-				if(cellCount == 10){
-					ctx.fillStyle = lightercolor[piece]
-					ctx.fillRect((x) * cellSize + 1, y * cellSize + 1, cellSize - 1, cellSize - 1)
-				}
-			}
-		}
-		//Light mino colors
-		if (type == 2) {
-			ctx.fillStyle = lightercolor[piece]
-			ctx.fillRect((x) * cellSize + 1, y * cellSize + 1, cellSize - 1, cellSize - 1)
-		}
+	function drawMinoRect(color) {
+		ctx.fillStyle = color
+		if (showGrid) 	ctx.fillRect(x * cellSize + 1, y * cellSize + 1, cellSize - 1, cellSize - 1)
+		else 			ctx.fillRect(x * cellSize + 1, y * cellSize + 1, cellSize, cellSize)
+	}
+
+	function draw3dHighlight(color) {
+		ctx.fillStyle = color
+		ctx.fillRect(x * cellSize + 1, y * cellSize + 1 - cellSize / 5, cellSize, cellSize / 5)
 	}
 }
 
-var shape_table = {'Z': [[[1, 0], [0, 2], [1, 1], [0, 1]],  [[1, 0], [1, 1], [2, 1], [0, 0]]],
-               'L': [[[1, 0], [0, 1], [2, 0], [0, 0]], [[0, 1], [0, 2], [1, 2], [0, 0]], [[0, 1], [1, 1], [2, 0], [2, 1]], [[1, 0], [1, 1], [1, 2], [0, 0]]],
+
+
+const shape_table = {'Z': [[[0, 1], [1, 1], [1, 2], [0, 0]], [[1, 0], [1, 1], [2, 0], [0, 1]]],
+               'L': [[[0, 1], [1, 1], [2, 1], [0, 0]], [[0, 1], [1, 0], [0, 2], [0, 0]], [[1, 0], [2, 0], [2, 1], [0, 0]], [[1, 0], [1, 1], [1, 2], [0, 2]]],
                'O': [[[1, 0], [0, 1], [1, 1], [0, 0]]],
-               'S': [[[0, 1], [1, 1], [1, 2], [0, 0]], [[1, 0], [1, 1], [2, 0], [0, 1]]],
+               'S': [[[1, 0], [0, 2], [1, 1], [0, 1]],  [[1, 0], [1, 1], [2, 1], [0, 0]]],
                'I': [[[1, 0], [2, 0], [0, 0], [3, 0]],  [[0, 1], [0, 2], [0, 3], [0, 0]]],
-               'J': [[[0, 1], [1, 1], [2, 1], [0, 0]], [[0, 1], [1, 0], [0, 2], [0, 0]], [[1, 0], [2, 0], [2, 1], [0, 0]], [[1, 0], [1, 1], [1, 2], [0, 2]]],
+               'J': [[[1, 0], [0, 1], [2, 0], [0, 0]], [[0, 1], [0, 2], [1, 2], [0, 0]], [[0, 1], [1, 1], [2, 0], [2, 1]], [[1, 0], [1, 1], [1, 2], [0, 0]]],
                'T': [[[0, 1], [0, 2], [1, 1], [0, 0]], [[1, 0], [1, 1], [2, 0], [0, 0]], [[1, 0], [1, 1], [1, 2], [0, 1]], [[1, 0], [1, 1], [2, 1], [0, 1]]],
 }
 
 //CONTRIBUTED BY CONFIDENTIAL (confidential#1288)
-function readPiece(positions){
-    if (positions.length != 4){
-        return 'X'
-    }
-    var min_i=99
-    var min_j=99
-    
-    for (position of positions){
-        var j = position[0]
-        var i = position[1]
-        if (j < min_j){
-            min_j = j
-        }
-            
-        if (i < min_i){
-            min_i = i
-        }
-            
-    }
-    var offset_positions = []
+function readPiece(mino_positions){
+    // if (mino_positions.length != 4){
+    //     return 'X'
+    // }
 
-    for (var position of positions){
-        j = position[0]
-        i = position[1]
-        offset_positions.push([j-min_j, i-min_i])
+    let min_i=Infinity
+    let min_j=Infinity
+    for (let position of mino_positions){
+		min_j = Math.min(min_j, position[0])
+		min_i = Math.min(min_i, position[1])
+    }
+
+	offset_positions = []
+    for (let position of mino_positions){
+        offset_positions.push([position[0]-min_j, position[1]-min_i])
     }
     
-    for (var piece in shape_table) {
-        if (shape_table.hasOwnProperty(piece) && is_element(offset_positions, shape_table[piece])) {
+    for (let [piece, piece_table] of Object.entries(shape_table)) {
+        if (is_element(offset_positions, piece_table)) {
             return piece
         }
     }
+	return 'X' //if none of the tables match, then it isn't a tetromino shape
 
-    function positions_equal(positions1, positions2){
-        if (positions1.length != positions2.length){
-            return false
-        }
-        for (var position1 of positions1){
-            var found = false
-            for (var position2 of positions2){
-                if (position1[0] == position2[0] && position1[1] == position2[1]){
-                    found = true
-                }
-            }
-            if (found == false){
-                return false
-            }
-        }
-        return true
+    function is_element(offset_positions, query){
+		return query.some((query_positions) => {return positions_match(offset_positions, query_positions)})
+
+		function positions_match(offset_positions, query_positions){
+			return query_positions.every((query_position) => {
+				return offset_positions.some((offset_position) => {
+					return position_match(offset_position, query_position)
+				})
+			})
+			
+			function position_match(offset_position, query_position) {
+				return offset_position[0] == query_position[0] && offset_position[1] == query_position[1]
+			}
+		}
     }
-    function is_element(positions1, query){
-        for (var positions of query){
-            if (positions_equal(positions1, positions)){
-                return true
-            }
-        }
-        return false
-    }
-            
 }
 
-function autoColor() {
+function updateAutoColor() {
 	autoColorBool = document.getElementById('autoColorInput').checked
-	if(autoColorBool == false){
-		for (var row = 0; row < 20; row++){
-			for (var col = 0; col < 10; col++) {
-				if(board[row][col].t == 2){
-					board[row][col].t = 1
+	var isAutoColorUsable = !document.getElementById('minoModeInput').checked
+	document.getElementById('autoColorInput').style.opacity = (isAutoColorUsable ? 1 : 0.5)
+	updateRowFillInput()
+	if(!(isAutoColorUsable && autoColorBool)) {
+		for (let row = 0; row < boardSize[1]; row++) {
+			for (let col = 0; col < boardSize[0]; col++) {
+				if (board[row][col].t == 2){
+					board[row][col].t = 1 //solidify any minos
 				}
 			}
 		}
@@ -819,13 +691,11 @@ function autoColor() {
 //from io.js
 function toField(board) {
     FieldString = ''
-    for (let row = 0; row < board.length; row++) {
-        for (let col = 0; col < 10; col++) {
-            if (board[row][col]['t'] != 0) {
-                FieldString += board[row][col]['c']
-            } else FieldString += '_'
-        }
-    }
+	for (let row of board){
+		for (let cell of row) {
+			FieldString += (cell.c == '' ? '_' : cell.c)
+		}
+	}
     return Field.create(FieldString)
 }
 
@@ -922,8 +792,8 @@ function fullDecode(fumen) {
 function encode() {
 	bookPos = getCurrentPosition()
 	// Solidifying minos
-	for (var row = 0; row < 20; row++){
-		for (var col = 0; col < 10; col++) {
+	for (let row = 0; row < 20; row++){
+		for (let col = 0; col < 10; col++) {
 			if(board[row][col].t == 2){
 				prevBoard[row][col].t = 1
 				prevBoard[row][col].c = board[row][col].c
@@ -932,9 +802,6 @@ function encode() {
 	}
 
 	pages = [];
-
-	page = [];
-	field = toField(JSON.parse(book[bookPos]['board']));
 	flags = {
 		rise: false,
 		mirror: false,
@@ -946,21 +813,18 @@ function encode() {
 	page = {
 		comment: book[bookPos]['comment'],
 		operation: book[bookPos]['operation'],
-		field,
+		field: toField(JSON.parse(book[bookPos]['board'])),
 		flags: flags,
 		index: bookPos,
 	}
 	pages.push(page);
 
-	var result = encoder.encode(pages);
-	document.getElementById('boardOutput').value = result;
+	document.getElementById('boardOutput').value = encoder.encode(pages);
 }
 
 function fullEncode() {
 	pages = [];
-	for (var i = 0; i < book.length; i++){
-		page = [];
-		field = toField(JSON.parse(book[i]['board']));
+	for (let i = 0; i < book.length; i++){
 		flags = {
 			rise: false,
 			mirror: false,
@@ -969,43 +833,36 @@ function fullEncode() {
 			lock: true,
 			piece: undefined,
 		}
-			page = {
-				comment: book[i]['comment'],
-				operation: book[i]['operation'],
-				field,
-				flags: flags,
-				index: i,
-			}
-		pages.push(page);
+		pages.push({
+			comment: book[i]['comment'],
+			operation: book[i]['operation'],
+			field: toField(JSON.parse(book[i]['board'])),
+			flags: flags,
+			index: i,
+		});
 	};
-	var result = encoder.encode(pages);
-	document.getElementById('boardOutput').value = result;
+	document.getElementById('boardOutput').value = encoder.encode(pages);
 }
 
 function autoEncode() {
-	var autoEncodeBool = document.getElementById('autoEncode').checked;
+	if (document.getElementById('autoEncode').checked == false) return;
 
-	var encodingType = document.getElementById('encodingType').value;
-	if(autoEncodeBool == true) {
-		if(encodingType == 'fullFumen') {
-			fumen = fullEncode();
-		};
-		if(encodingType == 'currentFumen') {
-			fumen = encode();
-		};
-	};
+	let encodingType = document.getElementById('encodingType').value;
+	
+	if (encodingType == 'fullFumen') fumen = fullEncode();
+	if (encodingType == 'currentFumen') fumen = encode();
 }
 
 function decodeOperation(operation){
 	decodedMinoBoard = JSON.parse(JSON.stringify(emptyBoard))
-	if(operation != undefined){
-		let c = operation.type
+	if (operation != undefined){
+		let color = operation.type
 		let rotation = operation.rotation
 		let x = operation.x - 1
 		let y = 19 - operation.y - 1
 		
 		//hardcoding rotations because why distinguish between I, SZ, and O rotations :tf: (i wont work on it)
-		switch(c){
+		switch(color){
 			case 'I':
 				switch(rotation){
 					case 'reverse': rotation = 'spawn'; x--; break;
@@ -1031,8 +888,8 @@ function decodeOperation(operation){
 				}
 			}
 		
-		let pieceIndex = 'TILJSZO'.indexOf(c)
-		let rotIndex = ['reverse','right','spawn','left'].indexOf(rotation)
+		let pieceIndex = 'TILJSZO'.indexOf(color)
+		let rotIndex = rotationNames.indexOf(rotation)
 		let pieceRef = pieceMaps[pieceIndex]
 		let rotRef = pieceRef[rotIndex]
 
@@ -1040,9 +897,7 @@ function decodeOperation(operation){
 			let row = Math.floor(map/4) + y
 			let col = (map % 4) + x
 			let type = rotRef[map]
-			if(type == 1){
-					decodedMinoBoard[row][col] = {t: 1, c: c}
-			}
+			if (type == 1) decodedMinoBoard[row][col] = {t: 1, c: color}
 		}
 	}
 	return decodedMinoBoard
@@ -1050,13 +905,11 @@ function decodeOperation(operation){
 
 //IMAGE IMPORT
 document.addEventListener('paste', (event) => {
-    var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+    let items = (event.clipboardData || event.originalEvent.clipboardData).items;
     for (index in items) {
-        var item = items[index];
-        if (item.kind === 'file') {
-            var blob = item.getAsFile();
-            importImage(blob);
-        }
+        let item = items[index];
+        if (item.kind != 'file') continue;
+        importImage(item.getAsFile());
     }
 });
 
@@ -1071,68 +924,85 @@ async function importImage(blob) {
     // Once the image loads, render the img on the canvas
     img.onload = function () {
         console.log(this.width, this.height);
-        scale = this.width / 10.0;
-        x = 10;
-        y = Math.min(Math.round(this.height / scale), 22);
+        let scale = this.width / 10.0;
+        let x = 10;
+        let y = Math.min(Math.round(this.height / scale), 22);
         console.log(x, y);
         mycanvas.width = this.width;
         mycanvas.height = this.height;
 
         // Draw the image
         ctx.drawImage(img, 0, 0, this.width, this.height);
-        var data = Object.values(ctx.getImageData(0, 0, this.width, this.height).data);
-        var nDat = [];
-        for (row = 0; row < y; row++) {
-            for (col = 0; col < 10; col++) {
-                // get median value of pixels that should correspond to [row col] mino
+        let tempBoard = new Array(20 - y).fill(new Array(10).fill({ t: 0, c: '' })); // empty top [40-y] rows
+        
+		let data = Object.values(ctx.getImageData(0, 0, this.width, this.height).data);
+        for (let row = 0; row < y; row++) {
+            let tmpRow = [];
+			for (let col = 0; col < 10; col++) {
+				// get median value of pixels that should correspond to [row col] mino
+				// if this is too computationally expensive maybe switch to mean
 
-                minoPixelsR = [];
-                minoPixelsG = [];
-                minoPixelsB = [];
-
-                for (pixelRow = Math.floor(row * scale); pixelRow < row * scale + scale; pixelRow++) {
-                    for (pixelCol = Math.floor(col * scale); pixelCol < col * scale + scale; pixelCol++) {
-                        index = (pixelRow * this.width + pixelCol) * 4;
+                let minoPixelsR = [];
+                let minoPixelsG = [];
+                let minoPixelsB = [];
+				
+                for (let pixelRow = Math.floor(row * scale); pixelRow < row * scale + scale; pixelRow++) {
+                    for (let pixelCol = Math.floor(col * scale); pixelCol < col * scale + scale; pixelCol++) {
+                        let index = (pixelRow * this.width + pixelCol) * 4;
                         minoPixelsR.push(data[index]);
                         minoPixelsG.push(data[index + 1]);
                         minoPixelsB.push(data[index + 2]);
                     }
                 }
-
-                medianR = median(minoPixelsR);
-                medianG = median(minoPixelsG);
-                medianB = median(minoPixelsB);
-                var hsv = rgb2hsv(medianR, medianG, medianB);
-                console.log(hsv, nearestColor(hsv[0], hsv[1], hsv[2])); // debugging purposes
-                nDat.push(nearestColor(hsv[0], hsv[1], hsv[2]));
+				
+                let medianR = median(minoPixelsR);
+                let medianG = median(minoPixelsG);
+                let medianB = median(minoPixelsB);
+                let hsv = rgb2hsv(medianR, medianG, medianB);
+                console.log(hsv, nearestMinoRepresentation(...hsv)); // debugging purposes
+            	tmpRow.push(nearestMinoRepresentation(...hsv))
             }
+            tempBoard.push(tmpRow);
         }
         /* // old alg from just scaling it down to x by y pixels
+		let nDat = [];
         for (let i = 0; i < data.length / 4; i++) {
             //nDat.push(data[i*4] + data[(i*4)+1] + data[(i*4)+2] < 382?1:0)
             var hsv = rgb2hsv(data[i * 4], data[i * 4 + 1], data[i * 4 + 2]);
             console.log(hsv, nearestColor(hsv[0], hsv[1], hsv[2])); // debugging purposes
             nDat.push(nearestColor(hsv[0], hsv[1], hsv[2]));
         }*/
-
-        tempBoard = new Array(20 - y).fill(new Array(10).fill({ t: 0, c: '' })); // empty top [40-y] rows
-        for (rowIndex = 0; rowIndex < y; rowIndex++) {
-            let row = [];
-            for (colIndex = 0; colIndex < 10; colIndex++) {
-                index = rowIndex * 10 + colIndex;
-                temp = nDat[index];
-                if (temp == '.') row.push({ t: 0, c: '' });
-                else row.push({ t: 1, c: temp });
-            }
-            tempBoard.push(row);
-        }
-
+		
         board = JSON.parse(JSON.stringify(tempBoard));
         updateBook();
     };
 
     var URLObj = window.URL || window.webkitURL;
     img.src = URLObj.createObjectURL(blob);
+
+	function rgb2hsv(r, g, b) {
+		let v = Math.max(r, g, b),
+			c = v - Math.min(r, g, b);
+		let h = c && (v == r ? (g - b) / c : v == g ? 2 + (b - r) / c : 4 + (r - g) / c);
+		return [60 * (h < 0 ? h + 6 : h), v && c / v, v];
+	}
+
+	function nearestMinoRepresentation(h, s, v) {
+		if (inRange(h, 0, 30) && inRange(s, 0, 1) && (inRange(v, 133, 135) || inRange(v, 63, 88))) return { t: 1, c: 'X' }; // attempted manual override specifically for four.lol idk
+		if (inRange(h, 220, 225) && inRange(s, 0, 0.2) && v == 65) return { t: 0, c: '' };
+	
+		if (s <= 0.2 && v / 2.55 >= 55) return { t: 1, c: 'X' };
+		if (v / 2.55 <= 55) return { t: 0, c: '' };
+	
+		if (inRange(h, 0, 16) || inRange(h, 325, 360)) 	return { t: 1, c: 'Z' };
+		else if (inRange(h, 17, 41)) 					return { t: 1, c: 'L' };
+		else if (inRange(h, 42, 70)) 					return { t: 1, c: 'O' };
+		else if (inRange(h, 71, 149)) 					return { t: 1, c: 'S' };
+		else if (inRange(h, 150, 200)) 					return { t: 1, c: 'I' };
+		else if (inRange(h, 201, 266)) 					return { t: 1, c: 'J' };
+		else if (inRange(h, 267, 325)) 					return { t: 1, c: 'T' };
+		return { t: 0, c: '' };
+	}
 }
 
 async function importImageButton() {
@@ -1150,36 +1020,7 @@ async function importImageButton() {
 	}
 }
 
-function rgb2hsv(r, g, b) {
-	let v = Math.max(r, g, b),
-		c = v - Math.min(r, g, b);
-	let h = c && (v == r ? (g - b) / c : v == g ? 2 + (b - r) / c : 4 + (r - g) / c);
-	return [60 * (h < 0 ? h + 6 : h), v && c / v, v];
-}
-
-function nearestColor(h, s, v) {
-	if (inRange(h, 0, 30) && inRange(s, 0, 1) && (inRange(v, 133, 135) || inRange(v, 63, 88))) return 'X'; // attempted manual override specifically for four.lol idk
-	if (inRange(h, 220, 225) && inRange(s, 0, 0.2) && v == 65) return '.';
-
-	if (s <= 0.2 && v / 2.55 >= 55) return 'X';
-	if (v / 2.55 <= 55) return '.';
-
-	if (inRange(h, 0, 16) || inRange(h, 325, 360)) return 'Z';
-	else if (inRange(h, 16, 41)) return 'L';
-	else if (inRange(h, 41, 70)) return 'O';
-	else if (inRange(h, 70, 149)) return 'S';
-	else if (inRange(h, 149, 200)) return 'I';
-	else if (inRange(h, 200, 266)) return 'J';
-	else if (inRange(h, 266, 325)) return 'T';
-	return '.';
-}
-
-function inRange(x, min, max) {
-	return x >= min && x <= max;
-}
-
 function median(values) {
-	// if this is too computationally expensive maybe switch to mean
 	if (values.length === 0) throw new Error('No inputs');
 
 	values.sort(function (a, b) {
@@ -1203,7 +1044,7 @@ function mirror() {
 			if (board[row][i].t == 1) board[row][i].c = reversed[board[row][i].c];
 		}
 	}
-	updatebookory();
+	updateBook();
 	window.requestAnimationFrame(render);
 }
 
@@ -1219,59 +1060,72 @@ function fullMirror() {
 		book[i]['board'] = JSON.stringify(tempBoard);
 	}
 	board = tempBoard;
-	updatebookory();
+	updateBook();
 	window.requestAnimationFrame(render);
 }
 
 //HTML FUNCTIONS
-function restartCheck(){
-	document.getElementById('reset').style.display = 'none'
-	document.getElementById('reset-angry').style.display = 'inline-block'
+function increaseRestartLevel() {
+	let confirmedReset = (document.getElementById('reset-angry').style.display == 'inline-block')
+	if (!confirmedReset) {
+		document.getElementById('reset').style.display = 'none'
+		document.getElementById('reset-angry').style.display = 'inline-block'
+	} else {
+		document.getElementById('reset').style.display = 'inline-block'
+		document.getElementById('reset-angry').style.display = 'none'
+
+		board.map((y, i) => {
+			y.map((x, ii) => {
+				x.t = 0
+				x.c = ''
+			})
+		})
+		minoModeBoard = JSON.parse(JSON.stringify(emptyBoard))
+		book = [{board: JSON.stringify(board), flags: flags}]
+		setPositionDisplay(0, book.length)
+		document.getElementById('boardOutput').value = ''
+		document.getElementById('commentBox').value = ''
+		comments = []
+		autoEncode()
+		updateBook() // record initial state in logs, testing
+		window.requestAnimationFrame(render)
+	}
 }
 
-function toggleBGSelect() {
-	var x = document.getElementById('bgselect')
-	if (x.style.display === 'none') {
-	  x.style.display = 'block'
-	} else {
-	  x.style.display = 'none'
-	}
-  }
+function updateBGSelect() {
+	document.getElementById('bgselect').style.display = (document.getElementById('transparency').checked ? 'none' : 'block')
+}
 
-function toggleDownloadSettings() {
-	var x = document.getElementById('downloadSettings')
-	if (x.style.display === 'none') {
-	  x.style.display = 'block'
-	} else {
-	  x.style.display = 'none'
-	}
-  }
+function updateDownloadSettings() {
+	document.getElementById('downloadSettings').style.display = (document.getElementById('downloadOutput').checked ? 'block' : 'none')
+}
 
-function toggleAutoEncoding() {
-	var x = document.getElementById('autoEncodeOptions')
-	var y = document.getElementById('boardOutput')
-	if (x.style.display == 'none') {
-	  x.style.display = 'block'
-	  y.style.height = 50
-	  autoEncode()
+function updateAutoEncoding() {
+	var autoEncodeOptions = document.getElementById('autoEncodeOptions')
+	var boardOutput = document.getElementById('boardOutput')
+	var isAutoEncode = document.getElementById('autoEncode').checked
+	if (isAutoEncode) {
+		autoEncodeOptions.style.display = 'block'
+		boardOutput.style.height = 50
+		autoEncode()
 	} else {
-	  x.style.display = 'none'
-	  y.style.height = 79
+		autoEncodeOptions.style.display = 'none'
+		boardOutput.style.height = 79
 	}
-  }
+}
 
 function toggleSidePanel() {
-	var x = document.getElementById('fumenSidebar')
-	var y = document.getElementById('settingsSidebar')
-	var open = document.getElementById('openFumenSettings')
-	var close = document.getElementById('closeFumenSettings')
-	if (x.style.display === 'none') {
-		x.style.display = 'block'
+	var fumenSidebar = document.getElementById('fumenSidebar')
+	var settingsSidebar = document.getElementById('settingsSidebar')
+	var openLogo = document.getElementById('openFumenSettings')
+	var closeLogo = document.getElementById('closeFumenSettings')
+	if (fumenSidebar.style.display === 'none') {
+		fumenSidebar.style.display = 'block'
 	} else {
-		x.style.display = 'none'
-		y.style.display = 'none'
-		open.style.display = 'block'
-		close.style.display = 'none'
+		fumenSidebar.style.display = 'none'
+		settingsSidebar.style.display = 'none'
+		openLogo.style.display = 'block'
+		closeLogo.style.display = 'none'
 	}
 }
 
@@ -1298,31 +1152,26 @@ function toggleFumenSettings() {
 	
   }
 
-function toggleToolTips() {
-	var x = document.getElementsByClassName('tooltiptext')
-	for(let z = 0; z<x.length; z++) {
-		if(x[z].style.display === 'none' || x[z].style.display === ''){
-			x[z].style.display = 'block'
-		} else {
-			x[z].style.display = 'none'
-		};
+function updateToolTips() {
+	var tooltipTextElements = document.getElementsByClassName('tooltiptext')
+	var newDisplayStyle = (document.getElementById('tooltipSetting').checked ? 'block' : 'none')
+	for (let i=0; i<tooltipTextElements.length; i++) {
+		tooltipTextElements[i].style.display = newDisplayStyle
 	};
 }
 
+function updateRowFillInput() {
+	var isRowFillUsable = !document.getElementById('minoModeInput').checked && !document.getElementById('autoColorInput').checked
+	document.getElementById('rowFillInput').style.opacity = (isRowFillUsable ? 1 : 0.5)
+}
+
 function toggleStyle() {
-	if(document.getElementById('defaultRenderInput').checked) {
-		style = 'fumen'
-		document.getElementById('3dToggle').style.opacity = 0.5
-	} else {
-		style = 'four'
-		document.getElementById('3dToggle').style.opacity = 1
-	}
+	document.getElementById('3dToggle').style.opacity = (document.getElementById('defaultRenderInput').checked ? 0.5 : 1)
 	render()
 }
 
 function renderImages(fumen) {
-	  style = document.getElementById('renderStyle').value
-	  switch(style){
+	  switch(document.getElementById('renderStyle').value){
 		  case 'four': fumencanvas(fumen); break;
 		  case 'fumen': fumenrender(fumen); break;
 	  }
@@ -1349,7 +1198,7 @@ function undo() {
 
 function redo() {
 	bookPos = getCurrentPosition()
-	if(redoLog.length == 0){
+	if (redoLog.length == 0){
 		console.log('No following actions logged')
 	} else {
 		undoLog.push(redoLog.pop())
@@ -1388,12 +1237,7 @@ function takeshot() {
 
 function toggleGrid() {
 	gridToggle = document.getElementById('gridToggle').checked
-	var x = document.getElementById('gridColorPicker')
-	if(gridToggle){
-		x.style.display = 'block';
-	} else {
-		x.style.display = 'none';
-	}
+	document.getElementById('gridColorPicker').style.display = (gridToggle ? 'block' : 'none')
 }
 
 function encodeString(fieldString) {
@@ -1417,8 +1261,6 @@ function encodeString(fieldString) {
 
 	return encoder.encode(pages)
 }
-
-delimiter = document.getElementById('delim').value
 
 function updateDelim() {
 	delimiter = document.getElementById('delim').value;
