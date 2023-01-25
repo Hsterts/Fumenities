@@ -68,6 +68,7 @@ updateMinoMode()
 updateAutoColor()
 updateRowFillInput() //unnecessary
 updateAutoEncoding()
+updateGrid()
 
 //SHORTCUTS
 Mousetrap.bind({
@@ -1346,9 +1347,9 @@ function takeshot() {
     );
 }
 
-function toggleGrid() {
+function updateGrid() {
 	gridToggle = document.getElementById('gridToggle').checked
-	document.getElementById('gridColorPicker').style.display = (gridToggle ? 'block' : 'none')
+	document.getElementById('gridColorPicker').classList.toggle('hide-element', !gridToggle)
 }
 
 function encodeString(fieldString) {
