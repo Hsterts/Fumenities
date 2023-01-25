@@ -147,6 +147,21 @@ document.getElementById('b').onmousedown = function mousedown(e) {
 	let cellRow = Math.floor((e.clientX - rect.left) / cellSize)
 
 	drawMode = (e.button == 0 && board[cellCol][cellRow]['t'] == 0 && minoModeBoard[cellCol][cellRow]['t'] == 0)
+
+	let positions = []
+	for (let row = 0; row < boardSize[1]; row++){
+		for (let col = 0; col < boardSize[0]; col++) {
+			if(board[row][col].t == 2){
+				positions.push([row,col])
+			}
+		}
+	}
+	if (drawMode && autoColorBool && positions.length == 4) {
+		//solidify piece
+		for (let position of positions) {
+			board[position[0]][position[1]].t = 1
+		}
+	}
 	drawCanvasCell(cellRow, cellCol)
 
 	updateBook()
@@ -234,98 +249,91 @@ function drawCanvasCell(cellRow, cellCol) {
 	}
 	
 	function drawCanvasAutoColorMode() {
-		//auto color is basically mino mode and normal combined.	
-		if (drawMode && drawnMinos(board, (cell) => cell.t == 2) < 4) {
+		//auto color is basically mino mode and normal combined.
+		if (drawMode) {
 			board[cellCol][cellRow] = { t: 2, c: 'X' }
+			//recognise piece
+			let positions = []
+			for (let row = 0; row < boardSize[1]; row++){
+				for (let col = 0; col < boardSize[0]; col++) {
+					if(board[row][col].t == 2) {
+						positions.push([row,col])
+					}
+				}
+			}
+			if (positions.length === 4) {
+				let pieceName = readPiece(positions)
+				for (let position of positions) {
+					board[position[0]][position[1]].c = pieceName
+				}
+			}
 		} else if (!drawMode) {
 			board[cellCol][cellRow] = { t: 0, c: '' }
 		}
 	}
 }
 
-function finishMinoMode() {
-	drawn = []
-	if(drawnMinos(minoModeBoard, (cell) => cell == 1) != 4) return;
-	//get all drawn cells + their coords
-	for (let row = 0; row < 20; row++){
-		for (let col = 0; col < 10; col++) {
-			if(minoModeBoard[row][col].c != ''){
-				cellData = {row: row, col: col, info: minoModeBoard[row][col]}
-				drawn.push(cellData)
-			}	
-		}
-	}
-	
-	for(let cell = 0; cell < 4; cell++) {
-		minoFieldString = ''
-		//making map
-		for(let y = -1; y < 3; y++){
-			for(let x = -1; x < 3; x++){
-				let row = drawn[cell]['row'] + y
-				let col = drawn[cell]['col'] + x
-				let minoInBoard = inRange(row,0,19) && inRange(col,0,9)
-				if(!minoInBoard) {
-					minoFieldString += '0'
-				} else {
-					minoFieldString += minoModeBoard[row][col].t.toString()
-				}
-			}
-		}
-		//matching map to piece
-		for(let piece = 0; piece < 7; piece++){
-			pieceMap = pieceMaps[piece]
-			index = pieceMap.findIndex((pieceString) => pieceString === minoFieldString)
-			if(index == -1) continue;
-			//operations property items
-			type = 'TILJSZO'[piece]
-			rotation = rotationNames[index]
-			x = drawn[cell]['col']
-			y = 19 - drawn[cell]['row']
-			operation = new Mino(type, rotation, x, y)
-			//coloring in
-			for (let row = 0; row < 20; row++){
-				for (let col = 0; col < 10; col++) {
-					if (minoModeBoard[row][col].t != 0) {
-						minoModeBoard[row][col].c = type
-					}	
-				}
-			}
-			//saving matched piece
-			updateBook()
-		}
-	}
-}
-
-function finishAutoColor() {
-	let positions = []
-	for (let row = 0; row < boardSize[1]; row++){
-		for (let col = 0; col < boardSize[0]; col++) {
-			if(board[row][col].t == 2){
-				positions.push([row,col])
-			}
-		}
-	}
-	
-	if (positions.length != 4) return;
-
-	let pieceName = readPiece(positions)
-
-	for (let position of positions) {
-		board[position[0]][position[1]] = { t: 1, c: pieceName }
-	}
-
-	updateBook()
-}
-
 document.onmouseup = function mouseup() {
-	bookPos = document.getElementById('positionDisplay').value-1 //used by program, only updates bookPos
+	bookPos = getCurrentPosition() //used by program, only updates bookPos
 	
 	if (minoMode) finishMinoMode()
-	if (autoColorBool) finishAutoColor()
 	
     mouseHeld = false
+	updateBook()
 	autoEncode()
     requestAnimationFrame(render)
+
+	function finishMinoMode() {
+		drawn = []
+		//get all drawn cells + their coords
+		for (let row = 0; row < 20; row++){
+			for (let col = 0; col < 10; col++) {
+				if(minoModeBoard[row][col].t != 0){
+					cellData = {row: row, col: col, info: minoModeBoard[row][col]}
+					drawn.push(cellData)
+				}	
+			}
+		}
+
+		if(drawn.length != 4) return;
+		
+		for(let cell = 0; cell < 4; cell++) {
+			minoFieldString = ''
+			//making map
+			for(let y = -1; y < 3; y++){
+				for(let x = -1; x < 3; x++){
+					let row = drawn[cell]['row'] + y
+					let col = drawn[cell]['col'] + x
+					let minoInBoard = inRange(row,0,19) && inRange(col,0,9)
+					if(!minoInBoard) {
+						minoFieldString += '0'
+					} else {
+						minoFieldString += minoModeBoard[row][col].t.toString()
+					}
+				}
+			}
+			//matching map to piece
+			for(let piece = 0; piece < 7; piece++){
+				pieceMap = pieceMaps[piece]
+				index = pieceMap.findIndex((pieceString) => pieceString === minoFieldString)
+				if(index == -1) continue;
+				//operations property items
+				type = 'TILJSZO'[piece]
+				rotation = rotationNames[index]
+				x = drawn[cell]['col']
+				y = 19 - drawn[cell]['row']
+				operation = new Mino(type, rotation, x, y)
+				//coloring in
+				for (let row = 0; row < 20; row++){
+					for (let col = 0; col < 10; col++) {
+						if (minoModeBoard[row][col].t != 0) {
+							minoModeBoard[row][col].c = type
+						}	
+					}
+				}
+			}
+		}
+	}
 }
 
 function setPaintBucket(index) {
@@ -631,29 +639,27 @@ function drawCell(x, y, piece, type) {
 		{ Z: '#cc3333', L: '#cc9933', O: '#cccc33', S: '#33cc33', I: '#33cccc', J: '#3333cc', T: '#cc33cc', X: '#cccccc' } //unused row, failsafe
 	]
 
-	let canvasStyle = getCanvasStyle()
-	
-	function getCanvasStyle() {
-		return (document.getElementById('defaultRenderInput').checked ? 'fumen' : 'four')
+	{
+		let lockFlag = document.getElementById('lockFlagInput').checked
+		let cellCount = 0
+		for (let col = 0; col < 10; col++) {
+			cellCount += ((board[y][col].t != 0) || (minoModeBoard[y][col].t != 0)) // I think i can collapse minoModeBoard onto board, then the counting can be done more expediently using .some()
+		}
+		var drawLineClear = (lockFlag && cellCount == 10)
 	}
 	
-	let lockFlag = document.getElementById('lockFlagInput').checked
-	let cellCount = 0
-	for (let col = 0; col < 10; col++) {
-		cellCount += ((board[y][col].t != 0) || (minoModeBoard[y][col].t != 0)) // I think i can collapse minoModeBoard onto board, then the counting can be done more expediently using .some()
+	let canvasStyle = (document.getElementById('defaultRenderInput').checked ? 'fumen' : 'four')
+	var showGrid = (canvasStyle == 'fumen')
+	var currentPalette = (canvasStyle == 'fumen' ? FumenPalette : FourPalette)
+
+	{
+		let foureffectInput = document.getElementById('3dSetting').checked
+		let cellAbove = (y == 0) || (board[y - 1][x].t != 0) || (minoModeBoard[y - 1][x].t != 0)
+		var have3dHighlight = (canvasStyle == 'four' && foureffectInput && !cellAbove)
 	}
-	let drawLineClear = (lockFlag && cellCount == 10)
 
-	let showGrid = (canvasStyle == 'fumen')
-	currentPalette = (canvasStyle == 'fumen' ? FumenPalette : FourPalette)
-
-	let foureffectInput = document.getElementById('3dSetting').checked
-	let cellAbove = (y == 0) || (board[y - 1][x].t != 0) || (minoModeBoard[y - 1][x].t != 0)
-	let have3dHighlight = (canvasStyle == 'four' && foureffectInput && !cellAbove)
-
-
-	if (type == 2 || drawLineClear) drawLightCell()
-	else if (type == 1) 			drawNormalCell()
+	if (type === 2 || drawLineClear) drawLightCell()
+	else if (type === 1) 			drawNormalCell()
 	
 	function drawLightCell() {
 		if (have3dHighlight) draw3dHighlight(currentPalette[2][piece])
@@ -677,57 +683,61 @@ function drawCell(x, y, piece, type) {
 	}
 }
 
-
-
-const shape_table = {'Z': [[[0, 1], [1, 1], [1, 2], [0, 0]], [[1, 0], [1, 1], [2, 0], [0, 1]]],
-               'L': [[[0, 1], [1, 1], [2, 1], [0, 0]], [[0, 1], [1, 0], [0, 2], [0, 0]], [[1, 0], [2, 0], [2, 1], [0, 0]], [[1, 0], [1, 1], [1, 2], [0, 2]]],
-               'O': [[[1, 0], [0, 1], [1, 1], [0, 0]]],
-               'S': [[[1, 0], [0, 2], [1, 1], [0, 1]],  [[1, 0], [1, 1], [2, 1], [0, 0]]],
-               'I': [[[1, 0], [2, 0], [0, 0], [3, 0]],  [[0, 1], [0, 2], [0, 3], [0, 0]]],
-               'J': [[[1, 0], [0, 1], [2, 0], [0, 0]], [[0, 1], [0, 2], [1, 2], [0, 0]], [[0, 1], [1, 1], [2, 0], [2, 1]], [[1, 0], [1, 1], [1, 2], [0, 0]]],
-               'T': [[[0, 1], [0, 2], [1, 1], [0, 0]], [[1, 0], [1, 1], [2, 0], [0, 0]], [[1, 0], [1, 1], [1, 2], [0, 1]], [[1, 0], [1, 1], [2, 1], [0, 1]]],
-}
-
 //CONTRIBUTED BY CONFIDENTIAL (confidential#1288)
 function readPiece(mino_positions){
+	//table is sorted ascending by y then x, with right and down being the positive x and y axis
+	const shape_table = {'Z': [[[0, 0], [0, 1], [1, 1], [1, 2]], [[0, 1], [1, 0], [1, 1], [2, 0]]],
+				   'L': [[[0, 0], [0, 1], [1, 1], [2, 1]], [[0, 0], [0, 1], [0, 2], [1, 0]], [[0, 0], [1, 0], [2, 0], [2, 1]], [[0, 2], [1, 0], [1, 1], [1, 2]]],
+				   'O': [[[0, 0], [0, 1], [1, 0], [1, 1]]],
+				   'S': [[[0, 1], [0, 2], [1, 0], [1, 1]],  [[0, 0], [1, 0], [1, 1], [2, 1]]],
+				   'I': [[[0, 0], [1, 0], [2, 0], [3, 0]],  [[0, 0], [0, 1], [0, 2], [0, 3]]],
+				   'J': [[[0, 0], [0, 1], [1, 0], [2, 0]], [[0, 0], [0, 1], [0, 2], [1, 2]], [[0, 1], [1, 1], [2, 0], [2, 1]], [[0, 0], [1, 0], [1, 1], [1, 2]]],
+				   'T': [[[0, 0], [0, 1], [0, 2], [1, 1]], [[0, 0], [1, 0], [1, 1], [2, 0]], [[0, 1], [1, 0], [1, 1], [1, 2]], [[0, 1], [1, 0], [1, 1], [2, 1]]],
+	}
+
     // if (mino_positions.length != 4){
     //     return 'X'
     // }
 
-    let min_i=Infinity
-    let min_j=Infinity
-    for (let position of mino_positions){
-		min_j = Math.min(min_j, position[0])
-		min_i = Math.min(min_i, position[1])
-    }
+	//accommodates for split pieces
+	{
+		var unsplit_mino_positions = []
+		let y_coords = []
+		for (let i = 0; i < mino_positions.length; i++) {
+			y_coords.push(mino_positions[i][0]);
+		}
+		let y_coords_rank = y_coords.filter((x_coord, index, array) => array.indexOf(x_coord) === index).sort((a, b) => a - b);
+		for (let i = 0; i < mino_positions.length; i++) {
+			unsplit_mino_positions.push([y_coords_rank.indexOf(mino_positions[i][0]),mino_positions[i][1]])
+		}
+	}
 
-	offset_positions = []
-    for (let position of mino_positions){
-        offset_positions.push([position[0]-min_j, position[1]-min_i])
-    }
+	//sort ascending by y then x
+	unsplit_mino_positions.sort((a,b) => a[0] - b[0] || a[1] - b[1])
     
     for (let [piece, piece_table] of Object.entries(shape_table)) {
-        if (is_element(offset_positions, piece_table)) {
-            return piece
-        }
+        if (is_element(piece_table)) return piece
     }
 	return 'X' //if none of the tables match, then it isn't a tetromino shape
 
-    function is_element(offset_positions, query){
-		return query.some((query_positions) => {return positions_match(offset_positions, query_positions)})
-
-		function positions_match(offset_positions, query_positions){
-			return query_positions.every((query_position) => {
-				return offset_positions.some((offset_position) => {
-					return position_match(offset_position, query_position)
-				})
-			})
-			
-			function position_match(offset_position, query_position) {
-				return offset_position[0] == query_position[0] && offset_position[1] == query_position[1]
-			}
-		}
+    function is_element(query){
+		return query.some(query_positions => positions_match(query_positions))		
     }
+
+	function positions_match(query_positions) {
+		//checks if the offset of both mino_position and positions match
+		let all_origins = []
+		for (let i = 0; i < query_positions.length; i++) {
+			all_origins.push([unsplit_mino_positions[i][0] - query_positions[i][0], unsplit_mino_positions[i][1] - query_positions[i][1]])
+		}
+		//all of the origins of the positions must be the same if all offsets matches
+		return all_origins.every((origin) => origin[0] == all_origins[0][0] && origin[1] == all_origins[0][1])
+	}
+}
+
+function toggleAutoColor() {
+	document.getElementById('autoColorInput').checked = !document.getElementById('autoColorInput').checked
+	updateAutoColor()
 }
 
 function updateAutoColor() {
