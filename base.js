@@ -81,10 +81,10 @@ function drawnMinos(someBoard, cellMatch) {
 document.getElementById('b').onmousedown = function mousedown(e) {
 	bookPos = getCurrentPosition()
 	rect = document.getElementById('b').getBoundingClientRect()
-	let cellCol = Math.floor((e.clientY - rect.top) / cellSize)
-	let cellRow = Math.floor((e.clientX - rect.left) / cellSize)
+	let cellRow = Math.floor((e.clientY - rect.top) / cellSize)
+	let cellCol = Math.floor((e.clientX - rect.left) / cellSize)
 
-	drawMode = (e.button == 0 && board[cellCol][cellRow]['t'] == 0 && minoModeBoard[cellCol][cellRow]['t'] == 0)
+	drawMode = (e.button == 0 && board[cellRow][cellCol]['t'] == 0 && minoModeBoard[cellRow][cellCol]['t'] == 0)
 	drawCanvasCell(cellRow, cellCol)
 
 	updateBook()
@@ -96,8 +96,8 @@ document.getElementById('b').onmousemove = function mousemove(e) {
 	bookPos = getCurrentPosition()
 	rect = document.getElementById('b').getBoundingClientRect()
 
-	let cellCol = Math.floor((e.clientY - rect.top) / cellSize)
-	let cellRow = Math.floor((e.clientX - rect.left) / cellSize)
+	let cellRow = Math.floor((e.clientY - rect.top) / cellSize)
+	let cellCol = Math.floor((e.clientX - rect.left) / cellSize)
 	
 	let marginX = (e.clientX - rect.left) % cellSize
 	let marginY = (e.clientY - rect.top) % cellSize
@@ -134,10 +134,10 @@ function drawCanvasCell(cellRow, cellCol) {
 		
 		let drawnCount = drawnMinos(minoModeBoard, (cell) => cell.t == 1)
 	
-		if (drawMode && drawnCount < 4 && board[cellCol][cellRow].t == 0) {
-			minoModeBoard[cellCol][cellRow] = {t: 1, c: 'X'}
+		if (drawMode && drawnCount < 4 && board[cellRow][cellCol].t == 0) {
+			minoModeBoard[cellRow][cellCol] = {t: 1, c: 'X'}
 		} else if (!drawMode) {
-			minoModeBoard[cellCol][cellRow] = {t: 0, c: ''}
+			minoModeBoard[cellRow][cellCol] = {t: 0, c: ''}
 			//remove colors when there are four minos and user deletes one
 			if (drawnCount == 4) {
 				for (let row = 0; row < 20; row++){
@@ -156,17 +156,17 @@ function drawCanvasCell(cellRow, cellCol) {
 		if (rowFill) {
 			if (drawMode) {
 				for (let row=0;row<boardSize[0];row++) {
-					board[cellCol][row] = { t: 1, c: paintbucketColor() }
+					board[row][cellCol] = { t: 1, c: paintbucketColor() }
 				}
-				board[cellCol][cellRow] = { t: 0, c: '' }
+				board[cellRow][cellCol] = { t: 0, c: '' }
 			} else {
-				board[cellCol] = JSON.parse(JSON.stringify(aRow))
+				board[cellRow] = JSON.parse(JSON.stringify(aRow))
 			}
 		} else {
 			if (drawMode) {
-				board[cellCol][cellRow] = { t: 1, c: paintbucketColor() }
+				board[cellRow][cellCol] = { t: 1, c: paintbucketColor() }
 			} else {
-				board[cellCol][cellRow] = { t: 0, c: '' }
+				board[cellRow][cellCol] = { t: 0, c: '' }
 			}
 		}
 	}
@@ -174,9 +174,9 @@ function drawCanvasCell(cellRow, cellCol) {
 	function drawCanvasAutoColorMode() {
 		//auto color is basically mino mode and normal combined.	
 		if (drawMode && drawnMinos(board, (cell) => cell.t == 2) < 4) {
-			board[cellCol][cellRow] = { t: 2, c: 'X' }
+			board[cellRow][cellCol] = { t: 2, c: 'X' }
 		} else if (!drawMode) {
-			board[cellCol][cellRow] = { t: 0, c: '' }
+			board[cellRow][cellCol] = { t: 0, c: '' }
 		}
 	}
 }
