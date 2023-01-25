@@ -522,11 +522,12 @@ input[type='radio'] {
     }
 
 .tooltip .tooltiptext {
-    visibility: hidden;
+    display: none;
     width: 120px;
     background-color: #00000088;
     width: 200px;
     font-family: Arial, Helvetica, sans-serif;
+    font-weight: 400;
     background-color: #000000cc;
     color: #fff;
     text-align: center;
@@ -538,13 +539,14 @@ input[type='radio'] {
 }
   
 .tooltip:hover .tooltiptext {
-    visibility: visible;
+    display: block;
     top: -5px;
     right: 105%;
 }
 
 .hide-element {
     display: none !important;
+    max-height: 0px !important;
 }
 
 .disabled {

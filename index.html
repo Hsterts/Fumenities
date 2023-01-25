@@ -217,12 +217,30 @@
 
 							<!--Pages & Buttons-->
 							<div class = "page">
-								<div class = "pager"><button class = "positionsub pagebutton" onclick = "startPage()"><span class = "material-icons">first_page</span></button></div>
-								<div class = "pager"><button class = "positionsub pagebutton" onclick = "prevPage()"><span class = "material-icons">navigate_before</span></button></div>
-								<div class = "pager"><input id = "positionDisplay" inputmode = "numeric" value = "1" onchange="gotoPage()"/></div>
-								<div class = "pager"><input id = "positionDisplayOver" value = "/1" disabled/></div>
-								<div class = "pager"><button class = "positionadd pagebutton" onclick = "nextPage()"><span class = "material-icons">navigate_next</span></button></div>
-								<div class = "pager"><button class = "positionadd pagebutton" onclick = "endPage()"><span class = "material-icons">last_page</span></button></div>
+								<div class = "tooltip">
+									<div class = "pager"><button class = "positionsub pagebutton" onclick = "startPage()"><span class = "material-icons">first_page</span></button></div>
+									<span class = "tooltiptext">Go to the first page. Shortcut: Ctrl/Cmd+Left</span>
+								</div>
+								<div class = "tooltip">
+									<div class = "pager"><button class = "positionsub pagebutton" onclick = "prevPage()"><span class = "material-icons">navigate_before</span></button></div>
+									<span class = "tooltiptext">Go to the previous page. Shortcut: Left</span>
+								</div>
+								<div class = "tooltip">
+									<div class = "pager"><input id = "positionDisplay" inputmode = "numeric" value = "1" onchange="gotoPage()"/></div>
+									<span class = "tooltiptext">The current page in the fumen.</span>
+								</div>
+								<div class = "tooltip">
+									<div class = "pager"><input id = "positionDisplayOver" value = "/1" disabled/></div>
+									<span class = "tooltiptext">The total number of pages in the fumen.</span>
+								</div>
+								<div class = "tooltip">
+									<div class = "pager"><button class = "positionadd pagebutton" onclick = "nextPage()"><span class = "material-icons">navigate_next</span></button></div>
+									<span class = "tooltiptext">Go to the next page. Shortcut: Right</span>
+								</div>
+								<div class = "tooltip">
+									<div class = "pager"><button class = "positionadd pagebutton" onclick = "endPage()"><span class = "material-icons">last_page</span></button></div>
+									<span class = "tooltiptext">Go to the last page. Shortcut: Ctrl/Cmd+Right</span>
+								</div>
 							</div>
 
 							<!--Board-->
@@ -237,10 +255,22 @@
 							<div class = "import-export">
 								<!--Shifters-->
 								<center><div class = "pagePosition">
-									<div class = "shifter"><button class = "pagebutton" onclick = "shift('left')"><span class = "material-icons">keyboard_arrow_left</span></button></div>
-									<div class = "shifter"><button class = "pagebutton" onclick = "shift('up')"><span class = "material-icons">keyboard_arrow_up</span></button></div>
-									<div class = "shifter"><button class = "pagebutton" onclick = "shift('down')"><span class = "material-icons">keyboard_arrow_down</span></button></div>
-									<div class = "shifter"><button class = "pagebutton" onclick = "shift('right')"><span class = "material-icons">keyboard_arrow_right</span></button></div>
+									<div class="tooltip">
+										<div class = "shifter"><button class = "pagebutton" onclick = "shift('left')"><span class = "material-icons">keyboard_arrow_left</span></button></div>
+										<span class="tooltiptext">Shifts the whole board 1 mino to the left. Shortcut: Shift+Left</span>
+									</div>
+									<div class="tooltip">
+										<div class = "shifter"><button class = "pagebutton" onclick = "shift('up')"><span class = "material-icons">keyboard_arrow_up</span></button></div>
+										<span class="tooltiptext">Shifts the whole board 1 mino upwards. Shortcut: Shift+Up</span>
+									</div>
+									<div class="tooltip">
+										<div class = "shifter"><button class = "pagebutton" onclick = "shift('down')"><span class = "material-icons">keyboard_arrow_down</span></button></div>
+										<span class="tooltiptext">Shifts the whole board 1 mino downwards. Shortcut: Shift+Down</span>
+									</div>
+									<div class="tooltip">
+										<div class = "shifter"><button class = "pagebutton" onclick = "shift('right')"><span class = "material-icons">keyboard_arrow_right</span></button></div>
+										<span class="tooltiptext">Shifts the whole board 1 mino to the right. Shortcut: Shift+Right</span>
+									</div>
 								</div></center>
 								<div class = "tooltip">
 									<button class = "fumen-option" onclick = "this.blur(); mirror()"><b>Mirror Page</b></button>
@@ -286,12 +316,19 @@
 									<button class = "fumen-option" onclick = "this.blur(); fullEncode()"><b>Export Fumen</b></button>
 									<span class = "tooltiptext">Export all pages. Shortcut: Shift+E, F</span>
 								</div>
+								<div class = "tooltip">
+									<button class = "fumen-option" onclick = "this.blur(); addToInput()"><b>Add to Input</b></button>
+									<span class = "tooltiptext">Adds the output below to the input textbox. Shortcut: +</span>
+								</div>
 								<hr class="small-hr">
 							<!--Auto-Encoding-->
 								<div class = "autoEncodingInputs">
-									<div class = "autoEncoding">
-										<input id = "autoEncode" type = "checkbox" onclick = "updateAutoEncoding()"></input>
-										<label for = "autoEncode"><b>Auto-Encode</b></label>
+									<div class="tooltip">
+										<div class = "autoEncoding">
+											<input id = "autoEncode" type = "checkbox" onclick = "updateAutoEncoding()"></input>
+											<label for = "autoEncode"><b>Auto-Encode</b></label>
+										</div>
+										<span class="tooltiptext">Automatically updates the output when you change the board. Shortcut: Shift+A, E</span>
 									</div>
 									<div class = "autoEncoding" id = "autoEncodeOptions">
 										<select id = "encodingType" name = "encodingTypes" style = "width: 180px;" onchange = "autoEncode()">
@@ -315,18 +352,18 @@
 						<hr class = "small-hr">
 						<div class = "tooltip">
 							<input id = "lockFlagInput" type = "checkbox" onclick = "updateBook()" checked></input>
-							<label for = "lockFlagInput"><span class = "pepega">Lock</span></label><br>
-							<!-- <span class = "tooltiptext">Clears any full rows when creating the next page. Shortcut: L</span> -->
-						</div>
+							<label for = "lockFlagInput"><span class = "pepega">Lock</span></label>
+							<span class = "tooltiptext">Clears any full rows when creating the next page. Shortcut: L</span>
+						</div><br>
 						<div class = "tooltip">
 							<input id = "autoColorInput" type = "checkbox" onclick = "updateAutoColor()"></input>
-							<label for = "autoColorInput"><span class = "pepega">Auto-Color</span></label><br>
-							<!-- <span class = "tooltiptext">Automatically colors in the correspinding piece color. Shortcut: Shift+A, C</span> -->
-						</div>
+							<label for = "autoColorInput"><span class = "pepega">Auto-Color</span></label>
+							<span class = "tooltiptext">Automatically colors in the correspinding piece color. Shortcut: Shift+A, C</span>
+						</div><br>
 						<div class = "tooltip">
 							<input id = "rowFillInput" type = "checkbox"></input>
 							<label for = "rowFillInput"><span class = "pepega">Row-Fill</span></label>
-							<!-- <span class = "tooltiptext">Fills in the entire row except the clicked cell. Shortcut: Shift+R, F</span> -->
+							<span class = "tooltiptext">Fills in the entire row except the clicked cell. Shortcut: Shift+R, F</span>
 						</div>
 					</div>
 				</div>
@@ -335,17 +372,26 @@
 					<div class = "extrasettings">
 						<h3 class="settings-header">MISC. SETTINGS</h3>
 						<hr class = "small-hr">
-						<div id = "tooltipToggle">
-							<input id = "tooltipSetting" type = "checkbox" onclick = "updateToolTips()"></input>
-							<label for = "tooltipSetting"><span class = "pepega">Show Tooltips</span></label>
+						<div class = "tooltip">
+							<div id = "tooltipToggle">
+								<input id = "tooltipSetting" type = "checkbox" onclick = "updateToolTips()"></input>
+								<label for = "tooltipSetting"><span class = "pepega">Show Tooltips</span></label>
+							</div>
+							<span class = "tooltiptext">Shows tooltips describing the function of the buttons. Shortcut: T, T</span>
 						</div>
-						<div id = "3dToggle">
-							<input id = "3dSetting" type = "checkbox" checked></input>
-							<label for = "3dSetting"><span class = "pepega">Show 3D Effect</span></label>
+						<div class = "tooltip">
+							<div id = "3dToggle">
+								<input id = "3dSetting" type = "checkbox" checked></input>
+								<label for = "3dSetting"><span class = "pepega">Show 3D Effect</span></label>
+							</div>
+							<span class = "tooltiptext">Adds a 3D effect on a FOUR-styled board. Shortcut: 3, D</span>
 						</div>
-						<div id = "defaultRenderToggle">
-							<input id = "defaultRenderInput" type = "checkbox" onclick = "updateStyle()"></input>
-							<label for = "defaultRenderInput"><span class = "pepega">Use Default Style</span></label>
+						<div class = "tooltip">
+							<div id = "defaultRenderToggle">
+								<input id = "defaultRenderInput" type = "checkbox" onclick = "updateStyle()"></input>
+								<label for = "defaultRenderInput"><span class = "pepega">Use Default Style</span></label>
+							</div>
+							<span class = "tooltiptext">Force board to use default fumen style. Shortcut: D, S</span>
 						</div>
 					</div>
 				</div>

@@ -60,7 +60,7 @@ var minoMode = document.getElementById('minoModeInput').checked
 var autoColorBool = document.getElementById('autoColorInput').checked
 // I'm not sure where I should place this function call for initialization
 setPositionDisplay(bookPos, book.length)
-delimiter = updateDelim() //shared with other scripts
+updateDelim() //shared with other scripts
 updateToolTips()
 updateBGSelect()
 updateDownloadSettings()
@@ -92,7 +92,7 @@ Mousetrap.bind({
 	'6': function() {setPaintBucket(5);},
 	'7': function() {setPaintBucket(6);},
 	'8': function() {setPaintBucket(7);},
-	'0': updateMinoMode,
+	'0': toggleMinoMode,
 	
 	'left': prevPage,
 	'mod+left': startPage,
@@ -116,6 +116,7 @@ Mousetrap.bind({
 	'E p': encode,
 	'I f': fullDecode,
 	'E f': fullEncode,
+	'+': addToInput,
 
 	'A e': updateAutoEncoding,
 	
@@ -399,6 +400,11 @@ function updateBook() {
 	setPositionDisplay(bookPos, book.length)
 	updateAutoColor()
 	window.requestAnimationFrame(render)
+}
+
+function toggleMinoMode() {
+    document.getElementById('minoModeInput').checked = !document.getElementById('minoModeInput').checked
+	updateMinoMode()
 }
 
 function updateMinoMode() {
@@ -916,6 +922,10 @@ function fullEncode() {
 	document.getElementById('boardOutput').value = encoder.encode(pages);
 }
 
+function addToInput() {
+	document.getElementById('input').value += delimiter + document.getElementById('boardOutput').value
+}
+
 function autoEncode() {
 	if (document.getElementById('autoEncode').checked == false) return;
 
@@ -1364,6 +1374,7 @@ function encodeString(fieldString) {
 }
 
 function updateDelim() {
+	console.log("move")
 	delimiter = document.getElementById('delim').value;
 }
 
