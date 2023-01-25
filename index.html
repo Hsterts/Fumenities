@@ -91,7 +91,7 @@
 						<input id = "transparency" type = "checkbox" onclick = "updateBGSelect()" checked></input>
 						<label for = "transparency">Transparent Background</label><br>
 						
-							<div id = "bgselect" style = "display:none;">
+							<div id = "bgselect">
 							<input id = "bg" type = "color" value = "#f3f3ed" style = "width:100px;padding:0px;"></input>
 							<label for = "transparency">BG Color</label><br>
 							</div>
@@ -100,7 +100,7 @@
 						<input id = "gridToggle" type = "checkbox" onclick = "toggleGrid()"></input>
 						<label for = "gridToggle">Grid</label><br>
 
-							<div id = "gridColorPicker" style = "display:none;">
+							<div id = "gridColorPicker">
 							<input id = "gridColor" type = "color" value = "#ffffff" style = "width:100px;padding:0px;" onchange = "gridColor = document.getElementById('gridColor').value"></input>
 							<label for = "gridColorPicker">Grid Color</label><br>
 							</div>
@@ -116,7 +116,7 @@
 						<center><h3>Download Settings</h3></center>
 						<input id = "downloadOutput" type = "checkbox" onclick = "updateDownloadSettings()"></input>
 						<label for = "downloadOutput">Download on Render?</label><br>
-						<div id = "downloadSettings" style = "display:none;">
+						<div id = "downloadSettings">
 						<select id = "naming" name = "Name">
 							<option value = "index">Index (1, 2, ...)</option>
 							<option value = "fumen">Fumen Code</option>
