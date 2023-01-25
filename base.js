@@ -251,7 +251,6 @@ function drawCanvasCell(cellRow, cellCol) {
 	function drawCanvasAutoColorMode() {
 		//auto color is basically mino mode and normal combined.
 		if (drawMode) {
-			board[cellRow][cellCol] = { t: 2, c: 'X' }
 			//recognise piece
 			let positions = []
 			for (let row = 0; row < boardSize[1]; row++){
@@ -260,6 +259,11 @@ function drawCanvasCell(cellRow, cellCol) {
 						positions.push([row,col])
 					}
 				}
+			}
+
+			if (positions.length < 4) {
+				board[cellRow][cellCol] = { t: 2, c: 'X' }
+				positions.push([cellRow,cellCol])
 			}
 			if (positions.length === 4) {
 				let pieceName = readPiece(positions)

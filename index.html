@@ -244,27 +244,27 @@
 								</div></center>
 								<div class = "tooltip">
 									<button class = "fumen-option" onclick = "this.blur(); mirror()"><b>Mirror Page</b></button>
-									<span class = "tooltiptext">Mirror the current page.</span>
+									<span class = "tooltiptext">Mirror the current page. Shortcut: Shift+M, P</span>
 								</div>
 								<div class = "tooltip">
 									<button class = "fumen-option" onclick = "this.blur(); fullMirror()"><b>Mirror Fumen</b></button>
-									<span class = "tooltiptext">Mirror all pages of the fumen.</span>
+									<span class = "tooltiptext">Mirror all pages of the fumen. Shortcut: Shift+M, F</span>
 								</div>	
 								<div class = "tooltip">
 									<button class = "fumen-option" onclick = "this.blur(); dupliPage()"><b>Duplicate Page</b></button>
-									<span class = "tooltiptext">Duplicate the current page.</span>
+									<span class = "tooltiptext">Duplicate the current page. Shortcut: D</span>
 								</div>
 								<div class = "tooltip">
 									<button class = "fumen-option" onclick = "this.blur(); clearPage()"><b>Clear Page</b></button>
-									<span class = "tooltiptext">Clear the contents of the current page.</span>
+									<span class = "tooltiptext">Clear the contents of the current page. Shortcut: Alt+Backspace</span>
 								</div>
 								<div class = "tooltip">
 									<button class = "fumen-option" onclick = "this.blur(); deletePage()"><b>Delete Page</b></button>
-									<span class = "tooltiptext">Delete the current page.</span>
+									<span class = "tooltiptext">Delete the current page. Shortcut: Delete</span>
 								</div>
 								<div class = "tooltip">
 									<button id = "reset" class="fumen-option" onclick = "this.blur(); increaseResetLevel()"><b>Reset</b></button>
-									<span class = "tooltiptext">Delete all data.</span>
+									<span class = "tooltiptext">Delete all data. Shortcut: R</span>
 								</div><hr class="small-hr">
 								<div class = "tooltip">
 									<button class = "fumen-option" onclick = "this.blur(); importImageButton()"><b>Import Image</b></button>
@@ -272,19 +272,19 @@
 								</div>
 								<div class = "tooltip">
 									<button class = "fumen-option" onclick = "this.blur(); decode()"><b>Insert</b></button>
-									<span class = "tooltiptext">Insert the fumen into the current page.</span>
+									<span class = "tooltiptext">Insert the fumen into the current page. Shortcut: Insert</span>
 								</div>
 								<div class = "tooltip">
 									<button class = "fumen-option" onclick = "this.blur(); encode()"><b>Export Page</b></button>
-									<span class = "tooltiptext">Export the current page.</span>
+									<span class = "tooltiptext">Export the current page. Shortcut: Shift+E, P</span>
 								</div>
 								<div class = "tooltip">
 									<button class = "fumen-option" onclick = "this.blur(); fullDecode()"><b>Import Fumen</b></button>
-									<span class = "tooltiptext">Import and replace the current data.</span>
+									<span class = "tooltiptext">Import and replace the current data. Shortcut: Shift+I, F</span>
 								</div>
 								<div class = "tooltip">
 									<button class = "fumen-option" onclick = "this.blur(); fullEncode()"><b>Export Fumen</b></button>
-									<span class = "tooltiptext">Export all pages.</span>
+									<span class = "tooltiptext">Export all pages. Shortcut: Shift+E, F</span>
 								</div>
 								<hr class="small-hr">
 							<!--Auto-Encoding-->
@@ -313,17 +313,20 @@
 					<div class = "extrasettings">
 						<h3 class="settings-header">FUMEN SETTINGS</h3>
 						<hr class = "small-hr">
-						<div>
+						<div class = "tooltip">
 							<input id = "lockFlagInput" type = "checkbox" onclick = "updateBook()" checked></input>
 							<label for = "lockFlagInput"><span class = "pepega">Lock</span></label><br>
+							<!-- <span class = "tooltiptext">Clears any full rows when creating the next page. Shortcut: L</span> -->
 						</div>
-						<div>
+						<div class = "tooltip">
 							<input id = "autoColorInput" type = "checkbox" onclick = "updateAutoColor()"></input>
 							<label for = "autoColorInput"><span class = "pepega">Auto-Color</span></label><br>
+							<!-- <span class = "tooltiptext">Automatically colors in the correspinding piece color. Shortcut: Shift+A, C</span> -->
 						</div>
-						<div>
+						<div class = "tooltip">
 							<input id = "rowFillInput" type = "checkbox"></input>
 							<label for = "rowFillInput"><span class = "pepega">Row-Fill</span></label>
+							<!-- <span class = "tooltiptext">Fills in the entire row except the clicked cell. Shortcut: Shift+R, F</span> -->
 						</div>
 					</div>
 				</div>
