@@ -1,3 +1,4 @@
+const { Mino } = require('tetris-fumen');
 // default settings
 var cellSize = 22
 var boardSize = [10, 20]
@@ -1375,7 +1376,6 @@ function encodeString(fieldString) {
 }
 
 function updateDelim() {
-	console.log("move")
 	delimiter = document.getElementById('delim').value;
 }
 
