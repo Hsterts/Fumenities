@@ -68,6 +68,7 @@ updateMinoMode()
 updateAutoColor()
 updateRowFillInput() //unnecessary
 updateAutoEncoding()
+toggleGrid()
 
 //FUNCTIONS
 function drawnMinos(someBoard, cellMatch) {
