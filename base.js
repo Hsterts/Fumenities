@@ -1,4 +1,4 @@
-const { Mino } = require('tetris-fumen');
+const { Mino, Operation/*, Field*/ } = require('tetris-fumen');
 // default settings
 var cellSize = 22
 var boardSize = [10, 20]
@@ -12,21 +12,54 @@ var operation // {type: 'I', rotation: 'reverse', x: 4, y: 0}
 var flags = {lock: true}
 book = [{board: JSON.stringify(board), comment: '', operation: undefined, minoBoard: JSON.stringify(board), flags},]
 var bookPos = 0
-window.requestAnimationFrame(render)
+window.requestAnimationFrame(renderBoard)
 
 //PIECE MAPS
-{
-	let piece_T = ['0000111001000000', '0100011001000000', '0100111000000000', '0100110001000000']
-	let piece_I = ['', '0100010001000100', '0000111100000000']
-	let piece_L = ['0000111010000000', '0100010001100000', '0010111000000000', '1100010001000000']
-	let piece_J = ['0000111000100000', '0110010001000000', '1000111000000000', '0100010011000000']
-	let piece_S = ['0000011011000000', '0100011000100000']
-	let piece_Z = ['0000110001100000', '0010011001000000']
-	let piece_O = ['0000110011000000']
-
-	var pieceMaps = [piece_T, piece_I, piece_L, piece_J, piece_S, piece_Z, piece_O]
+//table is a (row, col) pair sorted ascending by col then row, with right and down being the positive x and y axis. origin placed at the rotation axis of the piece
+const shape_table = {
+	'T': {
+		'spawn'  : [[-1, 0], [0, -1], [0, 0], [0, 1]],
+		'right'  : [[-1, 0], [0, 0], [0, 1], [1, 0]],
+		'reverse': [[0, -1], [0, 0], [0, 1], [1, 0]],
+		'left'   : [[-1, 0], [0, -1], [0, 0], [1, 0]],
+	}, 
+	'I': {
+		'spawn'  : [[0, -1], [0, 0], [0, 1], [0, 2]],
+		'right'  : [[-1, 0], [0, 0], [1, 0], [2, 0]],
+		'reverse': [[0, -2], [0, -1], [0, 0], [0, 1]],
+		'left'   : [[-2, 0], [-1, 0], [0, 0], [1, 0]],
+	}, 
+	'L': {
+		'spawn'  : [[-1, 1], [0, -1], [0, 0], [0, 1]],
+		'right'  : [[-1, 0], [0, 0], [1, 0], [1, 1]],
+		'reverse': [[0, -1], [0, 0], [0, 1], [1, -1]],
+		'left'   : [[-1, -1], [-1, 0], [0, 0], [1, 0]],
+	}, 
+	'J': {
+		'spawn'  : [[-1, -1], [0, -1], [0, 0], [0, 1]],
+		'right'  : [[-1, 0], [-1, 1], [0, 0], [1, 0]],
+		'reverse': [[0, -1], [0, 0], [0, 1], [1, 1]],
+		'left'   : [[-1, 0], [0, 0], [1, -1], [1, 0]],
+	}, 
+	'S': {
+		'spawn'  : [[-1, 0], [-1, 1], [0, -1], [0, 0]],
+		'right'  : [[-1, 0], [0, 0], [0, 1], [1, 1]],
+		'reverse': [[0, 0], [0, 1], [1, -1], [1, 0]],
+		'left'   : [[-1, -1], [0, -1], [0, 0], [1, 0]],
+	}, 
+	'Z': {
+		'spawn'  : [[-1, -1], [-1, 0], [0, 0], [0, 1]],
+		'right'  : [[-1, 1], [0, 0], [0, 1], [1, 0]],
+		'reverse': [[0, -1], [0, 0], [1, 0], [1, 1]],
+		'left'   : [[-1, 0], [0, -1], [0, 0], [1, -1]],
+	}, 
+	'O': {
+		'spawn'  : [[-1, 0], [-1, 1], [0, 0], [0, 1]],
+		'right'  : [[0, 0], [0, 1], [1, 0], [1, 1]],
+		'reverse': [[0, -1], [0, 0], [1, -1], [1, 0]],
+		'left'   : [[-1, -1], [-1, 0], [0, -1], [0, 0]],
+	}
 }
-const rotationNames = ['reverse','right','spawn','left']
 
 //MAKING FIRST EMPTY BOARD
 const aRow = []
@@ -114,7 +147,7 @@ Mousetrap.bind({
 	'r': increaseResetLevel,
 	
 	//Import image binded to paste already
-	'ins': decode,
+	'ins': decodeInsert,
 	'E p': encode,
 	'I f': fullDecode,
 	'E f': fullEncode,
@@ -268,10 +301,13 @@ function drawCanvasCell(cellRow, cellCol) {
 				board[cellRow][cellCol] = { t: 2, c: 'X' }
 				positions.push([cellRow,cellCol])
 			}
+			
 			if (positions.length === 4) {
-				let pieceName = readPiece(positions)
+				let pieceMino = readPiece(positions, true)
+				if (pieceMino === undefined) return; // remain gray
+
 				for (let position of positions) {
-					board[position[0]][position[1]].c = pieceName
+					board[position[0]][position[1]].c = pieceMino.type
 				}
 			}
 		} else if (!drawMode) {
@@ -288,57 +324,27 @@ document.onmouseup = function mouseup() {
     mouseHeld = false
 	updateBook()
 	//autoEncode() prevent overwriting text pasted in
-    requestAnimationFrame(render)
+    requestAnimationFrame(renderBoard)
 
 	function finishMinoMode() {
-		drawn = []
+		var positions = []
 		//get all drawn cells + their coords
-		for (let row = 0; row < 20; row++){
-			for (let col = 0; col < 10; col++) {
+		for (let row in minoModeBoard){
+			for (let col in minoModeBoard[row]) {
 				if(minoModeBoard[row][col].t != 0){
-					cellData = {row: row, col: col, info: minoModeBoard[row][col]}
-					drawn.push(cellData)
+					positions.push([row,col])
 				}	
 			}
 		}
 
-		if(drawn.length != 4) return;
+		if(positions.length != 4) return;
+
+		operation = readPiece(positions, false)
+		if (operation === undefined) return;
 		
-		for(let cell = 0; cell < 4; cell++) {
-			minoFieldString = ''
-			//making map
-			for(let y = -1; y < 3; y++){
-				for(let x = -1; x < 3; x++){
-					let row = drawn[cell]['row'] + y
-					let col = drawn[cell]['col'] + x
-					let minoInBoard = inRange(row,0,19) && inRange(col,0,9)
-					if(!minoInBoard) {
-						minoFieldString += '0'
-					} else {
-						minoFieldString += minoModeBoard[row][col].t.toString()
-					}
-				}
-			}
-			//matching map to piece
-			for(let piece = 0; piece < 7; piece++){
-				pieceMap = pieceMaps[piece]
-				index = pieceMap.findIndex((pieceString) => pieceString === minoFieldString)
-				if(index == -1) continue;
-				//operations property items
-				type = 'TILJSZO'[piece]
-				rotation = rotationNames[index]
-				x = drawn[cell]['col']
-				y = 19 - drawn[cell]['row']
-				operation = new Mino(type, rotation, x, y)
-				//coloring in
-				for (let row = 0; row < 20; row++){
-					for (let col = 0; col < 10; col++) {
-						if (minoModeBoard[row][col].t != 0) {
-							minoModeBoard[row][col].c = type
-						}	
-					}
-				}
-			}
+		//coloring in
+		for (let position of positions) {
+			minoModeBoard[position[0]][position[1]].c = operation.type
 		}
 	}
 }
@@ -389,19 +395,18 @@ function updateBook() {
 	}
 	document.getElementById('commentBox').value = (book[bookPos]['comment'] != undefined ? book[bookPos]['comment'] : '')
 
+	undoLog.push(JSON.stringify(book))
 	//Limit undos to 100 entries
-	if(undoLog.length <= 100){
-		undoLog.push(JSON.stringify(book))
-	} else {
-		undoLog.splice(0,1)
-		undoLog.push(JSON.stringify(book))
+	if(undoLog.length > 100){
+		undoLog.shift()
 	}
+
 	//Clearing redo if branch is overwritten
 	redoLog = [];
 
 	setPositionDisplay(bookPos, book.length)
 	updateAutoColor()
-	window.requestAnimationFrame(render)
+	window.requestAnimationFrame(renderBoard)
 }
 
 function toggleMinoMode() {
@@ -454,13 +459,14 @@ function settoPage(newPagePos) { // I do not trust the global variable
 	board = JSON.parse(book[newPagePos]['board'])
 	minoModeBoard = JSON.parse(book[newPagePos]['minoBoard'])
 	document.getElementById('commentBox').value = book[newPagePos]['comment']
-	// what about operation?
+	operation = book[bookPos]['operation']
+	document.getElementById('lockFlagInput').checked = book[bookPos]['flags']['lock']
 }
 
 function prevPage() {
 	bookPos = getCurrentPosition()
 	settoPage(bookPos-1)
-	window.requestAnimationFrame(render)
+	window.requestAnimationFrame(renderBoard)
 	autoEncode()
 }
 
@@ -471,21 +477,15 @@ function gotoPage() {
 	
 	// Go to an existing page
 	settoPage(bookPos)
-	flags = {lock: true}
-	window.requestAnimationFrame(render)
+	window.requestAnimationFrame(renderBoard)
 	autoEncode()
 }
 
 function nextPage() {
 	bookPos = getCurrentPosition()
 	bookPos += 1 // next page
-	if(bookPos <= book.length-1) {
-		// Go to an existing page
-		settoPage(bookPos)
-		flags = {lock: true}
-	} else {
-		// Create new page
-		// Solidifying minos
+	if(bookPos == book.length-1) { // Create new page when at the page
+		// Solidifying minos in previous board
 		prevBoard = JSON.parse(book[bookPos-1]['board'])
 		for (let row = 0; row < 20; row++){
 			for (let col = 0; col < 10; col++) {
@@ -512,33 +512,27 @@ function nextPage() {
 
 		//Line clears if flag lock is on
 		if(book[bookPos-1]['flags']['lock'] === true) {
-			for(let row = 0; row < boardSize[1]; row++){
-				// delete a row if it is all filled
-				let isEmpty = (cell) => cell.t == 0
-				if(board[row].some(isEmpty)) continue;
+			//going from top down guarentees all line clears are performed
+			for(let row = 0; row < boardSize[1]; row++) {
+				let isFilled = (cell) => cell.t !== 0
+				if(!board[row].every(isFilled)) continue;
 				
 				board.splice(row, 1)
-				board.splice(0, 0, aRow)
+				board.unshift(aRow)
 			}
 		}
-
-		minoModeBoard = JSON.parse(JSON.stringify(emptyBoard))
-		operation = undefined
-		lockFlag = document.getElementById('lockFlagInput').checked
-		comment = ''
 		
 		book[bookPos] = {
 			board: JSON.stringify(board),
-			minoBoard: JSON.stringify(emptyBoard),
+			minoBoard: JSON.parse(JSON.stringify(emptyBoard)),
 			comment: '',
 			operation: undefined,
-			flags: {lock: lockFlag},
+			flags: {lock: document.getElementById('lockFlagInput').checked},
 		}
-		document.getElementById('commentBox').value = comment
-		
-		setPositionDisplay(bookPos, book.length)
+
 	}
-	window.requestAnimationFrame(render)
+	settoPage(bookPos)
+	window.requestAnimationFrame(renderBoard)
 	autoEncode()
 	updateBook()
 }
@@ -556,20 +550,20 @@ function gotoPage() {
 	setPositionDisplay(bookPos, book.length)
 	document.getElementById('commentBox').value = book[bookPos - 1]['comment']
 	
-	window.requestAnimationFrame(render)
+	window.requestAnimationFrame(renderBoard)
 	autoEncode()
 }
 
 function startPage(){
 	bookPos = 0
 	settoPage(bookPos)
-	window.requestAnimationFrame(render)
+	window.requestAnimationFrame(renderBoard)
 	autoEncode()
 }
 
 function endPage(){
 	settoPage(book.length-1)
-	window.requestAnimationFrame(render)
+	window.requestAnimationFrame(renderBoard)
 	autoEncode()
 }
 
@@ -582,10 +576,8 @@ function clearPage(){
 		operation: undefined,
 		flags: flags
 	}
-	board = JSON.parse(book[bookPos]['board'])
-	minoBoard = JSON.parse(book[bookPos]['minoBoard'])
 	settoPage(bookPos)
-	window.requestAnimationFrame(render)
+	window.requestAnimationFrame(renderBoard)
 	autoEncode()
 }
 
@@ -599,7 +591,7 @@ function dupliPage(){
 		//nominally you don't need to "update" the display since it's the same
 		document.getElementById('commentBox').value = book[bookPos]['comment']
 	}
-	window.requestAnimationFrame(render)
+	window.requestAnimationFrame(renderBoard)
 	autoEncode()
 }
 
@@ -613,11 +605,11 @@ function deletePage(){
 		board = JSON.parse(book[bookPos]['board'])
 		setPositionDisplay(bookPos, book.length)
 	}
-	window.requestAnimationFrame(render)
+	window.requestAnimationFrame(renderBoard)
 	autoEncode()
 }
 
-function render() { 
+function renderBoard() {  //renders board and minoModeBoard
 	ctx.clearRect(0, 0, boardSize[0] * cellSize, boardSize[1] * cellSize)
 	ctx.fillStyle = pattern
 	ctx.fillRect(0, 0, boardSize[0] * cellSize, boardSize[1] * cellSize)
@@ -696,54 +688,48 @@ function drawCell(x, y, piece, type) {
 }
 
 //CONTRIBUTED BY CONFIDENTIAL (confidential#1288)
-function readPiece(mino_positions){
-	//table is sorted ascending by y then x, with right and down being the positive x and y axis
-	const shape_table = {'Z': [[[0, 0], [0, 1], [1, 1], [1, 2]], [[0, 1], [1, 0], [1, 1], [2, 0]]],
-				   'L': [[[0, 0], [0, 1], [1, 1], [2, 1]], [[0, 0], [0, 1], [0, 2], [1, 0]], [[0, 0], [1, 0], [2, 0], [2, 1]], [[0, 2], [1, 0], [1, 1], [1, 2]]],
-				   'O': [[[0, 0], [0, 1], [1, 0], [1, 1]]],
-				   'S': [[[0, 1], [0, 2], [1, 0], [1, 1]],  [[0, 0], [1, 0], [1, 1], [2, 1]]],
-				   'I': [[[0, 0], [1, 0], [2, 0], [3, 0]],  [[0, 0], [0, 1], [0, 2], [0, 3]]],
-				   'J': [[[0, 0], [0, 1], [1, 0], [2, 0]], [[0, 0], [0, 1], [0, 2], [1, 2]], [[0, 1], [1, 1], [2, 0], [2, 1]], [[0, 0], [1, 0], [1, 1], [1, 2]]],
-				   'T': [[[0, 0], [0, 1], [0, 2], [1, 1]], [[0, 0], [1, 0], [1, 1], [2, 0]], [[0, 1], [1, 0], [1, 1], [1, 2]], [[0, 1], [1, 0], [1, 1], [2, 1]]],
-	}
-
+function readPiece(mino_positions, recognise_split_minos) {
     // if (mino_positions.length != 4){
     //     return 'X'
     // }
 
-	//accommodates for split pieces
-	{
-		var unsplit_mino_positions = []
+	positions = (recognise_split_minos ? unsplit_minos(mino_positions) : mino_positions)
+
+	//sort ascending by y then x
+	positions.sort((a,b) => a[0] - b[0] || a[1] - b[1])
+    
+    for (let [piece, piece_table] of Object.entries(shape_table)) {
+		for (let [rotation, piece_positions] of Object.entries(piece_table)) {
+			// if the offset matches, then all pieces should converge to a single origin
+			let all_origins = []
+			for (let i = 0; i < piece_positions.length; i++) {
+				all_origins.push([positions[i][0] - piece_positions[i][0], positions[i][1] - piece_positions[i][1]])
+			}
+
+			if (agreed_origin(all_origins)) {
+				return new Mino(piece, rotation, all_origins[0][1], all_origins[0][0])
+			}
+		}
+    }
+	return undefined //if none of the tables match, then it isn't a tetromino shape
+
+	function agreed_origin(all_origins) {
+		return all_origins.every((origin) => origin[0] == all_origins[0][0] && origin[1] == all_origins[0][1])
+	}
+
+	function unsplit_minos(mino_positions) {
 		let y_coords = []
 		for (let i = 0; i < mino_positions.length; i++) {
 			y_coords.push(mino_positions[i][0]);
 		}
-		let y_coords_rank = y_coords.filter((x_coord, index, array) => array.indexOf(x_coord) === index).sort((a, b) => a - b);
+		y_coords.sort((a, b) => a - b);
+		
+		let unsplit_mino_positions = []
+		let y_coords_rank = y_coords.filter((y_coord, index, array) => array.indexOf(y_coord) === index);
 		for (let i = 0; i < mino_positions.length; i++) {
-			unsplit_mino_positions.push([y_coords_rank.indexOf(mino_positions[i][0]),mino_positions[i][1]])
+			unsplit_mino_positions.push([y_coords[0]+y_coords_rank.indexOf(mino_positions[i][0]), mino_positions[i][1]])
 		}
-	}
-
-	//sort ascending by y then x
-	unsplit_mino_positions.sort((a,b) => a[0] - b[0] || a[1] - b[1])
-    
-    for (let [piece, piece_table] of Object.entries(shape_table)) {
-        if (is_element(piece_table)) return piece
-    }
-	return 'X' //if none of the tables match, then it isn't a tetromino shape
-
-    function is_element(query){
-		return query.some(query_positions => positions_match(query_positions))		
-    }
-
-	function positions_match(query_positions) {
-		//checks if the offset of both mino_position and positions match
-		let all_origins = []
-		for (let i = 0; i < query_positions.length; i++) {
-			all_origins.push([unsplit_mino_positions[i][0] - query_positions[i][0], unsplit_mino_positions[i][1] - query_positions[i][1]])
-		}
-		//all of the origins of the positions must be the same if all offsets matches
-		return all_origins.every((origin) => origin[0] == all_origins[0][0] && origin[1] == all_origins[0][1])
+		return unsplit_mino_positions;
 	}
 }
 
@@ -769,7 +755,7 @@ function updateAutoColor() {
 }
 
 //from io.js
-function toField(board) {
+function toField(board) { //only reads color of minos, ignoring the type
     FieldString = ''
 	for (let row of board){
 		for (let cell of row) {
@@ -779,60 +765,16 @@ function toField(board) {
     return Field.create(FieldString)
 }
 
-function decode() {
-    bookPos = getCurrentPosition()
-	bookInsert = []
-	fumen = document.getElementById('boardOutput').value
-	pages = decoder.decode(fumen)
-	for(let i = 0; i < pages.length; i++){
-		let board = []
+function decodeFumen() {
+	var fumen = document.getElementById('boardOutput').value;
+    var pages = decoder.decode(fumen);
+    var tempBook = [];
 
-		for (rowIndex = 0; rowIndex < 20; rowIndex++) {
-			let row = []
-			for (colIndex = 0; colIndex < 10; colIndex++) {
-				index = (20 - rowIndex - 1) * 10 + colIndex
-				colorIndex = pages[i]['_field']['field']['pieces'][index]
-				if (colorIndex == 0) row.push({ t: 0, c: '' })
-				else {
-					letter = ' ILOZTJSX'[colorIndex]
-					row.push({ t: 1, c: letter })
-				}
-			}
-			board.push(row)
-		}
-
-		board = JSON.stringify(board)
-		minoBoard = JSON.stringify(decodeOperation(pages[i]['operation']))
-		comment = pages[i]['comment']
-		flags = pages[i]['flags']
-
-		page = {
-			board, 
-			operation: pages[i]['operation'],
-			minoBoard: minoBoard,
-			comment: comment,
-			flags: flags,
-		}
-		book.splice(bookPos + i, 0, page)
-		bookInsert.push(page)
-	}
-	board = JSON.parse(bookInsert[0].board)
-	minoModeBoard = JSON.parse(bookInsert[0].minoBoard)
-	comment = bookInsert[0].comment
-	document.getElementById('positionDisplayOver').value = '/'+book.length
-	document.getElementById('commentBox').value = bookInsert[0].comment
-	updateBook()
-	window.requestAnimationFrame(render)
-};
-
-function fullDecode(fumen) {
-	fumen = document.getElementById('boardOutput').value;
-    pages = decoder.decode(fumen);
-    newBook = [];
-
-    for (i = 0; i < pages.length; i++) {
-		input = pages[i]['_field']['field']['pieces'];
+	for (i = 0; i < pages.length; i++) {
+		let currentPage = pages[i];
         let tempBoard = [];
+		let input = currentPage['_field']['field']['pieces'];
+
         for (rowIndex = 0; rowIndex < 20; rowIndex++) {
             let row = [];
             for (colIndex = 0; colIndex < 10; colIndex++) {
@@ -847,81 +789,65 @@ function fullDecode(fumen) {
             tempBoard.push(row);
         }
 
-		tempMinoBoard = decodeOperation(pages[i].operation)
-		
-		currBook = {
+		let page = {
 			board: JSON.stringify(tempBoard),
-			minoBoard: JSON.stringify(tempMinoBoard),
-			comment: pages[i]['comment'],
-			flags: pages[i]['flags'],
-			operation: pages[i]['operation'],
+			operation: currentPage['operation'],
+			minoBoard: JSON.stringify(decodeOperation(currentPage['operation'])),
+			comment: currentPage['comment'],
+			flags: currentPage['flags'],
 		};
 		
-
-		newBook.push(currBook);
+		tempBook.push(page);
 	}
-	
+	return tempBook;
+}
 
-	book = newBook;
+function decodeInsert() {
+    bookPos = getCurrentPosition()
+	var bookInsert = decodeFumen()
+	book.splice(bookPos, 0, ...bookInsert)
+	settoPage(bookPos)
+	updateBook()
+	window.requestAnimationFrame(renderBoard)
+};
+
+function fullDecode() {
+	book = decodeFumen;
 	bookPos = 0;
 	settoPage(bookPos)
-	setPositionDisplay(0, book.length);
-	window.requestAnimationFrame(render);
+	window.requestAnimationFrame(renderBoard);
 };
+
+function encodeFumen(...book) {
+	console.log(book)
+	var fullBook = []
+	for (let pageNum in book) {
+		let page = book[pageNum]
+		fullBook.push({
+			comment: page['comment'],
+			operation: page['operation'],
+			field: toField(JSON.parse(page['board'])),
+			flags: {
+				rise: false,
+				mirror: false,
+				colorize: true,
+				comment: page['comment'],
+				lock: true,
+				piece: undefined,
+			},
+			index: pageNum, //necessary?
+		});
+	}
+	return encoder.encode(fullBook)
+}
 
 function encode() {
 	bookPos = getCurrentPosition()
-	// Solidifying minos
-	for (let row = 0; row < 20; row++){
-		for (let col = 0; col < 10; col++) {
-			if(board[row][col].t == 2){
-				prevBoard[row][col].t = 1
-				prevBoard[row][col].c = board[row][col].c
-			}
-		}
-	}
-
-	pages = [];
-	flags = {
-		rise: false,
-		mirror: false,
-		colorize: true,
-		comment: book[bookPos]['comment'],
-		lock: true,
-		piece: undefined,
-	}
-	page = {
-		comment: book[bookPos]['comment'],
-		operation: book[bookPos]['operation'],
-		field: toField(JSON.parse(book[bookPos]['board'])),
-		flags: flags,
-		index: bookPos,
-	}
-	pages.push(page);
-
-	document.getElementById('boardOutput').value = encoder.encode(pages);
+	document.getElementById('boardOutput').value = encodeFumen(book[bookPos]);
 }
 
 function fullEncode() {
-	pages = [];
-	for (let i = 0; i < book.length; i++){
-		flags = {
-			rise: false,
-			mirror: false,
-			colorize: true,
-			comment: book[i]['comment'],
-			lock: true,
-			piece: undefined,
-		}
-		pages.push({
-			comment: book[i]['comment'],
-			operation: book[i]['operation'],
-			field: toField(JSON.parse(book[i]['board'])),
-			flags: flags,
-			index: i,
-		});
-	};
-	document.getElementById('boardOutput').value = encoder.encode(pages);
+	document.getElementById('boardOutput').value = encodeFumen(...book);
 }
 
 function addToInput() {
@@ -933,67 +859,35 @@ function autoEncode() {
 
 	let encodingType = document.getElementById('encodingType').value;
 	
-	if (encodingType == 'fullFumen') fumen = fullEncode();
-	if (encodingType == 'currentFumen') fumen = encode();
+	if (encodingType == 'fullFumen') fullEncode();
+	else if (encodingType == 'currentFumenPage') encode();
 }
 
 function decodeOperation(operation){
-	decodedMinoBoard = JSON.parse(JSON.stringify(emptyBoard))
-	if (operation != undefined){
-		let color = operation.type
-		let rotation = operation.rotation
-		let x = operation.x - 1
-		let y = 19 - operation.y - 1
-		
-		//hardcoding rotations because why distinguish between I, SZ, and O rotations :tf: (i wont work on it)
-		switch(color){
-			case 'I':
-				switch(rotation){
-					case 'reverse': rotation = 'spawn'; x--; break;
-					case 'left': rotation = 'right'; y--; break;	
-				}
-				break;
-			case 'O':
-				switch(rotation){
-					case 'spawn': rotation = 'reverse'; y--; x++; break;
-					case 'left': rotation = 'reverse'; y--; break;
-					case 'right': rotation = 'reverse'; x++; break;
-				};
-				break;
-			case 'S':
-				switch(rotation){
-					case 'spawn': rotation = 'reverse'; y--; break;
-					case 'left': rotation = 'right'; x--; break;
-				}
-			case 'Z':
-				switch(rotation){
-					case 'spawn': rotation = 'reverse'; y--; break;
-					case 'left': rotation = 'right'; x--; break;
-				}
-			}
-		
-		let pieceIndex = 'TILJSZO'.indexOf(color)
-		let rotIndex = rotationNames.indexOf(rotation)
-		let pieceRef = pieceMaps[pieceIndex]
-		let rotRef = pieceRef[rotIndex]
-
-		for(map = 0; map < 16; map++) {
-			let row = Math.floor(map/4) + y
-			let col = (map % 4) + x
-			let type = rotRef[map]
-			if (type == 1) decodedMinoBoard[row][col] = {t: 1, c: color}
-		}
+	if (operation == undefined) {
+		console.log("Cannot decode operation, returning empty board instead.")
+		return JSON.parse(JSON.stringify(emptyBoard))
 	}
+
+	decodedMinoBoard = JSON.parse(JSON.stringify(emptyBoard))
+	let pieceColor = operation.type
+	let rotation = operation.rotation
+	let x = operation.x - 1
+	let y = 19 - operation.y - 1
+	
+	piecePositions = shape_table[pieceColor][rotation]
+	for (let piecePosition of piecePositions) {
+		decodedMinoBoard[x + piecePosition[1]][y + piecePosition[1]] = {t: 1, c: pieceColor}
+	}
+	
 	return decodedMinoBoard
 }
 
 //IMAGE IMPORT
 document.addEventListener('paste', (event) => {
     let items = (event.clipboardData || event.originalEvent.clipboardData).items;
-    for (index in items) {
-        let item = items[index];
-        if (item.kind != 'file') continue;
-        importImage(item.getAsFile());
+    for (let item of items) {
+        if (item.kind == 'file') importImage(item.getAsFile());
     }
 });
 
@@ -1087,6 +981,20 @@ async function importImage(blob) {
 		else if (inRange(h, 267, 325)) 					return { t: 1, c: 'T' };
 		return { t: 0, c: '' };
 	}
+
+	function median(values) {
+		if (values.length === 0) throw new Error('No inputs');
+	
+		values.sort(function (a, b) {
+			return a - b;
+		});
+	
+		var half = Math.floor(values.length / 2);
+	
+		if (values.length % 2) return values[half];
+	
+		return (values[half - 1] + values[half]) / 2.0;
+	}
 }
 
 async function importImageButton() {
@@ -1104,20 +1012,6 @@ async function importImageButton() {
 	}
 }
 
-function median(values) {
-	if (values.length === 0) throw new Error('No inputs');
-
-	values.sort(function (a, b) {
-		return a - b;
-	});
-
-	var half = Math.floor(values.length / 2);
-
-	if (values.length % 2) return values[half];
-
-	return (values[half - 1] + values[half]) / 2.0;
-}
-
 //MIRRORING
 const reversed = {Z: 'S',L: 'J',O: 'O',S: 'Z',I: 'I',J: 'L',T: 'T',X: 'X'};
 
@@ -1129,7 +1023,7 @@ function mirror() {
 		}
 	}
 	updateBook();
-	window.requestAnimationFrame(render);
+	window.requestAnimationFrame(renderBoard);
 }
 
 function fullMirror() {
@@ -1145,7 +1039,7 @@ function fullMirror() {
 	}
 	board = tempBoard;
 	updateBook();
-	window.requestAnimationFrame(render);
+	window.requestAnimationFrame(renderBoard);
 }
 
 //HTML FUNCTIONS
@@ -1155,10 +1049,12 @@ function decreaseResetLevel() {
 	document.getElementById('reset').classList.remove('confirm-delete-data')
 }
 
+// not present in html but affects html elements
 function decreaseseClearInputLevel() {
 	document.getElementById('clear-input').classList.remove('confirm-delete-data')
 }
 
+// not present in html but affects html elements
 function increaseResetLevel() {
 	let confirmedReset = document.getElementById('reset').classList.contains('confirm-delete-data')
 	if (confirmedReset)  {
@@ -1176,7 +1072,7 @@ function increaseResetLevel() {
 		comments = []
 		autoEncode()
 		updateBook() // record initial state in logs, testing
-		window.requestAnimationFrame(render)
+		window.requestAnimationFrame(renderBoard)
 	}
 	document.getElementById('reset').classList.toggle('confirm-delete-data')
 }
@@ -1252,7 +1148,7 @@ function toggleToolTips() {
 
 function toggle3dSetting() {
 	document.getElementById('3dSetting').checked = !document.getElementById('3dSetting').checked
-	requestAnimationFrame(render)
+	requestAnimationFrame(renderBoard)
 }
 
 function updateToolTips() {
@@ -1280,7 +1176,7 @@ function toggleStyle() {
 
 function updateStyle() {
 	document.getElementById('3dToggle').classList.toggle('disabled', document.getElementById('defaultRenderInput').checked)
-	requestAnimationFrame(render)
+	requestAnimationFrame(renderBoard)
 }
 
 function renderImages(fumen) {
@@ -1299,14 +1195,10 @@ function undo() {
 		book = JSON.parse(undoLog[undoLog.length-1])
 		console.log(bookPos, book.length-1)
 		bookPos = Math.min(bookPos, book.length-1) // Bound bookPos to end of book, temporary measure
-		board = JSON.parse(book[bookPos]['board'])
-		minoModeBoard = JSON.parse(book[bookPos]['minoBoard'])
-		operation = book[bookPos]['operation'] //unused?
-		setPositionDisplay(bookPos, book.length)
-		document.getElementById('commentBox').value = book[bookPos]['comment']
-		document.getElementById('lockFlagInput').checked = book[bookPos]['flags']['lock']
+		
+		settoPage(bookPos)
 	}
-	window.requestAnimationFrame(render)
+	window.requestAnimationFrame(renderBoard)
 }
 
 function redo() {
@@ -1316,15 +1208,9 @@ function redo() {
 	} else {
 		undoLog.push(redoLog.pop())
 		book = JSON.parse(undoLog[undoLog.length-1])
-		board = JSON.parse(book[bookPos]['board'])
-		minoModeBoard = JSON.parse(book[bookPos]['minoBoard'])
-		operation = book[bookPos]['operation']
-		comment = book[bookPos]['comment']
-		setPositionDisplay(bookPos, book.length)
-		document.getElementById('commentBox').value = comment
-		document.getElementById('lockFlagInput').checked = book[bookPos]['flags']['lock']
+		settoPage(bookPos)
 	}
-	window.requestAnimationFrame(render)
+	window.requestAnimationFrame(renderBoard)
 }
 
 function takeshot() {
