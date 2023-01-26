@@ -10,8 +10,20 @@ var undoLog = []
 var redoLog = []
 var operation // {type: 'I', rotation: 'reverse', x: 4, y: 0}
 var flags = {lock: true}
-book = [{board: JSON.stringify(board), comment: '', operation: undefined, minoBoard: JSON.stringify(board), flags},]
+
+//MAKING FIRST EMPTY BOARD
+const aRow = []
+const emptyBoard = []
+for(let i = 0; i < boardSize[0]; i++) {aRow.push({ t: 0, c: '' })}
+for (let i = 0; i < boardSize[1]; i++) {emptyBoard.push(aRow)}
+
+var board = JSON.parse(JSON.stringify(emptyBoard)) // the lazy way of doing a deep copy
+var minoModeBoard = JSON.parse(JSON.stringify(emptyBoard)) // the lazy way of doing a deep copy
+
 var bookPos = 0
+book = [{board: JSON.stringify(board), comment: '', operation: undefined, minoBoard: JSON.stringify(board), flags},]
+updateBook()
+settoPage(bookPos)
 window.requestAnimationFrame(renderBoard)
 
 //PIECE MAPS
@@ -61,14 +73,7 @@ const shape_table = {
 	}
 }
 
-//MAKING FIRST EMPTY BOARD
-const aRow = []
-const emptyBoard = []
-for(let i = 0; i < boardSize[0]; i++) {aRow.push({ t: 0, c: '' })}
-for (let i = 0; i < boardSize[1]; i++) {emptyBoard.push(aRow)}
-var board = JSON.parse(JSON.stringify(emptyBoard)) // the lazy way of doing a deep copy
-var minoModeBoard = JSON.parse(JSON.stringify(emptyBoard)) // the lazy way of doing a deep copy
-updateBook()
+
 
 // CANVAS
 var ctx = document.getElementById('b').getContext('2d')
@@ -459,8 +464,8 @@ function settoPage(newPagePos) { // I do not trust the global variable
 	board = JSON.parse(book[newPagePos]['board'])
 	minoModeBoard = JSON.parse(book[newPagePos]['minoBoard'])
 	document.getElementById('commentBox').value = book[newPagePos]['comment']
-	operation = book[bookPos]['operation']
-	document.getElementById('lockFlagInput').checked = book[bookPos]['flags']['lock']
+	operation = book[newPagePos]['operation']
+	document.getElementById('lockFlagInput').checked = book[newPagePos]['flags']['lock']
 }
 
 function prevPage() {
@@ -483,10 +488,10 @@ function gotoPage() {
 
 function nextPage() {
 	bookPos = getCurrentPosition()
-	bookPos += 1 // next page
+	
 	if(bookPos == book.length-1) { // Create new page when at the page
 		// Solidifying minos in previous board
-		prevBoard = JSON.parse(book[bookPos-1]['board'])
+		prevBoard = JSON.parse(book[bookPos]['board'])
 		for (let row = 0; row < 20; row++){
 			for (let col = 0; col < 10; col++) {
 				if(board[row][col].t == 2){
@@ -495,11 +500,11 @@ function nextPage() {
 				}
 			}
 		}
-		book[bookPos-1]['board'] = JSON.stringify(prevBoard)
+		book[bookPos]['board'] = JSON.stringify(prevBoard)
 		
 		//push minomode onto current board
-		if(book[bookPos-1]['operation'] == undefined){
-			board = JSON.parse(book[bookPos - 1]['board'])
+		if(book[bookPos]['operation'] == undefined){
+			board = JSON.parse(book[bookPos]['board'])
 		} else {
 			for (let row = 0; row < 20; row++){
 				for (let col = 0; col < 10; col++) {
@@ -511,8 +516,8 @@ function nextPage() {
 		}
 
 		//Line clears if flag lock is on
-		if(book[bookPos-1]['flags']['lock'] === true) {
-			//going from top down guarentees all line clears are performed
+		if(book[bookPos]['flags']['lock'] === true) {
+			//going top down guarentees all line clears are performed
 			for(let row = 0; row < boardSize[1]; row++) {
 				let isFilled = (cell) => cell.t !== 0
 				if(!board[row].every(isFilled)) continue;
@@ -522,15 +527,16 @@ function nextPage() {
 			}
 		}
 		
-		book[bookPos] = {
+		book[bookPos + 1] = {
 			board: JSON.stringify(board),
-			minoBoard: JSON.parse(JSON.stringify(emptyBoard)),
+			minoBoard: JSON.stringify(emptyBoard),
 			comment: '',
 			operation: undefined,
 			flags: {lock: document.getElementById('lockFlagInput').checked},
 		}
-
 	}
+
+	bookPos += 1 // next page
 	settoPage(bookPos)
 	window.requestAnimationFrame(renderBoard)
 	autoEncode()
@@ -588,8 +594,8 @@ function dupliPage(){
 	} else {
 		book.splice(bookPos,0,book[bookPos])
 		setPositionDisplay(bookPos+1, book.length)
-		//nominally you don't need to "update" the display since it's the same
-		document.getElementById('commentBox').value = book[bookPos]['comment']
+		//technically you don't need to "update" the display since it's the same
+		settoPage(bookPos)
 	}
 	window.requestAnimationFrame(renderBoard)
 	autoEncode()
@@ -602,8 +608,7 @@ function deletePage(){
 	} else {
 		book.splice(bookPos,1)
 		bookPos = Math.min(bookPos,book.length-1) // Bound bookPos to end of book
-		board = JSON.parse(book[bookPos]['board'])
-		setPositionDisplay(bookPos, book.length)
+		settoPage(bookPos)
 	}
 	window.requestAnimationFrame(renderBoard)
 	autoEncode()
