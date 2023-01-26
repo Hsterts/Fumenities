@@ -25,6 +25,7 @@
 <script type = "text/javascript" src = "./Fumen Utils_files/NeuQuant.js"></script>
 <script type = "text/javascript" src = "./Fumen Utils_files/GIFEncoder.js"></script>
 <script type = "text/javascript" src = "./Fumen Utils_files/b64.js"></script>
+<script type = "text/javascript" src = "./Fumen Utils_files/mousetrap.js"></script>
 <script src = "https://cdn.jsdelivr.net/npm/html2canvas@1.0.0-rc.5/dist/html2canvas.min.js"></script>
 
 	<body id = "main">		
@@ -44,7 +45,7 @@
 <!--Input-->			
 			<h3><b>Input</b></h3>
 			<div class="io">
-			<center><textarea id = "input" name = "input" onfocusin = "focused()" onfocusout = "unfocused()"></textarea><br></center>
+			<center><textarea id = "input" name = "input"></textarea><br></center>
 			</div>
 
 			<div class = "fumenOperations">
@@ -81,13 +82,13 @@
 						<input id = "height" type = "number" value = 4 min = 1 max = 20></input>
 						<label for = "height">Height</label>
 
-						<label id = "autoheightlabel">
-						<input id = "autoheight" type = "checkbox" checked = "checked">
-						<span class = "checkmark"></span>Auto
-						</label><br>
+							<label id = "autoheightlabel">
+							<input id = "autoheight" type = "checkbox" checked = "checked">
+							<span class = "checkmark"></span>Auto-Fit
+							</label><br>
 
-						<input id = "transparency" type = "checkbox" onclick = "toggleBGSelect()" checked></input>
-						<label for = "transparency">Transparency</label><br>
+						<input id = "transparency" type = "checkbox" onclick = "updateBGSelect()" checked></input>
+						<label for = "transparency">Transparent Background</label><br>
 						
 							<div id = "bgselect" style = "display:none;">
 							<input id = "bg" type = "color" value = "#f3f3ed" style = "width:100px;padding:0px;"></input>
@@ -112,7 +113,7 @@
 						<label for = "delay">GIF Delay (ms)</label>
 						<hr>
 						<center><h3>Download Settings</h3></center>
-						<input id = "downloadOutput" type = "checkbox" onclick = "toggleDownloadSettings()"></input>
+						<input id = "downloadOutput" type = "checkbox" onclick = "updateDownloadSettings()"></input>
 						<label for = "downloadOutput">Download on Render?</label><br>
 						<div id = "downloadSettings" style = "display:none;">
 						<select id = "naming" name = "Name">
@@ -137,7 +138,7 @@
 <!--Output-->
 			<h3><b>Output</b></h3>
 			<div class="io">
-				<center><textarea id = "output" name = "output" onfocusin = "focused()" onfocusout = "unfocused()"></textarea><br></center>
+				<center><textarea id = "output" name = "output"></textarea><br></center>
 			</div>
 			<div class="fumenOperations">
 				<button class = "ibtn" onclick = "navigator.clipboard.writeText(document.getElementById('output').value)">Copy</button>
@@ -203,7 +204,7 @@
 						<!-- MINO MODE OPTION-->
 						<div class = "minoMode top-panel">
 							<div class = "tooltip">
-								<input id = "minoModeInput" type = "checkbox" onclick = "toggleMinoMode()"><span class = "pepega">  Mino Mode</span></input>
+								<input id = "minoModeInput" type = "checkbox" onclick = "updateMinoMode()"><span class = "pepega">  Mino Mode</span></input>
 								<span class = "tooltiptext">Draw four minos as a piece placement.</span>
 							</div>
 						</div>
@@ -226,7 +227,7 @@
 							<center><div id = "board" oncontextmenu = "return false"><canvas id = "b"></canvas></div></center>
 
 							<!--Comment Box-->
-							<textarea id = "commentBox" onchange = "updateBook()" onfocusin = "focused()" onfocusout = "unfocused()"></textarea>
+							<textarea id = "commentBox" onchange = "updateBook()"></textarea>
 						</div>
 						
 						<div class = "right-fumen-panel">
@@ -260,16 +261,16 @@
 									<span class = "tooltiptext">Delete the current page.</span>
 								</div>
 								<div class = "tooltip">
-									<button id = "reset" onclick = "this.blur(); restartCheck()"><b>Reset</b></button>
-									<span class = "tooltiptext">Delete all data.</span>
-								</div><hr class="small-hr">
-								<div class = "tooltip">
-									<button id = "reset-angry" onclick = "this.blur(); restart()"><b>Reset</b></button>
+									<button id = "reset" onclick = "this.blur(); increaseRestartLevel()"><b>Reset</b></button>
 									<span class = "tooltiptext">Delete all data.</span>
 								</div>
 								<div class = "tooltip">
+									<button id = "reset-angry" onclick = "this.blur(); increaseRestartLevel()"><b>Reset</b></button>
+									<span class = "tooltiptext">Delete all data.</span>
+								</div><hr class="small-hr">
+								<div class = "tooltip">
 									<button class = "fumen-option" onclick = "this.blur(); importImageButton()"><b>Import Image</b></button>
-									<span class = "tooltiptext">Parse an image of a board and insert it into the current page.</span>
+									<span class = "tooltiptext">Parse and insert an image of a board from the clipboard into the current page.</span>
 								</div>
 								<div class = "tooltip">
 									<button class = "fumen-option" onclick = "this.blur(); decode()"><b>Insert</b></button>
@@ -291,7 +292,7 @@
 							<!--Auto-Encoding-->
 								<div class = "autoEncodingInputs">
 									<div class = "autoEncoding">
-										<input id = "autoEncode" type = "checkbox" onclick = "toggleAutoEncoding()"></input>
+										<input id = "autoEncode" type = "checkbox" onclick = "updateAutoEncoding()"></input>
 										<label for = "autoEncode"><b>Auto-Encode</b></label>
 									</div>
 									<div class = "autoEncoding" id = "autoEncodeOptions" style = "display:none;">
@@ -302,7 +303,7 @@
 									</div>
 								</div>
 								<!--Output Box-->
-								<div><textarea id = "boardOutput" onfocusin = "focused()" onfocusout = "unfocused()">MINO MODE NOT FUNCTIONAL</textarea></div>
+								<div><textarea id = "boardOutput">MINO MODE NOT FUNCTIONAL</textarea></div>
 							</div>
 						</div>
 					</div>
@@ -319,7 +320,7 @@
 							<label for = "lockFlagInput"><span class = "pepega">Lock</span></label><br>
 						</div>
 						<div>
-							<input id = "autoColorInput" type = "checkbox" onclick = "autoColor()"></input>
+							<input id = "autoColorInput" type = "checkbox" onclick = "updateAutoColor()"></input>
 							<label for = "autoColorInput"><span class = "pepega">Auto-Color</span></label><br>
 						</div>
 						<div>
@@ -334,7 +335,7 @@
 						<h3 class="settings-header">MISC. SETTINGS</h3>
 						<hr class = "small-hr">
 						<div id = "tooltipToggle">
-							<input id = "tooltipSetting" type = "checkbox" onclick = "toggleToolTips()"></input>
+							<input id = "tooltipSetting" type = "checkbox" onclick = "updateToolTips()"></input>
 							<label for = "tooltipSetting"><span class = "pepega">Show Tooltips</span></label>
 						</div>
 						<div id = "3dToggle">
