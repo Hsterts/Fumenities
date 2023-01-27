@@ -394,9 +394,7 @@ function updateBook() {
 		minoBoard: JSON.stringify(minoModeBoard),
 		comment: document.getElementById('commentBox').value,
 		operation: operation,
-		flags: {
-			lock: document.getElementById('lockFlagInput').checked,
-			},
+		flags: {lock: document.getElementById('lockFlagInput').checked},
 	}
 	document.getElementById('commentBox').value = (book[bookPos]['comment'] != undefined ? book[bookPos]['comment'] : '')
 
@@ -488,7 +486,7 @@ function gotoPage() {
 
 function nextPage() {
 	bookPos = getCurrentPosition()
-	
+
 	if(bookPos == book.length-1) { // Create new page when at the page
 		// Solidifying minos in previous board
 		prevBoard = JSON.parse(book[bookPos]['board'])
@@ -539,8 +537,8 @@ function nextPage() {
 	bookPos += 1 // next page
 	settoPage(bookPos)
 	window.requestAnimationFrame(renderBoard)
-	autoEncode()
 	updateBook()
+	autoEncode()
 }
 
 function gotoPage() {
@@ -824,7 +822,6 @@ function fullDecode() {
 };
 
 function encodeFumen(...book) {
-	console.log(book)
 	var fullBook = []
 	for (let pageNum in book) {
 		let page = book[pageNum]
@@ -1063,20 +1060,15 @@ function decreaseseClearInputLevel() {
 function increaseResetLevel() {
 	let confirmedReset = document.getElementById('reset').classList.contains('confirm-delete-data')
 	if (confirmedReset)  {
-		board.map((y, i) => {
-			y.map((x, ii) => {
-				x.t = 0
-				x.c = ''
-			})
-		})
+		board = JSON.parse(JSON.stringify(emptyBoard))
 		minoModeBoard = JSON.parse(JSON.stringify(emptyBoard))
-		book = [{board: JSON.stringify(board), flags: flags}]
+		book = [{board: JSON.parse(JSON.stringify(emptyBoard)), flags: flags}]
 		setPositionDisplay(0, book.length)
 		document.getElementById('boardOutput').value = ''
 		document.getElementById('commentBox').value = ''
 		comments = []
-		autoEncode()
 		updateBook() // record initial state in logs, testing
+		autoEncode()
 		window.requestAnimationFrame(renderBoard)
 	}
 	document.getElementById('reset').classList.toggle('confirm-delete-data')
@@ -1085,7 +1077,7 @@ function increaseResetLevel() {
 function increaseClearInputLevel() {
 	let confirmedReset = document.getElementById('clear-input').classList.contains('confirm-delete-data')
 	if (confirmedReset)  {
-		document.getElementById('clear-input').value = ''
+		document.getElementById('input').value = ''
 	}
 	document.getElementById('clear-input').classList.toggle('confirm-delete-data')
 }
