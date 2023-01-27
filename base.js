@@ -21,9 +21,9 @@ var board = JSON.parse(JSON.stringify(emptyBoard)) // the lazy way of doing a de
 var minoModeBoard = JSON.parse(JSON.stringify(emptyBoard)) // the lazy way of doing a deep copy
 
 var bookPos = 0
-book = [{board: JSON.stringify(board), comment: '', operation: undefined, minoBoard: JSON.stringify(board), flags},]
-updateBook()
+book = [{board: JSON.stringify(emptyBoard), comment: '', operation: undefined, minoBoard: JSON.stringify(emptyBoard), flags},]
 settoPage(bookPos)
+updateBook()
 window.requestAnimationFrame(renderBoard)
 
 //PIECE MAPS
@@ -72,8 +72,6 @@ const shape_table = {
 		'left'   : [[-1, -1], [-1, 0], [0, -1], [0, 0]],
 	}
 }
-
-
 
 // CANVAS
 var ctx = document.getElementById('b').getContext('2d')
@@ -468,6 +466,7 @@ function settoPage(newPagePos) { // I do not trust the global variable
 
 function prevPage() {
 	bookPos = getCurrentPosition()
+	solidifyAutoColor(bookPos)
 	settoPage(bookPos-1)
 	window.requestAnimationFrame(renderBoard)
 	autoEncode()
@@ -484,54 +483,60 @@ function gotoPage() {
 	autoEncode()
 }
 
-function nextPage() {
-	bookPos = getCurrentPosition()
+function solidifyAutoColor(currentBookPos) {
+	let currentBoard = JSON.parse(book[currentBookPos]['board'])
+	for (let row in currentBoard){
+		for (let col in currentBoard[row]) {
+			if (currentBoard[row][col].t === 2){
+				currentBoard[row][col].t = 1
+			}
+		}
+	}
+	book[currentBookPos]['board'] = JSON.stringify(currentBoard)
+}
 
-	if(bookPos == book.length-1) { // Create new page when at the page
-		// Solidifying minos in previous board
-		prevBoard = JSON.parse(book[bookPos]['board'])
+function insertFollowingPage(currentBookPos) {
+	//push minomode onto current board
+	let board = JSON.parse(book[currentBookPos]['board'])
+	if (book[currentBookPos]['operation'] != undefined) {
 		for (let row = 0; row < 20; row++){
 			for (let col = 0; col < 10; col++) {
-				if(board[row][col].t == 2){
-					prevBoard[row][col].t = 1
-					prevBoard[row][col].c = board[row][col].c
+				if (minoModeBoard[row][col].t != 0){
+					board[row][col] = minoModeBoard[row][col]
 				}
 			}
 		}
-		book[bookPos]['board'] = JSON.stringify(prevBoard)
-		
-		//push minomode onto current board
-		if(book[bookPos]['operation'] == undefined){
-			board = JSON.parse(book[bookPos]['board'])
-		} else {
-			for (let row = 0; row < 20; row++){
-				for (let col = 0; col < 10; col++) {
-					if(minoModeBoard[row][col].t != 0){
-						board[row][col] = minoModeBoard[row][col]
-					}
-				}
-			}
-		}
+	}
 
-		//Line clears if flag lock is on
-		if(book[bookPos]['flags']['lock'] === true) {
-			//going top down guarentees all line clears are performed
-			for(let row = 0; row < boardSize[1]; row++) {
-				let isFilled = (cell) => cell.t !== 0
-				if(!board[row].every(isFilled)) continue;
-				
+	//Line clears if flag lock is on
+	if (book[currentBookPos]['flags']['lock'] === true) {
+		//going top down guarentees all line clears are performed
+		for (let row = 0; row < boardSize[1]; row++) {
+			let isFilled = (cell) => cell.t === 1
+			if (board[row].every(isFilled)) {
 				board.splice(row, 1)
 				board.unshift(aRow)
 			}
 		}
-		
-		book[bookPos + 1] = {
-			board: JSON.stringify(board),
-			minoBoard: JSON.stringify(emptyBoard),
-			comment: '',
-			operation: undefined,
-			flags: {lock: document.getElementById('lockFlagInput').checked},
-		}
+	}
+	
+	let newPage = {
+		board: JSON.stringify(board),
+		minoBoard: JSON.stringify(emptyBoard),
+		comment: book[currentBookPos]['comment'], //only works since we don't care about quiz mode
+		operation: undefined,
+		flags: {lock: document.getElementById('lockFlagInput').checked},
+	}
+
+	book.splice(currentBookPos+1, 0, newPage)
+}
+
+function nextPage() {
+	bookPos = getCurrentPosition()
+
+	if(bookPos == book.length-1) { // Create new page when at the page
+		solidifyAutoColor(bookPos)
+		insertFollowingPage(bookPos)
 	}
 
 	bookPos += 1 // next page
@@ -543,17 +548,14 @@ function nextPage() {
 
 function gotoPage() {
 	// check for numeric input and within bounds
+	solidifyAutoColor(bookPos) //relying on global to solidify the page before we leave it
 	bookPos = getCurrentPosition()
 	if(isNaN(bookPos)){
-		bookPos = 1
+		bookPos = 0
 	}
-	bookPos = Math.max(Math.min(book.length, bookPos), 1)
-
-	board = JSON.parse(book[bookPos - 1]['board'])
-	minoModeBoard = JSON.parse(book[bookPos - 1]['minoBoard'])
-	setPositionDisplay(bookPos, book.length)
-	document.getElementById('commentBox').value = book[bookPos - 1]['comment']
+	bookPos = Math.max(Math.min(book.length, bookPos), 0)
 	
+	settoPage(bookPos)
 	window.requestAnimationFrame(renderBoard)
 	autoEncode()
 }
@@ -587,14 +589,10 @@ function clearPage(){
 
 function dupliPage(){
 	bookPos = getCurrentPosition()
-	if(bookPos == book.length-1){
-		nextPage()
-	} else {
-		book.splice(bookPos,0,book[bookPos])
-		setPositionDisplay(bookPos+1, book.length)
-		//technically you don't need to "update" the display since it's the same
-		settoPage(bookPos)
-	}
+	solidifyAutoColor(bookPos)
+	insertFollowingPage(bookPos)
+	//technically you don't need to update since it's the same page
+	settoPage(bookPos)
 	window.requestAnimationFrame(renderBoard)
 	autoEncode()
 }
@@ -652,17 +650,17 @@ function drawCell(x, y, piece, type) {
 		for (let col = 0; col < 10; col++) {
 			cellCount += ((board[y][col].t != 0) || (minoModeBoard[y][col].t != 0)) // I think i can collapse minoModeBoard onto board, then the counting can be done more expediently using .some()
 		}
-		var drawLineClear = (lockFlag && cellCount == 10)
+		var drawLineClear = (lockFlag && cellCount === 10)
 	}
 	
 	let canvasStyle = (document.getElementById('defaultRenderInput').checked ? 'fumen' : 'four')
-	var showGrid = (canvasStyle == 'fumen')
-	var currentPalette = (canvasStyle == 'fumen' ? FumenPalette : FourPalette)
+	var showGrid = (canvasStyle === 'fumen')
+	var currentPalette = (canvasStyle === 'fumen' ? FumenPalette : FourPalette)
 
 	{
 		let foureffectInput = document.getElementById('3dSetting').checked
-		let cellAbove = (y == 0) || (board[y - 1][x].t != 0) || (minoModeBoard[y - 1][x].t != 0)
-		var have3dHighlight = (canvasStyle == 'four' && foureffectInput && !cellAbove)
+		let cellAbove = (y === 0) || (board[y - 1][x].t !== 0) || (minoModeBoard[y - 1][x].t !== 0)
+		var have3dHighlight = (canvasStyle === 'four' && foureffectInput && !cellAbove)
 	}
 
 	if (type === 2 || drawLineClear) drawLightCell()
@@ -710,7 +708,7 @@ function readPiece(mino_positions, recognise_split_minos) {
 			}
 
 			if (agreed_origin(all_origins)) {
-				return new Mino(piece, rotation, all_origins[0][1], all_origins[0][0])
+				return new Mino(piece, rotation, all_origins[0][1], 19-all_origins[0][0]) //fumen has inverted y axis
 			}
 		}
     }
@@ -749,7 +747,7 @@ function updateAutoColor() {
 	if(!(isAutoColorUsable && autoColorBool)) {
 		for (let row = 0; row < boardSize[1]; row++) {
 			for (let col = 0; col < boardSize[0]; col++) {
-				if (board[row][col].t == 2){
+				if (board[row][col].t === 2){
 					board[row][col].t = 1 //solidify any minos
 				}
 			}
@@ -772,25 +770,33 @@ function decodeFumen() {
 	var fumen = document.getElementById('boardOutput').value;
     var pages = decoder.decode(fumen);
     var tempBook = [];
+	const FumenIndexToBoardColor = {
+		0: "",
+		1: "I",
+		2: "L",
+		3: "O",
+		4: "Z",
+		5: "T",
+		6: "J",
+		7: "S",
+		8: "X",
+	}
 
 	for (i = 0; i < pages.length; i++) {
 		let currentPage = pages[i];
         let tempBoard = [];
 		let input = currentPage['_field']['field']['pieces'];
 
-        for (rowIndex = 0; rowIndex < 20; rowIndex++) {
-            let row = [];
-            for (colIndex = 0; colIndex < 10; colIndex++) {
-                index = (20 - rowIndex - 1) * 10 + colIndex;
-                colorIndex = input[index];
-                if (colorIndex == 0) row.push({ t: 0, c: '' });
-                else {
-                    letter = ' ILOZTJSX'[colorIndex];
-                    row.push({ t: 1, c: letter });
-                }
-            }
-            tempBoard.push(row);
-        }
+		console.log(input)
+		boardString = []
+		
+		for (let cellColorIndex of input) {
+			boardString.push({ t: Math.min(1, cellColorIndex), c: FumenIndexToBoardColor[cellColorIndex]})
+		}
+
+		for (let i=0; i < boardString.length; i += boardSize[0]) {
+			tempBoard.push(boardString.slice(i, i + boardSize[0]))
+		}
 
 		let page = {
 			board: JSON.stringify(tempBoard),
@@ -815,7 +821,7 @@ function decodeInsert() {
 };
 
 function fullDecode() {
-	book = decodeFumen;
+	book = decodeFumen();
 	bookPos = 0;
 	settoPage(bookPos)
 	window.requestAnimationFrame(renderBoard);
@@ -866,20 +872,17 @@ function autoEncode() {
 }
 
 function decodeOperation(operation){
-	if (operation == undefined) {
-		console.log("Cannot decode operation, returning empty board instead.")
-		return JSON.parse(JSON.stringify(emptyBoard))
-	}
+	if (operation === undefined) return JSON.parse(JSON.stringify(emptyBoard)) //no operation
 
 	decodedMinoBoard = JSON.parse(JSON.stringify(emptyBoard))
 	let pieceColor = operation.type
 	let rotation = operation.rotation
-	let x = operation.x - 1
-	let y = 19 - operation.y - 1
+	let x = operation.x
+	let y = 19 - operation.y //fumen has inverted y axis
 	
 	piecePositions = shape_table[pieceColor][rotation]
 	for (let piecePosition of piecePositions) {
-		decodedMinoBoard[x + piecePosition[1]][y + piecePosition[1]] = {t: 1, c: pieceColor}
+		decodedMinoBoard[y + piecePosition[0]][x + piecePosition[1]] = {t: 1, c: pieceColor}
 	}
 	
 	return decodedMinoBoard
