@@ -50,20 +50,44 @@
 			</div>
 
 			<div class = "fumenOperations">
-				<button id="clear-input" class = "ibtn" onclick = "increaseClearInputLevel()">Clear Input</button>
-				<button id="glue-fumen" class = "ibtn" onclick = "glueFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><u>G</u>lue</button>
-				<button id="unglue-fumen" class = "ibtn" onclick = "unglueFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><u>U</u>nglue</button>
-				<button id="mirror-fumen" class = "ibtn" onclick = "mirrorFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><u>M</u>irror</button>
-				<button id="combine-fumen" class = "ibtn" onclick = "combineFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><u>C</u>ombine</button>
-				<button id="split-fumen" class = "ibtn" onclick = "splitFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><u>S</u>plit</button>
-				<button id="remove-comments" class = "ibtn" onclick = "removeComments(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><u>R</u>emove <u>C</u>omments</button>
-				<button id="render-images" class = "ibtn" onclick = "renderImages(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))">Output Image</button>
+				<div class="tooltip">
+					<button id="clear-input" class = "ibtn" onclick = "increaseClearInputLevel()">Clear Input</button>
+					<span class="tooltiptext">Shortcut: Backspace, Cancel Action: Escape</span>
+				</div>
+				<div class="tooltip">
+					<button id="glue-fumen" class = "ibtn" onclick = "glueFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><u>G</u>lue</button>
+					<span class="tooltiptext">Shortcut: G</span>
+				</div>
+				<div class="tooltip">
+					<button id="unglue-fumen" class = "ibtn" onclick = "unglueFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><u>U</u>nglue</button>
+					<span class="tooltiptext">Shortcut: U</span>
+				</div>
+				<div class="tooltip">
+					<button id="mirror-fumen" class = "ibtn" onclick = "mirrorFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><u>M</u>irror</button>
+					<span class="tooltiptext">Shortcut: M</span>
+				</div>
+				<div class="tooltip">
+					<button id="combine-fumen" class = "ibtn" onclick = "combineFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><u>C</u>ombine</button>
+					<span class="tooltiptext">Shortcut: C</span>
+				</div>
+				<div class="tooltip">
+					<button id="split-fumen" class = "ibtn" onclick = "splitFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><u>S</u>plit</button>
+					<span class="tooltiptext">Shortcut: S</span>
+				</div>
+				<div class="tooltip">
+					<button id="remove-comments" class = "ibtn" onclick = "removeComments(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"><u>R</u>emove <u>C</u>omments</button>
+					<span class="tooltiptext">Shortcut: Shift+R, C</span>
+				</div>
+				<div class="tooltip">
+					<button id="render-images" class = "ibtn" onclick = "renderImages(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))">Output Image</button>
+					<span class="tooltiptext">Shortcut: Enter</span>
+				</div>
 			</div>
 
 			<div class = "row" id = "settings">
 			<center><hr class = "small-hr"></center>
 			<details>
-				<summary><span class="pseudoh3">Settings</span></summary>
+				<summary><span class="pseudoh3"><b>Settings</b></span></summary>
 				<div id = "settings-body">
 					<div id = 'settings-panel'><center><h3>Render Settings</h3></center>
 						<div id = "styleOptions">
@@ -143,7 +167,10 @@
 			</div>
 			<div class="fumenOperations">
 				<button class = "ibtn" onclick = "navigator.clipboard.writeText(document.getElementById('output').value)">Copy</button>
-				<button class = "ibtn" onclick = "moveOutputToInput()">Move Output to Input</button>
+				<div class="tooltip">
+					<button class = "ibtn" onclick = "moveOutputToInput()">Move Output to Input</button>
+					<span class="tooltiptext">Overwrites Input with Output if Output is non-empty. Shortcut: Shift+Enter</span>
+				</div>
 			</div>
 			<hr class = "large-hr">
 			<center><div id = "imageOutputs"></div></center>
@@ -297,7 +324,7 @@
 								</div>
 								<div class = "tooltip">
 									<button id = "reset" class="fumen-option" onclick = "this.blur(); increaseResetLevel()"><b>Reset</b></button>
-									<span class = "tooltiptext">Delete all data. Shortcut: R</span>
+									<span class = "tooltiptext">Delete all data. Shortcut: R, Cancel Action: Escape</span>
 								</div><hr class="small-hr">
 								<div class = "tooltip">
 									<button class = "fumen-option" onclick = "this.blur(); importImageButton()"><b>Import Image</b></button>
@@ -341,13 +368,13 @@
 									</div>
 								</div>
 								<!--Output Box-->
-								<div><textarea id = "boardOutput">MINO MODE NOT FUNCTIONAL</textarea></div>
+								<div><textarea id = "boardOutput" style="resize: none"></textarea></div>
 							</div>
 						</div>
 					</div>
 				</div>
 <!--Settings Sidebar-->
-			<div id = "settingsSidebar" style = "display:none;">
+			<div id = "settingsSidebar" class="hide-element">
 				<hr style="visibility: hidden;">
 				<div class = "settingsBody">
 					<div class = "extrasettings">

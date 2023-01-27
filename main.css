@@ -335,8 +335,8 @@ input[type='radio'] {
     background: #4c4459cc;
     padding-bottom: 20px;
     text-align: left;
-    display: flex;
-    flex-wrap: wrap;
+    display: block;
+    /* flex-wrap: wrap; */
     align-content: center;
     height: 100%;
     width: 250px;

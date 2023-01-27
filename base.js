@@ -110,6 +110,8 @@ updateGrid()
 //SHORTCUTS
 Mousetrap.bind({
 	'esc': function() { decreaseResetLevel(); decreaseseClearInputLevel();},
+	'=': expandSidebars,
+	'-': retractSideBars,
 
 	'backspace': increaseClearInputLevel,
 	'g': function() {glueFumen(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))},
@@ -1059,7 +1061,6 @@ function decreaseseClearInputLevel() {
 	document.getElementById('clear-input').classList.remove('confirm-delete-data')
 }
 
-// not present in html but affects html elements
 function increaseResetLevel() {
 	let confirmedReset = document.getElementById('reset').classList.contains('confirm-delete-data')
 	if (confirmedReset)  {
@@ -1075,6 +1076,44 @@ function increaseResetLevel() {
 		window.requestAnimationFrame(renderBoard)
 	}
 	document.getElementById('reset').classList.toggle('confirm-delete-data')
+}
+
+function expandSidebars() {
+	var fumenSidebar = document.getElementById('fumenSidebar')
+	var settingsSidebar = document.getElementById('settingsSidebar')
+	let fumenSidebarVisible = !fumenSidebar.classList.contains('hide-element')
+	if (fumenSidebarVisible) { //make arrow state agree with current state
+		let settingsButton = document.getElementsByClassName('option-left')[0]
+		let openLogo = document.getElementById('openFumenSettings')
+		let closeLogo = document.getElementById('closeFumenSettings')
+		settingsSidebar.classList.remove('hide-element')
+		settingsButton.style.right = '459px'
+		settingsButton.style.borderBottomLeftRadius = '0px'
+		settingsButton.style.borderBottomRightRadius = '10px'
+	    openLogo.style.display = 'none'
+	    closeLogo.style.display = 'block'
+	}
+	settingsSidebar.classList.toggle('hide-element', !fumenSidebarVisible)
+	fumenSidebar.classList.remove('hide-element')
+}
+
+function retractSideBars() {
+	var fumenSidebar = document.getElementById('fumenSidebar')
+	var settingsSidebar = document.getElementById('settingsSidebar')
+	let settingsSidebarVisible = !settingsSidebar.classList.contains('hide-element')
+	if (settingsSidebarVisible) {//make arrow state agree with current state
+		let settingsButton = document.getElementsByClassName('option-left')[0]
+		let openLogo = document.getElementById('openFumenSettings')
+		let closeLogo = document.getElementById('closeFumenSettings')
+		settingsSidebar.classList.add('hide-element')
+		settingsButton.style.right = '500px'
+		settingsButton.style.borderBottomRightRadius = '0px'
+		settingsButton.style.borderBottomLeftRadius = '10px'
+	    openLogo.style.display = 'block'
+	    closeLogo.style.display = 'none'
+	}
+	fumenSidebar.classList.toggle('hide-element', !settingsSidebarVisible)
+	settingsSidebar.classList.add('hide-element')
 }
 
 function increaseClearInputLevel() {
@@ -1111,7 +1150,7 @@ function toggleSidePanel() {
 	var openLogo = document.getElementById('openFumenSettings')
 	var closeLogo = document.getElementById('closeFumenSettings')
 	if (fumenSidebar.style.display != 'none') {
-		settingsSidebar.style.display = 'none'
+		settingsSidebar.classList.add('hide-element')
 		openLogo.style.display = 'block'
 		closeLogo.style.display = 'none'
 	}
@@ -1123,15 +1162,15 @@ function toggleFumenSettings() {
 	var settingsButton = document.getElementsByClassName('option-left')[0]
 	var openLogo = document.getElementById('openFumenSettings')
 	var closeLogo = document.getElementById('closeFumenSettings')
-	if (fumenSettings.style.display === 'none'){
-	    fumenSettings.style.display = 'block'
+	if (fumenSettings.classList.contains('hide-element')){
+	    fumenSettings.classList.remove('hide-element')
 		settingsButton.style.right = '459px'
 		settingsButton.style.borderBottomLeftRadius = '0px'
 		settingsButton.style.borderBottomRightRadius = '10px'
 	    openLogo.style.display = 'none'
 	    closeLogo.style.display = 'block'
 	} else {
-	    fumenSettings.style.display = 'none'
+	    fumenSettings.classList.add('hide-element')
 		settingsButton.style.right = '500px'
 		settingsButton.style.borderBottomRightRadius = '0px'
 		settingsButton.style.borderBottomLeftRadius = '10px'
