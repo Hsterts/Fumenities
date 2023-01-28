@@ -789,7 +789,6 @@ function decodeFumen() {
         let tempBoard = [];
 		let input = currentPage['_field']['field']['pieces'];
 
-		console.log(input)
 		boardString = []
 		
 		for (let cellColorIndex of input) {
