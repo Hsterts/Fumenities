@@ -797,8 +797,10 @@ function decodeFumen() {
 		}
 
 		for (let i=0; i < boardString.length; i += boardSize[0]) {
-			tempBoard.push(boardString.slice(i, i + boardSize[0]))
+			let tempRow = boardString.slice(i, i + boardSize[0])
+			tempBoard.unshift(tempRow)
 		}
+		tempBoard.splice(0,3) //fumen records extra ceiling rows that I dump
 
 		let page = {
 			board: JSON.stringify(tempBoard),
