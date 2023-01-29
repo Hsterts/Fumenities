@@ -328,7 +328,7 @@ document.onmouseup = function mouseup() {
 	
     mouseHeld = false
 	updateBook()
-	//autoEncode() prevent overwriting text pasted in
+	//autoEncode() prevent overwriting text pasted into textboxes
     requestAnimationFrame(renderBoard)
 
 	function finishMinoMode() {
@@ -354,9 +354,6 @@ document.onmouseup = function mouseup() {
 	}
 }
 
-function setPaintBucket(index) {
-	document.paintbucket[index].checked = true;
-}
 
 function getCurrentPosition() {
 	let Position = parseInt(document.getElementById('positionDisplay').value)-1
@@ -634,6 +631,8 @@ function renderBoard() {  //renders board and minoModeBoard
 
 
 
+
+
 function drawCell(x, y, piece, type) {
 	const FourPalette = [
 		{ Z: '#ef624d', L: '#ef9535', O: '#f7d33e', S: '#66c65c', I: '#41afde', J: '#1983bf', T: '#b451ac', X: '#999999' },
@@ -744,7 +743,7 @@ function toggleAutoColor() {
 function updateAutoColor() {
 	autoColorBool = document.getElementById('autoColorInput').checked
 	var isAutoColorUsable = !document.getElementById('minoModeInput').checked
-	document.getElementById('autoColorInput').style.opacity = (isAutoColorUsable ? 1 : 0.5)
+	document.getElementById('autoColorInput').classList.toggle('disabled', !isAutoColorUsable)
 	updateRowFillInput()
 	if(!(isAutoColorUsable && autoColorBool)) {
 		for (let row = 0; row < boardSize[1]; row++) {
@@ -1141,7 +1140,7 @@ function updateAutoEncoding() {
 		boardOutput.style.height = 50
 		autoEncode()
 	} else {
-		boardOutput.style.height = 79
+	  y.style.height = 79
 	}
 }
 
