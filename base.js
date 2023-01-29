@@ -1140,7 +1140,7 @@ function updateAutoEncoding() {
 		boardOutput.style.height = 50
 		autoEncode()
 	} else {
-	  y.style.height = 79
+		boardOutput.style.height = 79
 	}
 }
 
