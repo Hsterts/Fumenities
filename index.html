@@ -34,9 +34,12 @@
 		<header><b>Fumen Utilities</b> © Swng</header>
 		
 		<div id = "spbutton">
+			<div class="tooltip">
 				<button class = "option panel-button" onclick = "toggleSidePanel()" style = "display:show;">
 					<span class = "material-icons">menu_open</span>
+					<span class="tooltiptext">Shortcut: - (retract), = (expand)</span>
 				</button>
+			</div>
 		</div>
 		
 		<hr class = "large-hr">
@@ -407,21 +410,21 @@
 								<input id = "tooltipSetting" type = "checkbox" onclick = "updateToolTips()"></input>
 								<label for = "tooltipSetting"><span class = "pepega">Show Tooltips</span></label>
 							</div>
-							<span class = "tooltiptext">Shows tooltips describing the function of the buttons. Shortcut: T, T</span>
+							<span class = "tooltiptext">Shows tooltips describing the function of the buttons. Shortcut: Shift+T, T</span>
 						</div>
 						<div class = "tooltip">
 							<div id = "3dToggle">
 								<input id = "3dSetting" type = "checkbox" checked></input>
 								<label for = "3dSetting"><span class = "pepega">Show 3D Effect</span></label>
 							</div>
-							<span class = "tooltiptext">Adds a 3D effect on a FOUR-styled board. Shortcut: 3, D</span>
+							<span class = "tooltiptext">Adds a 3D effect on a FOUR-styled board. Shortcut: Shift+3, D</span>
 						</div>
 						<div class = "tooltip">
 							<div id = "defaultRenderToggle">
 								<input id = "defaultRenderInput" type = "checkbox" onclick = "updateStyle()"></input>
 								<label for = "defaultRenderInput"><span class = "pepega">Use Default Style</span></label>
 							</div>
-							<span class = "tooltiptext">Force board to use default fumen style. Shortcut: D, S</span>
+							<span class = "tooltiptext">Force board to use default fumen style. Shortcut: Shift+U, D</span>
 						</div>
 					</div>
 				</div>

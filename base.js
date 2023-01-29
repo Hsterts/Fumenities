@@ -164,9 +164,9 @@ Mousetrap.bind({
 	'A c': toggleAutoColor,
 	'R f': toggleRowFillInput,
 	
-	't t': toggleToolTips,
-	'3 d': toggle3dSetting,
-	'd s': toggleStyle,
+	'T t': toggleToolTips,
+	'# d': toggle3dSetting,
+	'U d': toggleStyle,
 	
 	'mod+z': undo,
 	'mod+y': redo,
@@ -354,6 +354,9 @@ document.onmouseup = function mouseup() {
 	}
 }
 
+function setPaintBucket(index) {
+	document.paintbucket[index].checked = true;
+}
 
 function getCurrentPosition() {
 	let Position = parseInt(document.getElementById('positionDisplay').value)-1
