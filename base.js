@@ -187,7 +187,7 @@ document.getElementById('b').onmousedown = function mousedown(e) {
 	let cellRow = Math.floor((e.clientY - rect.top) / cellSize)
 	let cellCol = Math.floor((e.clientX - rect.left) / cellSize)
 
-	drawMode = (e.button == 0 && board[cellRow][cellCol]['t'] == 0 && minoModeBoard[cellRow][cellCol]['t'] == 0)
+	drawMode = (e.button === 0 && board[cellRow][cellCol]['c'] !== paintbucketColor() && minoModeBoard[cellRow][cellCol]['t'] === 0)
 
 	let positions = []
 	for (let row = 0; row < boardSize[1]; row++){
