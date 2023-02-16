@@ -38,7 +38,7 @@ function draw(fumenPage, tilesize, numrows, transparent, gridColor) {
 		numrows += 2;
 	}
 
-	const width = tilesize * numcols;
+	const width = numcols * tilesize;
 	const height = numrows * tilesize;
 
 	var canvas = document.createElement('canvas');
@@ -105,7 +105,7 @@ function draw(fumenPage, tilesize, numrows, transparent, gridColor) {
 							context.fillRect((i + 1) * tilesize, height - (j + 1) * tilesize - tilesize / 5, 1, tilesize / 5)
 						}
 					}
-					}
+				}
 				if(gridToggle){
 					context.fillStyle = gridColor + 'FF'
 					// left border
@@ -139,7 +139,7 @@ function drawFumens(fumenPages, tilesize, numrows, start, end, transparent, grid
 	}
 	if (numrows == undefined) {
 		numrows = 0;
-		function operationFilter(e) {
+		function operationFilter(e) { //TODO refactor
 			return i == e.x && j == e.y;
 		}
 		for (x = start; x < end; x++) {
@@ -192,6 +192,7 @@ max_col = 10;
 start = 0;
 end = undefined;
 
+//the transparent bg of the png anf gif are different
 function fumencanvas(input) {
 	var container = document.getElementById('imageOutputs');
 	while (container.firstChild) {

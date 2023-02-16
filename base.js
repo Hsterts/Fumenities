@@ -652,7 +652,7 @@ function drawCell(x, y, piece, type) {
 		let lockFlag = document.getElementById('lockFlagInput').checked
 		let cellCount = 0
 		for (let col = 0; col < 10; col++) {
-			cellCount += ((board[y][col].t != 0) || (minoModeBoard[y][col].t != 0)) // I think i can collapse minoModeBoard onto board, then the counting can be done more expediently using .some()
+			cellCount += ((board[y][col].t != 0) || (minoModeBoard[y][col].t != 0)) // minoModeBoard is from the fumen specification, cannot easily use .some() to count the number of filled minos
 		}
 		var drawLineClear = (lockFlag && cellCount === 10)
 	}
