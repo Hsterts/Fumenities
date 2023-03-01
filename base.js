@@ -248,6 +248,8 @@ function drawCanvasCell(cellRow, cellCol) {
 		}
 		//
 
+		//when minoModeBoard is merged into board, more refactoring similar to drawCell() can be done.
+		
 		let drawnCount = drawnMinos(minoModeBoard, (cell) => cell.t == 1)
 	
 		if (drawMode && drawnCount < 4 && board[cellRow][cellCol].t == 0) {
@@ -258,9 +260,9 @@ function drawCanvasCell(cellRow, cellCol) {
 			if (drawnCount == 4) {
 				for (let row = 0; row < 20; row++){
 					for (let col = 0; col < 10; col++) {
-						if (minoModeBoard[row][col].t != 0) {
+						if(minoModeBoard[row][col].t != 0) {
 							minoModeBoard[row][col].c = 'X'
-						}
+						}	
 					}
 				}
 			}
@@ -319,13 +321,12 @@ function drawCanvasCell(cellRow, cellCol) {
 	}
 }
 
-document.getElementById('b').onmouseup = function mouseup() {
+document.onmouseup = function mouseup() {
 	bookPos = getCurrentPosition() //used by program, only updates bookPos
 	
 	if (minoMode) finishMinoMode()
 	
     mouseHeld = false
-	autoEncode()
 	updateBook()
 	//autoEncode() prevent overwriting text pasted into textboxes
     requestAnimationFrame(renderBoard)
@@ -630,6 +631,10 @@ function renderBoard() {  //renders board and minoModeBoard
 		})
 	})
 }
+
+
+
+
 
 function drawCell(x, y, piece, type) {
 	const FourPalette = [

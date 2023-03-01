@@ -12,33 +12,30 @@ var colors = {
 	Empty: { normal: '#f3f3ed' },
 };
 
-function getFumenMaxHeight(...fumenPages) {
-	if (!document.getElementById('autoheight').checked) return parseInt(document.getElementById('height').value)
-
-	var highestRow = Math.max(...fumenPages.map(highestPageHeight))
-	return Math.max(1, Math.min(23, highestRow))
-
-	function highestOperationHeight(operation) {
-		var positionRows = operation.positions().map(position => position.y + 1) //one-indexed
-		return Math.max(1, ...positionRows)
-	}
-	
-	function highestPageHeight(fumenPage) {
-		var minoHeight = (fumenPage.operation != undefined ? highestOperationHeight(fumenPage.operation) : 0)
-		var fieldHeight = fumenPage.field.str().replace(/\s/g, '').length / 10 - 1 //ignore garbage row
-		return Math.max(minoHeight, fieldHeight)
-	}
-}
-
-function draw(fumenPage, numrows) {
+function draw(fumenPage, tilesize, numrows, transparent, gridColor) {
 	var field = fumenPage.field;
-	var transparent = document.getElementById('transparency').checked
-	var gridColor = document.getElementById('gridColor').value
+	var operation = fumenPage.operation;
+//	var tilesize = parseFloat(document.getElementById('cellSize').value);
 	var tilesize = document.getElementById('cellSize').valueAsNumber;
-	var numcols = document.getElementById('width').valueAsNumber;
+	var numcols = document.getElementById('width').value;
+
+	function operationFilter(e) {
+		return i == e.x && j == e.y;
+	}
 
 	if (numrows == undefined) {
-		numrows = getFumenMaxHeight(fumenPage) + 1 //extra empty row on top for highlight
+		numrows = 0;
+		for (i = 0; i < numcols; i++) {
+			for (j = 0; j < 23; j++) {
+				if (field.at(i, j) != '_') {
+					numrows = Math.max(numrows, j);
+				}
+				if (operation != undefined && operation.positions().filter(operationFilter).length > 0) {
+					numrows = Math.max(numrows, j);
+				}
+			}
+		}
+		numrows += 2;
 	}
 
 	const width = numcols * tilesize;
@@ -50,7 +47,11 @@ function draw(fumenPage, numrows) {
 
 	const context = canvas.getContext('2d');
 
-	context.fillStyle = (transparent ? 'rgba(0, 0, 0, 0)': document.getElementById('bg').value)
+	if (!transparent) {
+		context.fillStyle = document.getElementById('bg').value;
+	} else {
+		context.fillStyle = 'rgba(0, 0, 0, 0)';
+	}
 	
 	context.fillRect(0, 0, width, height);
 
@@ -67,51 +68,10 @@ function draw(fumenPage, numrows) {
 			}
 		}
 	}
-
-	function createCellStatus(numrows, numcols) {
-		var cellRow = Array(numcols).fill(0)
-		var cellStatus = []
-		for (let i = 0; i < numrows; i++) {
-			cellStatus.push(JSON.parse(JSON.stringify(cellRow)))
-		}
-		return cellStatus
-	}
-
-	var cellStatus = createCellStatus(numrows, numcols)
-	console.log(fumenPage.field.str())
-	const operation = fumenPage.operation
-	if (operation != undefined) {
-		for (position of operation.positions()) {
-			cellStatus[position.y][position.x] = 1
-		}
-	}
-	for (let i = 0; i < numcols; i++) {
-		for (let j = 0; j < numrows; j++) {
-			if (field.at(i, j) != '_') {
-				cellStatus[j][i] = 1
-			}
-		}
-	}
-	for (let i = 0; i < numcols; i++) {
-		for (let j = 1; j < numrows; j++) {
-			if (field.at(i, j) == '_' && field.at(i, j-1) != '_') {
-				cellStatus[j][i] = 2
-			}
-		}
-	}
-	console.log(cellStatus)
 	
-	// glued minos
-	if (operation != undefined) {
-		for (position of operation.positions()) {
-			context.fillStyle = colors[operation.type].normal
-			context.fillRect(position.x * tilesize, height - (position.y + 1) * tilesize, tilesize, tilesize)
-		}
-	}
-	
-	for (let i = 0; i < numcols; i++) {
-		for (let j = 0; j < numrows; j++) {
-			if (field.at(i, j) != '_') {
+	for (i = 0; i < numcols; i++) {
+		for (j = 0; j < numrows; j++) {
+			if(field.at(i, j) != '_') {
 				// all blocks
 				context.fillStyle = colors[field.at(i, j)].normal
 				context.fillRect(i * tilesize, height - (j + 1) * tilesize, tilesize, tilesize)
@@ -123,46 +83,45 @@ function draw(fumenPage, numrows) {
 					context.fillRect((i + 1) * tilesize, height - (j + 1) * tilesize, 1, tilesize)
 					context.fillRect(i * tilesize, height - j * tilesize, tilesize, 1)
 				}
-				if(field.at(i, j + 1) == '_') { //only draw highlight (and its borders) if the cell above is empty
+				if(field.at(i, j + 1) == '_') {
 					// all highlights
-					const highlightSize = tilesize / 5
 					context.fillStyle = colors[field.at(i, j)].light
-					context.fillRect(i * tilesize, height - (j + 1) * tilesize - highlightSize, tilesize, highlightSize)
-					if(gridToggle) {
+					context.fillRect(i * tilesize, height - (j + 1) * tilesize - tilesize / 5, tilesize, tilesize / 5)
+					if(gridToggle){
 						// all top dim highlight borders
 						context.fillStyle = gridColor + 'CC'
-						context.fillRect(i * tilesize, height - (j + 1) * tilesize - highlightSize, tilesize, 1)
+						context.fillRect(i * tilesize, height - (j + 1) * tilesize - tilesize / 5, tilesize, 1)
 						// left kinda dim highlight borders
-						if(field.at(Math.max(0, i - 1), j + 1) == "_") {
+						if(field.at(Math.max(0, i - 1), j + 1) == '_') {
 							context.fillStyle = gridColor + 'CC'
-							context.fillRect(i * tilesize, height - (j + 1) * tilesize - highlightSize, 1, highlightSize)
+							context.fillRect(i * tilesize, height - (j + 1) * tilesize - tilesize / 5, 1, tilesize / 5)
 						} else {
 							context.fillStyle = gridColor + 'FF'
-							context.fillRect(i * tilesize, height - (j + 1) * tilesize - highlightSize, 1, highlightSize)
+							context.fillRect(i * tilesize, height - (j + 1) * tilesize - tilesize / 5, 1, tilesize / 5)
 						}
 						// right kinda dim highlight borders
-						if(field.at(i + 1, j + 1) == "_") {
+						if(field.at(i + 1, j + 1) == '_') {
 							context.fillStyle = gridColor + 'CC'
-							context.fillRect((i + 1) * tilesize, height - (j + 1) * tilesize - highlightSize, 1, highlightSize)
+							context.fillRect((i + 1) * tilesize, height - (j + 1) * tilesize - tilesize / 5, 1, tilesize / 5)
 						}
 					}
 				}
 				if(gridToggle){
 					context.fillStyle = gridColor + 'FF'
 					// left border
-					if(field.at(Math.max(i - 1, 0), j) == "_") {
+					if(field.at(Math.max(i - 1, 0), j) == '_') {
 						context.fillRect(i * tilesize, height - (j + 1) * tilesize, 1, tilesize + 1)
 					}
 					// top border
-					if(field.at(i, j + 1) == "_") {
+					if(field.at(i, j + 1) == '_') {
 						context.fillRect(i * tilesize, height - (j + 1) * tilesize, tilesize + 1, 1)
 					}
 					// right border
-					if(field.at(i + 1, j) == "_") {
+					if(field.at(i + 1, j) == '_') {
 						context.fillRect((i + 1) * tilesize, height - (j + 1) * tilesize, 1, tilesize + 1)
 					}
 					// bottom border
-					if(field.at(i, j - 1) == "_") {
+					if(field.at(i, j - 1) == '_') {
 						context.fillRect(i * tilesize, height - j * tilesize, tilesize + 1, 1)
 					}
 				}
@@ -172,37 +131,63 @@ function draw(fumenPage, numrows) {
 	return canvas
 }
 
-function drawFumens(fumenPages, start, end) {
+function drawFumens(fumenPages, tilesize, numrows, start, end, transparent, gridColor) {
+	var numcols = document.getElementById('width').value;
+	var delay = document.getElementById('delay').value;
 	if (end == undefined) {
 		end = fumenPages.length;
 	}
-
-	var drawnFumenPages = fumenPages.slice(start, end)
-	
-	numrows = getFumenMaxHeight(...drawnFumenPages) + 1 //extra empty row on top for highlight
-
-	var frames = drawnFumenPages.map(fumenPage => draw(fumenPage, numrows).getContext('2d'))
-
-	return GenerateFourGIF(frames)
-}
-
-function GenerateFourGIF(frames) {
+	if (numrows == undefined) {
+		numrows = 0;
+		function operationFilter(e) { //TODO refactor
+			return i == e.x && j == e.y;
+		}
+		for (x = start; x < end; x++) {
+			field = fumenPages[x].field;
+			operation = fumenPages[x].operation;
+			for (i = 0; i < numcols; i++) {
+				for (j = 0; j < 23; j++) {
+					if (field.at(i, j) != '_') {
+						numrows = Math.max(numrows, j);
+					}
+					if (operation != undefined && operation.positions().filter(operationFilter).length > 0) {
+						numrows = Math.max(numrows, j);
+					}
+				}
+			}
+		}
+		numrows += 2;
+	}
+	numrows = Math.min(23, numrows);
+	const width = tilesize * numcols;
+	const height = numrows * tilesize;
+	var canvas = document.createElement('canvas');
+	canvas.width = width;
+	canvas.height = height;
+	const ctx = canvas.getContext('2d');
 	const encoder = new GIFEncoder();
 	encoder.start();
 	encoder.setRepeat(0); // 0 for repeat, -1 for no-repeat
-	encoder.setDelay(document.getElementById('delay').value); // frame delay in ms
+	encoder.setDelay(delay); // frame delay in ms
 	encoder.setQuality(1); // image quality. 10 is default.
-	if (document.getElementById('transparency').checked) {
+	if (transparent) {
 		encoder.setTransparent('rgba(0, 0, 0, 0)');
 	}
-	frames.forEach(frame => encoder.addFrame(frame))
+	for (x = start; x < end; x++) {
+		frame = draw(fumenPages[x], tilesize, numrows, transparent, gridColor).getContext('2d');
+		encoder.addFrame(frame);
+	}
 	encoder.finish();
 	// encoder.download('download.gif');
 	return encoder;
 }
 
+cellSize = 22;
+height = undefined;
+transparency_four = true;
 gridToggle = false;
-// max_col = 10;
+delay = 500;
+max_col = 10;
 
 start = 0;
 end = undefined;
@@ -214,86 +199,95 @@ function fumencanvas(input) {
 		container.removeChild(container.firstChild);
 	}
 	
-	var fumenCodes = input.split(/\s+/);
-	// results = [];
+	//	var cellSize = document.getElementById('cellSize').value;
+	var transparency_four = document.getElementById('transparency').checked;
+	if(document.getElementById('autoheight').checked){
+		var height = undefined
+	}else{
+		var height = 1+parseFloat(document.getElementById('height').value)
+	};
+
+	var gridColor = document.getElementById('gridColor').value;
+	
+	var fumenCodes = [];
+	var fumenComments = [];
+	results = [];
 	resultURLs = [];
+
+	for (let rawInput of input.split('\t')) {
+		fumenCodes.push(...rawInput.split(/\s/));
+	}
 
     for (let code of fumenCodes) {
         try {
             var pages = decoder.decode(code);
             if (pages.length == 1) {
-                canvas = draw(pages[0], undefined);
+                canvas = draw(pages[0], cellSize, height, transparency_four, gridColor);
 
+				var img = document.createElement('img');
+				var figure = document.createElement('figure');
+				var	pageComment = pages[0]['comment'];
+				var commentBox = document.createElement('figcaption');
 				var textBox = document.createElement('textarea')
-				textBox.value = pages[0]['comment'];
+				textBox.value = pageComment;
 				textBox.style.width = canvas.width + 2;
 				textBox.className = 'commentDisplay';
-				
-				var data_url = canvas.toDataURL("image/png")
-				var img = document.createElement('img');
-                img.src = data_url
-				img.className = 'imageOutput';
-				
-				var figure = document.createElement('figure');
-				figure.appendChild(img);
-				figure.style.width = canvas.width + 2;
-				if(document.getElementById('displayMode').checked){
-					var commentBox = document.createElement('figcaption');
-					commentBox.appendChild(textBox);
-					figure.appendChild(commentBox);
-				};
-				
-				container.appendChild(figure);
-                // results.push(canvas);
-				resultURLs.push(data_url);
 
-			} else if (pages.length >= 2) {
-                gif = drawFumens(pages, start, end);
+                img.src = canvas.toDataURL("image/png");
+				img.className = 'imageOutput';
+
+                container.appendChild(figure);
+				figure.appendChild(img);
+				if(document.getElementById('displayMode').checked){
+				figure.appendChild(commentBox);
+					commentBox.appendChild(textBox);
+				};
+				figure.style.width = canvas.width + 2;
+                results.push(canvas);
+				resultURLs.push(canvas.toDataURL("image/png"));
+
+			}
+            if (pages.length > 1) {
+                gif = drawFumens(pages, cellSize, height, start, end, transparency_four, gridColor);
 
                 var binary_gif = gif.stream().getData(); //notice this is different from the as3gif package!
                 var data_url = 'data:image/gif;base64,' + encode64(binary_gif);
-
                 var img = document.createElement('img');
                 img.style.padding = '0px';
 				img.style.background = 'rgba(203, 199, 255, 0.1);';
+                img.src = data_url;
                 img.style.margin = '1px';
                 img.style.outline = 'solid #aaa6cf 1px';
-                img.src = data_url;
-
                 container.appendChild(img);
-                // results.push(gif);
+                results.push(gif);
 				resultURLs.push(data_url);
             }
         } catch (error) { console.log(code, error); }
 	}
 	
 	var downloadBool = document.getElementById('downloadOutput').checked;
-	if (downloadBool) downloadByURL(resultURLs)
-
-	function downloadByURL(DataURLs) {
+	var naming = document.getElementById('naming').value;
+	if(downloadBool){
 		var zip = new JSZip();
-		for (let x = 0; x < DataURLs.length; x++) {
-			let filetype = RegExp('image/(.+);').exec(DataURLs[x])[1]
-			JSZipUtils.getBinaryContent(DataURLs[x], function (err, data){
+		for (let x = 0; x < resultURLs.length; x++){
+			let filetype = "."+resultURLs[x].substring(resultURLs[x].indexOf("/") + 1, resultURLs[x].indexOf(";"));
+			JSZipUtils.getBinaryContent(resultURLs[x], function (err, data){
 				if(err) {
-					console.log(err)
-					return
-				} 
-				
-				var fileNaming = document.getElementById('naming').value
-				if(fileNaming == "index"){
-					var filename = (x+1)+filetype
-				} else if (fileNaming == "fumen") {
-					var filename = fumenCodes[x]+filetype;
-				}
-				
+					console.log(err);
+				} else {
+					if(naming == "index"){
+						var filename = (x+1)+filetype
+					} else {
+						var filename = fumenCodes[x]+filetype;
+					}
 				zip.file(filename, data, {base64:true});
+				if(x == resultURLs.length-1){
+					zip.generateAsync({type:'blob'}).then(function(base64){
+						saveAs(base64, "output.zip");
+						console.log("downloaded");
+					});
+				}};
 			});
 		};
-
-		zip.generateAsync({type:'blob'}).then(function(base64){
-			saveAs(base64, "output.zip");
-			console.log("downloaded");
-		});
-	}
+	};
 }
