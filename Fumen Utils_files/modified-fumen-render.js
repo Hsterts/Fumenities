@@ -93,17 +93,17 @@ function getFumenMaxHeight(...fumenPages) {
 	
 	function highestPageHeight(fumenPage) {
 		var highestMino = (fumenPage.operation != undefined ? highestOperationHeight(fumenPage.operation) : 0)
-		{
-			let fieldString = fumenPage.field.str()
-			fieldString = fieldString.slice(0, -10) //ignore garbage line
-			let longestEmptyFieldString = fieldString.match(RegExp('^_+'))
-			if (longestEmptyFieldString == null) {
-				var highestField = 0
-			} else {
-				let highestFilledIndex = fieldString.length - longestEmptyFieldString[0].length
-				var highestField = Math.floor(highestFilledIndex / 10) - 1 // zero-indexed
-			}
+
+		let fieldString = fumenPage.field.str()
+		fieldString = fieldString.slice(0, -10) //ignore garbage line
+		let longestEmptyFieldString = fieldString.match(RegExp('^_+'))
+		if (longestEmptyFieldString == null) {
+			var highestField = 0
+		} else {
+			let highestFilledIndex = fieldString.length - longestEmptyFieldString[0].length
+			var highestField = Math.floor(highestFilledIndex / 10) - 1 // zero-indexed
 		}
+		
 		return Math.max(highestMino, highestField)
 	}
 }
