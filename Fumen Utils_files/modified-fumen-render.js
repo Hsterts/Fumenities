@@ -58,11 +58,12 @@ function fumen_draw(fumenPage, tilesize, numrows, transparent) { //the numrows h
 		for (j = 0; j < numrows; j++) {
 			if (field.at(i, j) != '_') {
 				context.fillStyle = fumen_colors[field.at(i, j)].light;
+				context.fillRect(i * tilesize + 1, height - (j + 1) * tilesize + 1, tilesize - 1, tilesize - 1);
 			}
 			if (operation != undefined && operation.positions().filter(operationFilter).length > 0) {
 				context.fillStyle = fumen_colors[operation.type].light;
+				context.fillRect(i * tilesize + 1, height - (j + 1) * tilesize + 1, tilesize - 1, tilesize - 1);
 			}
-			context.fillRect(i * tilesize + 1, height - (j + 1) * tilesize + 1, tilesize - 1, tilesize - 1);
 		}
 	}/*
 	for (i = 0; i < 10; i++) {
@@ -93,8 +94,13 @@ function getFumenMaxHeight(...fumenPages) {
 	function highestPageHeight(fumenPage) {
 		var highestMino = (fumenPage.operation != undefined ? highestOperationHeight(fumenPage.operation) : 0)
 		{
-			let highestFilledIndex = fumenPage.field.str().match(RegExp('^.+[TILJOSZ]'))
-			var highestField = (highestFilledIndex != -1 ? Math.floor(highestFilledIndex / 10) : 0)
+			let longsetFieldString = fumenPage.field.str().match(RegExp('^.+[TILJOSZ]'))
+			if (longsetFieldString == null) {
+				var highestField = 0
+			} else {
+				let highestFilledIndex = longsetFieldString[0].length
+				var highestField = Math.floor(highestFilledIndex / 10)
+			}
 		}
 		return Math.max(highestMino, highestField)
 	}
