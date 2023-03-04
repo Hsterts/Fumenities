@@ -319,13 +319,12 @@ function drawCanvasCell(cellRow, cellCol) {
 	}
 }
 
-document.getElementById('b').onmouseup = function mouseup() {
+document.onmouseup = function mouseup() {
 	bookPos = getCurrentPosition() //used by program, only updates bookPos
 	
 	if (minoMode) finishMinoMode()
 	
     mouseHeld = false
-	autoEncode()
 	updateBook()
 	//autoEncode() prevent overwriting text pasted into textboxes
     requestAnimationFrame(renderBoard)
