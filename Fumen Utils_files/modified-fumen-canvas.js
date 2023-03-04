@@ -266,9 +266,8 @@ function fumencanvas(input) {
 
                 var img = document.createElement('img');
                 img.style.padding = '0px';
-				img.style.background = 'rgba(203, 199, 255, 0.1);';
+				img.className = 'imageOutput';
                 img.style.margin = '1px';
-                img.style.outline = 'solid #aaa6cf 1px';
                 img.src = data_url;
 
                 container.appendChild(img);
