@@ -93,7 +93,7 @@ function getFumenMaxHeight(...fumenPages) {
 		} else {
 			var highestFilledIndex = fieldString.length - longestEmptyFieldString[0].length
 		}
-		var highestField = Math.max(0, Math.ceil(highestFilledIndex / 10) - 1) //zero-indexed
+		var highestField = Math.max(1, Math.ceil(highestFilledIndex / 10)) //one-indexed
 		
 		return Math.max(highestMino, highestField)
 	}
