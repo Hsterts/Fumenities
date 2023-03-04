@@ -214,8 +214,7 @@ function fumencanvas(input) {
 		container.removeChild(container.firstChild);
 	}
 	
-	var fumenCodes = input.split(/\s+/);
-	// results = [];
+	var fumenCodes = input.split(/[\s,;]+/);
 	resultURLs = [];
 
     for (let code of fumenCodes) {
