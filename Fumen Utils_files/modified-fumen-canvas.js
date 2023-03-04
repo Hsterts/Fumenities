@@ -209,14 +209,10 @@ function fumencanvas(input) {
 
 	var gridColor = document.getElementById('gridColor').value;
 	
-	var fumenCodes = [];
+	var fumenCodes = input.split(/[\s,;]+/);
 	var fumenComments = [];
 	results = [];
 	resultURLs = [];
-
-	for (let rawInput of input.split('\t')) {
-		fumenCodes.push(...rawInput.split(/\s/));
-	}
 
     for (let code of fumenCodes) {
         try {

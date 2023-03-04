@@ -93,15 +93,19 @@ function getFumenMaxHeight(...fumenPages) {
 	
 	function highestPageHeight(fumenPage) {
 		var highestMino = (fumenPage.operation != undefined ? highestOperationHeight(fumenPage.operation) : 0)
-		{
-			let longestFieldString = fumenPage.field.str().match(RegExp('^.+[TILJOSZ]'))
-			if (longestFieldString == null) {
-				var highestField = 0
-			} else {
-				let highestFilledIndex = longestFieldString[0].length
-				var highestField = Math.floor(highestFilledIndex / 10)
-			}
+
+		let fieldString = fumenPage.field.str().replace(RegExp('\n', 'g'), '')
+		fieldString = fieldString.slice(0, -10) //ignore garbage line
+		// console.log(fieldString)
+		let longestEmptyFieldString = fieldString.match(RegExp('^_+'))
+		
+		if (longestEmptyFieldString === null) {
+			var highestFilledIndex = fieldString.length
+		} else {
+			var highestFilledIndex = fieldString.length - longestEmptyFieldString[0].length
 		}
+		var highestField = Math.max(0, Math.ceil(highestFilledIndex / 10) - 1) //zero-indexed
+		
 		return Math.max(highestMino, highestField)
 	}
 }
@@ -115,8 +119,8 @@ function GenerateGIF(frames, transparent) {
 	if (transparent) {
 		encoder.setTransparent('rgba(0, 0, 0, 0)');
 	}
-	for (frame of frames) {
-		console.log(frame)
+	for (let frame of frames) {
+		// console.log(frame)
 		encoder.addFrame(frame);
 	}
 	encoder.finish();
@@ -153,11 +157,8 @@ function fumenrender(input) {
 		container.removeChild(container.firstChild);
 	}
 
-	var fumenCodes = [];
+	var fumenCodes = input.split(/[\s,;]+/);
 	results = [];
-	for (let rawInput of input.split('\t')) {
-		fumenCodes.push(...rawInput.split(/\s/));
-	}
 
 	var transparency_fumen = document.getElementById('transparency').checked;
 
