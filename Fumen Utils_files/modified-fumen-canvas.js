@@ -49,10 +49,6 @@ function draw(fumenPage, numrows) {
 	var tilesize = document.getElementById('cellSize').valueAsNumber;
 	var numcols = document.getElementById('width').valueAsNumber;
 
-	if (numrows == undefined) {
-		numrows = getFumenMaxHeight(fumenPage) + 1 //extra empty row on top for highlight
-	}
-
 	const width = numcols * tilesize;
 	const height = numrows * tilesize;
 
@@ -193,12 +189,12 @@ function drawFumens(fumenPages, start, end) {
 	
 	numrows = getFumenMaxHeight(...drawnFumenPages) + 1 //extra empty row on top for highlight
 
-	var frames = drawnFumenPages.map(fumenPage => draw(fumenPage, numrows).getContext('2d'))
+	var canvases = drawnFumenPages.map(fumenPage => draw(fumenPage, numrows))
 
-	return GenerateFourGIF(frames)
+	return canvases
 }
 
-function GenerateFourGIF(frames) {
+function GenerateFourGIF(canvases) {
 	const encoder = new GIFEncoder();
 	encoder.start();
 	encoder.setRepeat(0); // 0 for repeat, -1 for no-repeat
@@ -207,7 +203,7 @@ function GenerateFourGIF(frames) {
 	if (document.getElementById('transparency').checked) {
 		encoder.setTransparent('rgba(0, 0, 0, 0)');
 	}
-	frames.forEach(frame => encoder.addFrame(frame))
+	canvases.forEach(canvas => encoder.addFrame(canvas.getContext('2d')))
 	encoder.finish();
 	// encoder.download('download.gif');
 	return encoder;
@@ -233,12 +229,12 @@ function fumencanvas(input) {
         try {
             var pages = decoder.decode(code);
             if (pages.length == 1) {
-                canvas = draw(pages[0], undefined);
 
 				var textBox = document.createElement('textarea')
 				textBox.value = pages[0]['comment'];
 				textBox.style.width = canvas.width + 2;
 				textBox.className = 'commentDisplay';
+				canvas = drawFumens(pages, 0, undefined)[0]
 				
 				var data_url = canvas.toDataURL("image/png")
 				var img = document.createElement('img');
@@ -248,7 +244,7 @@ function fumencanvas(input) {
 				var figure = document.createElement('figure');
 				figure.appendChild(img);
 				figure.style.width = canvas.width + 2;
-				if(document.getElementById('displayMode').checked){
+				if (document.getElementById('displayMode').checked){
 					var commentBox = document.createElement('figcaption');
 					commentBox.appendChild(textBox);
 					figure.appendChild(commentBox);
@@ -259,7 +255,7 @@ function fumencanvas(input) {
 				resultURLs.push(data_url);
 
 			} else if (pages.length >= 2) {
-                gif = drawFumens(pages, start, end);
+                gif = GenerateFourGIF(drawFumens(pages, start, end));
 
                 var binary_gif = gif.stream().getData(); //notice this is different from the as3gif package!
                 var data_url = 'data:image/gif;base64,' + encode64(binary_gif);
