@@ -16,9 +16,6 @@ function fumen_draw(fumenPage, numrows) { //the numrows here helps reduce comput
 	var tilesize = document.getElementById('cellSize').valueAsNumber;
 	
 	var numcols = document.getElementById('width').value;
-	if (numrows == undefined) {
-		numrows = getFumenMaxHeight(fumenPage)
-	}
 	const width = numcols * tilesize;
 	const height = numrows * tilesize;
 
@@ -36,13 +33,13 @@ function fumen_draw(fumenPage, numrows) { //the numrows here helps reduce comput
 		gridCtx.fillRect(0, 0, tilesize, tilesize);
 		gridCtx.strokeStyle = '#888888';
 		gridCtx.strokeRect(0, 0, tilesize, tilesize);
-		var pattern = context.createPattern(gridCvs, 'repeat');
+		var gridPattern = context.createPattern(gridCvs, 'repeat');
 	}
 
 	// context.fillStyle = '#000000';
 	// context.fillRect(0, 0, width, height);
 	context.clearRect(0, 0, width, height);
-	context.fillStyle = pattern;
+	context.fillStyle = gridPattern;
 	context.fillRect(0, 0, width, height);
 	
 	const field = fumenPage.field;
@@ -99,7 +96,7 @@ function getFumenMaxHeight(...fumenPages) {
 	}
 }
 
-function GenerateFumenGIF(frames) {
+function GenerateFumenGIF(canvases) {
 	const encoder = new GIFEncoder();
 	encoder.start();
 	encoder.setRepeat(0); // 0 for repeat, -1 for no-repeat
@@ -108,7 +105,7 @@ function GenerateFumenGIF(frames) {
 	if (document.getElementById('transparency').checked) {
 		encoder.setTransparent('rgba(0, 0, 0, 0)');
 	}
-	frames.forEach(frame => encoder.addFrame(frame))
+	canvases.forEach(canvas => encoder.addFrame(canvas.getContext('2d')))
 	encoder.finish();
 	// encoder.download('download.gif');
 	return encoder;
@@ -124,9 +121,9 @@ function fumen_drawFumens(fumenPages, start, end) {
 
 	var numrows = getFumenMaxHeight(...drawnFumenPages)
 
-	var frames = drawnFumenPages.map(fumenPage => fumen_draw(fumenPage, numrows).getContext('2d'))
+	var canvases = drawnFumenPages.map(fumenPage => fumen_draw(fumenPage, numrows))
 
-	return GenerateFumenGIF(frames)
+	return canvases
 }
 
 cellSize = 22;
@@ -151,21 +148,23 @@ function fumenrender(input) {
         try {
             var pages = decoder.decode(code);
 
-            if (pages.length == 1) {
-                canvas = fumen_draw(pages[0], undefined);
+			if (pages.length == 1) {
+				let canvas = fumen_drawFumens(pages, 0, undefined)[0];
 				var data_url = canvas.toDataURL("image/png")
-            } else if (pages.length >= 2) {
-				gif = fumen_drawFumens(pages, start, end);
-				var data_url = GIFDataURL(gif)
-            }
+			} else if (pages.length >= 2) {
+				let canvases = fumen_drawFumens(pages, start, end);
+				var data_url = GIFDataURL(GenerateFumenGIF(canvases))
+			}
 
 			var img = new Image()
 			img.classList.add('imageOutput', 'fumenImageOutput')
 			img.src = data_url;
 
+			//fumen rendering doesn't show comments
+
 			container.appendChild(img);
 			resultURLs.push(data_url);
-        } catch (error) { console.log(code, error); }
+		} catch (error) { console.log(code, error); }
 	}
 		
 	var downloadBool = document.getElementById('downloadOutput').checked;

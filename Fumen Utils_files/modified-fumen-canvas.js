@@ -215,6 +215,11 @@ gridToggle = false;
 start = 0;
 end = undefined;
 
+function GIFDataURL(gif) {
+	var binary_gif = gif.stream().getData(); //notice this is different from the as3gif package!
+	return 'data:image/gif;base64,' + encode64(binary_gif);
+}
+
 //the transparent bg of the png anf gif are different
 function fumencanvas(input) {
 	var container = document.getElementById('imageOutputs');
@@ -227,15 +232,15 @@ function fumencanvas(input) {
 
     for (let fumenCode of fumenCodes) {
         try {
-            var pages = decoder.decode(fumenCode);
-            if (pages.length == 1) {
+			var pages = decoder.decode(fumenCode);
+
+			if (pages.length == 1) {
 				let canvas = drawFumens(pages, 0, undefined)[0]
 				var data_url = canvas.toDataURL("image/png")
 			} else if (pages.length >= 2) {
-                let gif = GenerateFourGIF(drawFumens(pages, start, end));
-                let binary_gif = gif.stream().getData(); //notice this is different from the as3gif package!
-                var data_url = 'data:image/gif;base64,' + encode64(binary_gif);
-            }
+				let canvases = drawFumens(pages, start, end);
+				var data_url = GIFDataURL(GenerateFourGIF(canvases));
+			}
 
 			var img = document.createElement('img');
 			img.classList.add('imageOutput', 'fourImageOutput');
@@ -244,7 +249,7 @@ function fumencanvas(input) {
 			var figure = document.createElement('figure');
 			figure.appendChild(img);
 			figure.style.width = img.width;
-
+			
 			if (document.getElementById('displayMode').checked) {
 				var textBox = document.createElement('textarea')
 				textBox.value = pages[0]['comment']; // only displays comment of first page, unless I find some way to loop text
@@ -259,7 +264,7 @@ function fumencanvas(input) {
 
 			container.appendChild(figure);
 			resultURLs.push(data_url);
-        } catch (error) { console.log(fumenCode, error); }
+		} catch (error) { console.log(fumenCode, error); }
 	}
 	
 	var downloadBool = document.getElementById('downloadOutput').checked;
