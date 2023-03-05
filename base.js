@@ -512,7 +512,7 @@ function insertFollowingPage(currentBookPos) {
 	if (book[currentBookPos]['flags']['lock'] === true) {
 		//going top down guarentees all line clears are performed
 		for (let row = 0; row < boardSize[1]; row++) {
-			let isFilled = (cell) => cell.t === 1
+			let isFilled = (cell) => cell.t != 0
 			if (board[row].every(isFilled)) {
 				board.splice(row, 1)
 				board.unshift(aRow)
@@ -610,80 +610,103 @@ function deletePage(){
 	autoEncode()
 }
 
+function renderBoardOnCanvas(canvasContext, combinedBoardStats) {
+	if (combinedBoardStats.style == 'fumen') {
+		fumenRender()
+	} else if (combinedBoardStats.style == 'four') {
+		fourRender()
+	}
+	
+	function fumenRender() {
+		const FumenPalette = {
+			normal: { Z: '#990000', L: '#996600', O: '#999900', S: '#009900', I: '#009999', J: '#0000bb', T: '#990099', X: '#999999' },
+			light: { Z: '#cc3333', L: '#cc9933', O: '#cccc33', S: '#33cc33', I: '#33cccc', J: '#3333cc', T: '#cc33cc', X: '#cccccc' },
+		}
+
+		let currentBoard = combinedBoardStats.board
+		let tileSize = combinedBoardStats.tileSize
+
+		for (let row in currentBoard) {
+			let displayLineClear = combinedBoardStats.lineClears[row]
+			for (let col in currentBoard[row]) {
+				let cell = currentBoard[row][col]
+				let piece = cell.c
+				if (cell.t === 2 || (cell.t === 1 && displayLineClear)) drawMinoRect(col, row, FumenPalette.light[piece])
+				else if (cell.t === 1) drawMinoRect(col, row, FumenPalette.normal[piece])
+			}
+		}
+		
+		function drawMinoRect(x, y, color) {
+			canvasContext.fillStyle = color
+			canvasContext.fillRect(x * tileSize + 1, y * tileSize + 1, tileSize - 1, tileSize - 1)
+		}
+	}
+
+	function fourRender() {
+		const FourPalette = {
+			normal: { Z: '#ef624d', L: '#ef9535', O: '#f7d33e', S: '#66c65c', I: '#41afde', J: '#1983bf', T: '#b451ac', X: '#999999' },
+			light: { Z: '#fd7660', L: '#fea440', O: '#ffe34b', S: '#7cd97a', I: '#3dc0fb', J: '#1997e3', T: '#d161c9', X: '#bbbbbb' },
+			lighter: { Z: '#ff998c', L: '#feb86d', O: '#fbe97f', S: '#96f98b', I: '#75faf8', J: '#1fd7f7', T: '#fe89f7', X: '#dddddd' },
+		}
+
+		let currentBoard = combinedBoardStats.board
+		let tileSize = combinedBoardStats.tileSize
+
+		
+		for (let row in currentBoard) {
+			let displayLineClear = combinedBoardStats.lineClears[row]
+			for (let col in currentBoard[row]) {
+				let cell = currentBoard[row][col]
+				let piece = cell.c
+				{
+					let foureffectInput = document.getElementById('3dSetting').checked
+					let cellAbove = (row == 0) || (currentBoard[row-1][col].t != 0)
+					var have3dHighlight = (foureffectInput && !cellAbove)
+				}
+				if (cell.t === 2 || (cell.t === 1 && displayLineClear)) {
+					if (have3dHighlight) draw3dHighlight(col, row, FourPalette.lighter[piece])
+					drawMinoRect(col, row, FourPalette.light[piece])
+				}
+				else if (cell.t === 1) {
+					if (have3dHighlight) draw3dHighlight(col, row, FourPalette.light[piece])
+					drawMinoRect(col, row, FourPalette.normal[piece])
+				}
+			}
+		}
+		
+		function drawMinoRect(x, y, color) {
+			canvasContext.fillStyle = color
+			canvasContext.fillRect(x * tileSize + 1, y * tileSize + 1, tileSize, tileSize) //copy fumen when grid is specified?
+		}
+
+		function draw3dHighlight(x, y, color) {
+			const highlightSize = tileSize / 5
+			canvasContext.fillStyle = color
+			canvasContext.fillRect(x * tileSize + 1, y * tileSize + 1 - highlightSize, tileSize, highlightSize)
+		}
+	}
+}
+
 function renderBoard() {  //renders board and minoModeBoard
 	ctx.clearRect(0, 0, boardSize[0] * cellSize, boardSize[1] * cellSize)
 	ctx.fillStyle = pattern
 	ctx.fillRect(0, 0, boardSize[0] * cellSize, boardSize[1] * cellSize)
-	board.map((row, i) => {
-		row.map((cell, j) => {
-			if (cell.t != 0) {
-				drawCell(j, i, cell.c, cell.t)
-			}
-		})
-	})
-	minoModeBoard.map((row, i) => {
-		row.map((cell, j) => {
-			if(cell.t == 1) {
-				drawCell(j, i, cell.c, 2)
-			}
-		})
-	})
-}
-
-function drawCell(x, y, piece, type) {
-	const FourPalette = [
-		{ Z: '#ef624d', L: '#ef9535', O: '#f7d33e', S: '#66c65c', I: '#41afde', J: '#1983bf', T: '#b451ac', X: '#999999' },
-		{ Z: '#fd7660', L: '#fea440', O: '#ffe34b', S: '#7cd97a', I: '#3dc0fb', J: '#1997e3', T: '#d161c9', X: '#bbbbbb' },
-		{ Z: '#ff998c', L: '#feb86d', O: '#fbe97f', S: '#96f98b', I: '#75faf8', J: '#1fd7f7', T: '#fe89f7', X: '#dddddd' }
-	]
-	const FumenPalette = [
-		{ Z: '#990000', L: '#996600', O: '#999900', S: '#009900', I: '#009999', J: '#0000bb', T: '#990099', X: '#999999' },
-		{ Z: '#cc3333', L: '#cc9933', O: '#cccc33', S: '#33cc33', I: '#33cccc', J: '#3333cc', T: '#cc33cc', X: '#cccccc' },
-		{ Z: '#cc3333', L: '#cc9933', O: '#cccc33', S: '#33cc33', I: '#33cccc', J: '#3333cc', T: '#cc33cc', X: '#cccccc' } //unused row, failsafe
-	]
-
-	{
-		let lockFlag = document.getElementById('lockFlagInput').checked
-		let cellCount = 0
-		for (let col = 0; col < 10; col++) {
-			cellCount += ((board[y][col].t != 0) || (minoModeBoard[y][col].t != 0)) // minoModeBoard is from the fumen specification, cannot easily use .some() to count the number of filled minos
-		}
-		var drawLineClear = (lockFlag && cellCount === 10)
-	}
 	
+	let lockFlag = document.getElementById('lockFlagInput').checked
+	let isFilled = (cell) => cell.t != 0
+
+	//combine board and minomodeBoard
 	let canvasStyle = (document.getElementById('defaultRenderInput').checked ? 'fumen' : 'four')
-	var showGrid = (canvasStyle === 'fumen')
-	var currentPalette = (canvasStyle === 'fumen' ? FumenPalette : FourPalette)
+	var combinedBoardStats = { board: JSON.parse(JSON.stringify(board)), lineClears: [], tileSize: cellSize, style: canvasStyle }
+	for (let row in minoModeBoard) {
+		for (let col in minoModeBoard[row]) {
+			if (minoModeBoard[row][col].t === 1) combinedBoardStats.board[row][col] = { t: 2, c: minoModeBoard[row][col].c }
+		}
 
-	{
-		let foureffectInput = document.getElementById('3dSetting').checked
-		let cellAbove = (y === 0) || (board[y - 1][x].t !== 0) || (minoModeBoard[y - 1][x].t !== 0)
-		var have3dHighlight = (canvasStyle === 'four' && foureffectInput && !cellAbove)
-	}
-
-	if (type === 2 || drawLineClear) drawLightCell()
-	else if (type === 1) 			drawNormalCell()
-	
-	function drawLightCell() {
-		if (have3dHighlight) draw3dHighlight(currentPalette[2][piece])
-		drawMinoRect(currentPalette[1][piece])
-	}
-	
-	function drawNormalCell() {
-		if (have3dHighlight) draw3dHighlight(currentPalette[1][piece])
-		drawMinoRect(currentPalette[0][piece])
+		combinedBoardStats.lineClears.push(lockFlag && combinedBoardStats.board[row].every(isFilled))
 	}
 
-	function drawMinoRect(color) {
-		ctx.fillStyle = color
-		if (showGrid) 	ctx.fillRect(x * cellSize + 1, y * cellSize + 1, cellSize - 1, cellSize - 1)
-		else 			ctx.fillRect(x * cellSize + 1, y * cellSize + 1, cellSize, cellSize)
-	}
-
-	function draw3dHighlight(color) {
-		ctx.fillStyle = color
-		ctx.fillRect(x * cellSize + 1, y * cellSize + 1 - cellSize / 5, cellSize, cellSize / 5)
-	}
+	renderBoardOnCanvas(ctx, combinedBoardStats)
 }
 
 //CONTRIBUTED BY CONFIDENTIAL (confidential#1288)
