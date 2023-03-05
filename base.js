@@ -190,8 +190,8 @@ document.getElementById('b').onmousedown = function mousedown(e) {
 	drawMode = (e.button === 0 && board[cellRow][cellCol]['c'] !== paintbucketColor() && minoModeBoard[cellRow][cellCol]['t'] === 0)
 
 	let positions = []
-	for (let row = 0; row < boardSize[1]; row++){
-		for (let col = 0; col < boardSize[0]; col++) {
+	for (let row in board){
+		for (let col in board[row]) {
 			if(board[row][col].t == 2){
 				positions.push([row,col])
 			}
@@ -241,24 +241,19 @@ function drawCanvasCell(cellRow, cellCol) {
 	}
 
 	function drawCanvasMinoMode() {
-		//safeguarding, can remove if it's guarenteed that minoModeBoard will not contain cells with {t: 2}.
-		isCellTypeTwo = (cell) => cell.t === 2
-		for (let row = 0; row < 20; row++) {
-			if (minoModeBoard[row].some(isCellTypeTwo)) console.log("I refactored this code assuming that this state is impossible. Please check if the logic holds.")
-		}
-		//
+		let drawnCount = drawnMinos(minoModeBoard, (cell) => cell.t !== 0) //should be equivalent to cell.t == 1
 
-		let drawnCount = drawnMinos(minoModeBoard, (cell) => cell.t == 1)
-	
 		if (drawMode && drawnCount < 4 && board[cellRow][cellCol].t == 0) {
 			minoModeBoard[cellRow][cellCol] = {t: 1, c: 'X'}
-		} else if (!drawMode) {
+		}
+		
+		if (!drawMode) {
 			minoModeBoard[cellRow][cellCol] = {t: 0, c: ''}
 			//remove colors when there are four minos and user deletes one
 			if (drawnCount == 4) {
-				for (let row = 0; row < 20; row++){
-					for (let col = 0; col < 10; col++) {
-						if (minoModeBoard[row][col].t != 0) {
+				for (let row in minoModeBoard){
+					for (let col in minoModeBoard[row]) {
+						if(minoModeBoard[row][col].t != 0) {
 							minoModeBoard[row][col].c = 'X'
 						}
 					}
@@ -270,20 +265,12 @@ function drawCanvasCell(cellRow, cellCol) {
 	function drawCanvasNormalMode() {
 		let rowFill = document.getElementById('rowFillInput').checked
 		if (rowFill) {
-			if (drawMode) {
-				for (let col=0;col<boardSize[0];col++) {
-					board[cellRow][col] = { t: 1, c: paintbucketColor() }
-				}
-				board[cellRow][cellCol] = { t: 0, c: '' }
-			} else {
-				board[cellRow] = JSON.parse(JSON.stringify(aRow))
+			for (let col in board[cellRow]) {
+				board[cellRow][col] = (drawMode ? { t: 1, c: paintbucketColor() } : { t: 0, c: '' })
 			}
+			board[cellRow][cellCol] = { t: 0, c: '' }
 		} else {
-			if (drawMode) {
-				board[cellRow][cellCol] = { t: 1, c: paintbucketColor() }
-			} else {
-				board[cellRow][cellCol] = { t: 0, c: '' }
-			}
+			board[cellRow][cellCol] = (drawMode ? { t: 1, c: paintbucketColor() } : { t: 0, c: '' })
 		}
 	}
 	
@@ -313,7 +300,7 @@ function drawCanvasCell(cellRow, cellCol) {
 					board[position[0]][position[1]].c = pieceMino.type
 				}
 			}
-		} else if (!drawMode) {
+		} else {
 			board[cellRow][cellCol] = { t: 0, c: '' }
 		}
 	}
@@ -499,8 +486,8 @@ function insertFollowingPage(currentBookPos) {
 	//push minomode onto current board
 	let board = JSON.parse(book[currentBookPos]['board'])
 	if (book[currentBookPos]['operation'] != undefined) {
-		for (let row = 0; row < 20; row++){
-			for (let col = 0; col < 10; col++) {
+		for (let row in board){
+			for (let col in board[row]) {
 				if (minoModeBoard[row][col].t != 0){
 					board[row][col] = minoModeBoard[row][col]
 				}
@@ -511,7 +498,7 @@ function insertFollowingPage(currentBookPos) {
 	//Line clears if flag lock is on
 	if (book[currentBookPos]['flags']['lock'] === true) {
 		//going top down guarentees all line clears are performed
-		for (let row = 0; row < boardSize[1]; row++) {
+		for (let row in board) {
 			let isFilled = (cell) => cell.t != 0
 			if (board[row].every(isFilled)) {
 				board.splice(row, 1)
@@ -534,7 +521,7 @@ function insertFollowingPage(currentBookPos) {
 function nextPage() {
 	bookPos = getCurrentPosition()
 
-	if(bookPos == book.length-1) { // Create new page when at the page
+	if (bookPos == book.length-1) { // Create new page when at the page
 		solidifyAutoColor(bookPos)
 		insertFollowingPage(bookPos)
 	}
@@ -740,16 +727,13 @@ function readPiece(mino_positions, recognise_split_minos) {
 	}
 
 	function unsplit_minos(mino_positions) {
-		let y_coords = []
-		for (let i = 0; i < mino_positions.length; i++) {
-			y_coords.push(mino_positions[i][0]);
-		}
+		let y_coords = mino_positions.map(mino_position => mino_position[0]) //can i just sort mino_position instead of extracting the y_coordinate?
 		y_coords.sort((a, b) => a - b);
 		
 		let unsplit_mino_positions = []
 		let y_coords_rank = y_coords.filter((y_coord, index, array) => array.indexOf(y_coord) === index);
-		for (let i = 0; i < mino_positions.length; i++) {
-			unsplit_mino_positions.push([y_coords[0]+y_coords_rank.indexOf(mino_positions[i][0]), mino_positions[i][1]])
+		for (let mino_position of mino_positions) {
+			unsplit_mino_positions.push([y_coords[0]+y_coords_rank.indexOf(mino_position[0]), mino_position[1]])
 		}
 		return unsplit_mino_positions;
 	}
@@ -766,8 +750,8 @@ function updateAutoColor() {
 	document.getElementById('autoColorInput').classList.toggle('disabled', !isAutoColorUsable)
 	updateRowFillInput()
 	if(!(isAutoColorUsable && autoColorBool)) {
-		for (let row = 0; row < boardSize[1]; row++) {
-			for (let col = 0; col < boardSize[0]; col++) {
+		for (let row in board) {
+			for (let col in board[row]) {
 				if (board[row][col].t === 2){
 					board[row][col].t = 1 //solidify any minos
 				}
@@ -779,7 +763,7 @@ function updateAutoColor() {
 //from io.js
 function toField(board) { //only reads color of minos, ignoring the type
     FieldString = ''
-	for (let row of board){
+	for (let row of board) {
 		for (let cell of row) {
 			FieldString += (cell.c == '' ? '_' : cell.c)
 		}
@@ -791,34 +775,21 @@ function decodeFumen() {
 	var fumen = document.getElementById('boardOutput').value;
     var pages = decoder.decode(fumen);
     var tempBook = [];
-	const FumenIndexToBoardColor = {
-		0: "",
-		1: "I",
-		2: "L",
-		3: "O",
-		4: "Z",
-		5: "T",
-		6: "J",
-		7: "S",
-		8: "X",
-	}
 
-	for (i = 0; i < pages.length; i++) {
-		let currentPage = pages[i];
+	for (let currentPage of pages) {
         let tempBoard = [];
-		let input = currentPage['_field']['field']['pieces'];
-
-		boardString = []
 		
-		for (let cellColorIndex of input) {
-			boardString.push({ t: Math.min(1, cellColorIndex), c: FumenIndexToBoardColor[cellColorIndex]})
+		let fieldString = currentPage.field.str()
+		let truncatedBoardColors = fieldString.split("\n").map(rowColor => rowColor.split(""))
+		truncatedBoardColors.pop() //remove garbage row
+		let emptyRowColors = Array(boardSize[0]).fill("_")
+		var boardColors = [...Array(boardSize[1]-truncatedBoardColors.length).fill(emptyRowColors), ...truncatedBoardColors]
+		
+		let cellColorToCell = (cellColor) => cellColor === "_" ? { t: 0, c: '' } : { t: 1, c: cellColor }
+		for (let rowColors of boardColors) {
+			let tempRow = rowColors.map(cellColor => cellColorToCell(cellColor))
+			tempBoard.push(tempRow)
 		}
-
-		for (let i=0; i < boardString.length; i += boardSize[0]) {
-			let tempRow = boardString.slice(i, i + boardSize[0])
-			tempBoard.unshift(tempRow)
-		}
-		tempBoard.splice(0,3) //fumen records extra ceiling rows that I dump
 
 		let page = {
 			board: JSON.stringify(tempBoard),
@@ -1054,15 +1025,15 @@ function mirror() {
 }
 
 function fullMirror() {
-	for (i = 0; i < book.length; i++) {
-		tempBoard = JSON.parse(book[i]['board']);
-		for (row = 0; row < tempBoard.length; row++) {
+	for (let page in book) {
+		var tempBoard = JSON.parse(book[page]['board']);
+		for (let row in tempBoard) {
 			tempBoard[row].reverse();
-			for (j = 0; j < tempBoard[row].length; j++) {
-				if (tempBoard[row][j].t == 1) tempBoard[row][j].c = reversed[tempBoard[row][j].c];
+			for (let col in tempBoard[row]) {
+				if (tempBoard[row][col].t == 1) tempBoard[row][col].c = reversed[tempBoard[row][col].c];
 			}
 		}
-		book[i]['board'] = JSON.stringify(tempBoard);
+		book[page]['board'] = JSON.stringify(tempBoard);
 	}
 	board = tempBoard;
 	updateBook();
@@ -1213,9 +1184,9 @@ function toggle3dSetting() {
 function updateToolTips() {
 	var tooltipTextElements = document.getElementsByClassName('tooltiptext')
 	var enableToolTips = document.getElementById('tooltipSetting').checked
-	for (let i=0; i<tooltipTextElements.length; i++) {
-		tooltipTextElements[i].classList.toggle('hide-element', !enableToolTips)
-	};
+	for (let tooltipTextElement of tooltipTextElements) {
+		tooltipTextElement.classList.toggle('hide-element', !enableToolTips)
+	}
 }
 
 function toggleRowFillInput() {
@@ -1247,12 +1218,12 @@ function renderImages(fumen) {
 
 function undo() {
 	bookPos = getCurrentPosition()
-	if(undoLog.length <= 1){
+	if (undoLog.length <= 1){
 		console.log('No previous actions logged')
 	} else {
 		redoLog.push(undoLog.pop())
 		book = JSON.parse(undoLog[undoLog.length-1])
-		console.log(bookPos, book.length-1)
+		// console.log(bookPos, book.length-1)
 		bookPos = Math.min(bookPos, book.length-1) // Bound bookPos to end of book, temporary measure
 		
 		settoPage(bookPos)
