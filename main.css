@@ -113,7 +113,9 @@ textarea{
 .commentDisplay{
     height: 24px;
     width: inherit;
-    margin: 2px 0 0 0;
+    border: 0px !important;
+    outline: solid #aaa6cf 1px;
+    margin: 1px 0 0 0;
     font-size: 14px;
     padding: 2px;
     text-align: center;
@@ -147,12 +149,20 @@ input[type="checkbox"]{
 figure{
     display: inline-block;
     padding: 0px;
-    margin: 0px !important;
+    margin: 0.5px !important;
 }
 
 .imageOutput{
+    padding: 0px;
+}
+
+.fourImageOutput {
     background: rgba(181, 176, 252, 0.1);
     outline: solid #aaa6cf 1px;
+}
+
+.fumenImageOutput {
+    outline: solid #585b5b 1px;
 }
 
 .fumenOperations{

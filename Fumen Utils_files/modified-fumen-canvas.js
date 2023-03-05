@@ -225,52 +225,41 @@ function fumencanvas(input) {
 	var fumenCodes = input.split(/[\s,;]+/);
 	resultURLs = [];
 
-    for (let code of fumenCodes) {
+    for (let fumenCode of fumenCodes) {
         try {
-            var pages = decoder.decode(code);
+            var pages = decoder.decode(fumenCode);
             if (pages.length == 1) {
-
-				var textBox = document.createElement('textarea')
-				textBox.value = pages[0]['comment'];
-				textBox.style.width = canvas.width + 2;
-				textBox.className = 'commentDisplay';
-				canvas = drawFumens(pages, 0, undefined)[0]
-				
+				let canvas = drawFumens(pages, 0, undefined)[0]
 				var data_url = canvas.toDataURL("image/png")
-				var img = document.createElement('img');
-                img.src = data_url
-				img.className = 'imageOutput';
-				
-				var figure = document.createElement('figure');
-				figure.appendChild(img);
-				figure.style.width = canvas.width + 2;
-				if (document.getElementById('displayMode').checked){
-					var commentBox = document.createElement('figcaption');
-					commentBox.appendChild(textBox);
-					figure.appendChild(commentBox);
-				};
-				
-				container.appendChild(figure);
-                // results.push(canvas);
-				resultURLs.push(data_url);
-
 			} else if (pages.length >= 2) {
-                gif = GenerateFourGIF(drawFumens(pages, start, end));
-
-                var binary_gif = gif.stream().getData(); //notice this is different from the as3gif package!
+                let gif = GenerateFourGIF(drawFumens(pages, start, end));
+                let binary_gif = gif.stream().getData(); //notice this is different from the as3gif package!
                 var data_url = 'data:image/gif;base64,' + encode64(binary_gif);
-
-                var img = document.createElement('img');
-                img.style.padding = '0px';
-				img.className = 'imageOutput';
-                img.style.margin = '1px';
-                img.src = data_url;
-
-                container.appendChild(img);
-                // results.push(gif);
-				resultURLs.push(data_url);
             }
-        } catch (error) { console.log(code, error); }
+
+			var img = document.createElement('img');
+			img.classList.add('imageOutput', 'fourImageOutput');
+			img.src = data_url;
+
+			var figure = document.createElement('figure');
+			figure.appendChild(img);
+			figure.style.width = img.width;
+
+			if (document.getElementById('displayMode').checked) {
+				var textBox = document.createElement('textarea')
+				textBox.value = pages[0]['comment']; // only displays comment of first page, unless I find some way to loop text
+				textBox.style.width = img.width;
+				textBox.classList.add('commentDisplay');
+				
+				var commentBox = document.createElement('figcaption');
+				commentBox.appendChild(textBox);
+				
+				figure.appendChild(commentBox);
+			};
+
+			container.appendChild(figure);
+			resultURLs.push(data_url);
+        } catch (error) { console.log(fumenCode, error); }
 	}
 	
 	var downloadBool = document.getElementById('downloadOutput').checked;

@@ -145,7 +145,7 @@ function fumenrender(input) {
 	}
 
 	var fumenCodes = input.split(/[\s,;]+/);
-	results = [];
+	resultURLs = [];
 
     for (let code of fumenCodes) {
         try {
@@ -160,9 +160,7 @@ function fumenrender(input) {
             }
 
 			var img = new Image()
-			img.style.padding = '0px';
-			img.style.margin = '1px';
-			img.style.outline = '2px solid #585b5b';
+			img.classList.add('imageOutput', 'fumenImageOutput')
 			img.src = data_url;
 
 			container.appendChild(img);
