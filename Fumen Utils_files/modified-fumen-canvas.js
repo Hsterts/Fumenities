@@ -192,7 +192,7 @@ max_col = 10;
 start = 0;
 end = undefined;
 
-//the transparent bg of the png anf gif are different
+//the transparent bg of the png and gif are different
 function fumencanvas(input) {
 	var container = document.getElementById('imageOutputs');
 	while (container.firstChild) {
