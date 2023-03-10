@@ -75,17 +75,6 @@ const shape_table = {
 
 // CANVAS
 var ctx = document.getElementById('b').getContext('2d')
-{
-	let gridCvs = document.createElement('canvas')
-	gridCvs.height = cellSize
-	gridCvs.width = cellSize
-	let gridCtx = gridCvs.getContext('2d')
-	gridCtx.fillStyle = '#000000CC'
-	gridCtx.fillRect(0, 0, cellSize, cellSize)
-	gridCtx.strokeStyle = '#ffffff88'
-	gridCtx.strokeRect(0, 0, cellSize + 1, cellSize + 1)
-	var pattern = ctx.createPattern(gridCvs, 'repeat')
-}
 document.getElementById('b').height = boardSize[1] * cellSize
 document.getElementById('b').width = boardSize[0] * cellSize
 document.getElementById('b').style.outline = '2px solid #ffffffcc'
@@ -207,6 +196,7 @@ document.getElementById('b').onmousedown = function mousedown(e) {
 
 	updateBook()
 	autoEncode()
+	requestAnimationFrame(renderBoard)
 	mouseHeld = true
 }
 
@@ -229,6 +219,7 @@ document.getElementById('b').onmousemove = function mousemove(e) {
 	
 	updateBook()
 	autoEncode()
+	requestAnimationFrame(renderBoard)
 }
 
 function drawCanvasCell(cellRow, cellCol) {
@@ -597,103 +588,26 @@ function deletePage(){
 	autoEncode()
 }
 
-function renderBoardOnCanvas(canvasContext, combinedBoardStats) {
-	if (combinedBoardStats.style == 'fumen') {
-		fumenRender()
-	} else if (combinedBoardStats.style == 'four') {
-		fourRender()
-	}
-	
-	function fumenRender() {
-		const FumenPalette = {
-			normal: { Z: '#990000', L: '#996600', O: '#999900', S: '#009900', I: '#009999', J: '#0000bb', T: '#990099', X: '#999999' },
-			light: { Z: '#cc3333', L: '#cc9933', O: '#cccc33', S: '#33cc33', I: '#33cccc', J: '#3333cc', T: '#cc33cc', X: '#cccccc' },
-		}
-
-		let currentBoard = combinedBoardStats.board
-		let tileSize = combinedBoardStats.tileSize
-
-		for (let row in currentBoard) {
-			let displayLineClear = combinedBoardStats.lineClears[row]
-			for (let col in currentBoard[row]) {
-				let cell = currentBoard[row][col]
-				let piece = cell.c
-				if (cell.t === 2 || (cell.t === 1 && displayLineClear)) drawMinoRect(col, row, FumenPalette.light[piece])
-				else if (cell.t === 1) drawMinoRect(col, row, FumenPalette.normal[piece])
-			}
-		}
-		
-		function drawMinoRect(x, y, color) {
-			canvasContext.fillStyle = color
-			canvasContext.fillRect(x * tileSize + 1, y * tileSize + 1, tileSize - 1, tileSize - 1)
-		}
-	}
-
-	function fourRender() {
-		const FourPalette = {
-			normal: { Z: '#ef624d', L: '#ef9535', O: '#f7d33e', S: '#66c65c', I: '#41afde', J: '#1983bf', T: '#b451ac', X: '#999999' },
-			light: { Z: '#fd7660', L: '#fea440', O: '#ffe34b', S: '#7cd97a', I: '#3dc0fb', J: '#1997e3', T: '#d161c9', X: '#bbbbbb' },
-			lighter: { Z: '#ff998c', L: '#feb86d', O: '#fbe97f', S: '#96f98b', I: '#75faf8', J: '#1fd7f7', T: '#fe89f7', X: '#dddddd' },
-		}
-
-		let currentBoard = combinedBoardStats.board
-		let tileSize = combinedBoardStats.tileSize
-
-		
-		for (let row in currentBoard) {
-			let displayLineClear = combinedBoardStats.lineClears[row]
-			for (let col in currentBoard[row]) {
-				let cell = currentBoard[row][col]
-				let piece = cell.c
-				{
-					let foureffectInput = document.getElementById('3dSetting').checked
-					let cellAbove = (row == 0) || (currentBoard[row-1][col].t != 0)
-					var have3dHighlight = (foureffectInput && !cellAbove)
-				}
-				if (cell.t === 2 || (cell.t === 1 && displayLineClear)) {
-					if (have3dHighlight) draw3dHighlight(col, row, FourPalette.lighter[piece])
-					drawMinoRect(col, row, FourPalette.light[piece])
-				}
-				else if (cell.t === 1) {
-					if (have3dHighlight) draw3dHighlight(col, row, FourPalette.light[piece])
-					drawMinoRect(col, row, FourPalette.normal[piece])
-				}
-			}
-		}
-		
-		function drawMinoRect(x, y, color) {
-			canvasContext.fillStyle = color
-			canvasContext.fillRect(x * tileSize + 1, y * tileSize + 1, tileSize, tileSize) //copy fumen when grid is specified?
-		}
-
-		function draw3dHighlight(x, y, color) {
-			const highlightSize = tileSize / 5
-			canvasContext.fillStyle = color
-			canvasContext.fillRect(x * tileSize + 1, y * tileSize + 1 - highlightSize, tileSize, highlightSize)
-		}
-	}
-}
-
 function renderBoard() {  //renders board and minoModeBoard
-	ctx.clearRect(0, 0, boardSize[0] * cellSize, boardSize[1] * cellSize)
-	ctx.fillStyle = pattern
-	ctx.fillRect(0, 0, boardSize[0] * cellSize, boardSize[1] * cellSize)
-	
-	let lockFlag = document.getElementById('lockFlagInput').checked
-	let isFilled = (cell) => cell.t != 0
-
 	//combine board and minomodeBoard
 	let canvasStyle = (document.getElementById('defaultRenderInput').checked ? 'fumen' : 'four')
-	var combinedBoardStats = { board: JSON.parse(JSON.stringify(board)), lineClears: [], tileSize: cellSize, style: canvasStyle }
+	var combinedBoardStats = {
+		board: JSON.parse(JSON.stringify(board)), 
+		tileSize: cellSize, 
+		style: canvasStyle,
+		grid: {
+			fillStyle: '#000000CC',
+			strokeStyle: '#ffffff88'
+		},
+	}
 	for (let row in minoModeBoard) {
 		for (let col in minoModeBoard[row]) {
 			if (minoModeBoard[row][col].t === 1) combinedBoardStats.board[row][col] = { t: 2, c: minoModeBoard[row][col].c }
 		}
-
-		combinedBoardStats.lineClears.push(lockFlag && combinedBoardStats.board[row].every(isFilled))
 	}
 
-	renderBoardOnCanvas(ctx, combinedBoardStats)
+	var newCanvas = renderBoardOnCanvas(combinedBoardStats)
+	ctx.drawImage(newCanvas, 0, 0, newCanvas.width, newCanvas.height)
 }
 
 //CONTRIBUTED BY CONFIDENTIAL (confidential#1288)
@@ -702,10 +616,10 @@ function readPiece(mino_positions, recognise_split_minos) {
     //     return 'X'
     // }
 
-	positions = (recognise_split_minos ? unsplit_minos(mino_positions) : mino_positions)
-
 	//sort ascending by y then x
-	positions.sort((a,b) => a[0] - b[0] || a[1] - b[1])
+	mino_positions.sort((a,b) => a[0] - b[0] || a[1] - b[1])
+	
+	var positions = (recognise_split_minos ? unsplit_minos(mino_positions) : mino_positions)
     
     for (let [piece, piece_table] of Object.entries(shape_table)) {
 		for (let [rotation, piece_positions] of Object.entries(piece_table)) {
@@ -726,14 +640,14 @@ function readPiece(mino_positions, recognise_split_minos) {
 		return all_origins.every((origin) => origin[0] == all_origins[0][0] && origin[1] == all_origins[0][1])
 	}
 
-	function unsplit_minos(mino_positions) {
-		let y_coords = mino_positions.map(mino_position => mino_position[0]) //can i just sort mino_position instead of extracting the y_coordinate?
-		y_coords.sort((a, b) => a - b);
-		
-		let unsplit_mino_positions = []
-		let y_coords_rank = y_coords.filter((y_coord, index, array) => array.indexOf(y_coord) === index);
-		for (let mino_position of mino_positions) {
-			unsplit_mino_positions.push([y_coords[0]+y_coords_rank.indexOf(mino_position[0]), mino_position[1]])
+	function unsplit_minos(mino_positions) { //assumed mino_positions is sorted by y then x, both ascending
+		//or implement as sliding windows, only increasing y by at most 1 each time
+		let unsplit_mino_positions = [mino_positions[0]]
+		for (let i in mino_positions) {
+			if (i == 0) continue;
+			let y_increment = Math.min(1, mino_positions[i][0] - mino_positions[i-1][0]) //clamp y increment per position to 1
+			let previous_mino_position = unsplit_mino_positions[unsplit_mino_positions.length-1]
+			unsplit_mino_positions.push([previous_mino_position[0] + y_increment, mino_positions[i][1]])
 		}
 		return unsplit_mino_positions;
 	}
@@ -771,28 +685,27 @@ function toField(board) { //only reads color of minos, ignoring the type
     return Field.create(FieldString)
 }
 
+function pageToBoard(page) {	
+	let fieldString = page.field.str()
+	let truncatedBoardColors = fieldString.split("\n").map(rowColor => rowColor.split(""))
+	truncatedBoardColors.pop() //remove garbage row
+
+	let emptyRowColors = Array(boardSize[0]).fill("_")
+	Array(boardSize[1]-truncatedBoardColors.length)
+	var boardColors = [...Array.from({length: boardSize[1]-truncatedBoardColors.length}, () => JSON.parse(JSON.stringify(emptyRowColors))), ...truncatedBoardColors] //pad top with empty rows
+	
+	let cellColorToCell = (cellColor) => cellColor === "_" ? { t: 0, c: '' } : { t: 1, c: cellColor }
+	return boardColors.map(rowColors => rowColors.map(cellColorToCell))
+}
+
 function decodeFumen() {
 	var fumen = document.getElementById('boardOutput').value;
     var pages = decoder.decode(fumen);
     var tempBook = [];
 
 	for (let currentPage of pages) {
-        let tempBoard = [];
-		
-		let fieldString = currentPage.field.str()
-		let truncatedBoardColors = fieldString.split("\n").map(rowColor => rowColor.split(""))
-		truncatedBoardColors.pop() //remove garbage row
-		let emptyRowColors = Array(boardSize[0]).fill("_")
-		var boardColors = [...Array(boardSize[1]-truncatedBoardColors.length).fill(emptyRowColors), ...truncatedBoardColors]
-		
-		let cellColorToCell = (cellColor) => cellColor === "_" ? { t: 0, c: '' } : { t: 1, c: cellColor }
-		for (let rowColors of boardColors) {
-			let tempRow = rowColors.map(cellColor => cellColorToCell(cellColor))
-			tempBoard.push(tempRow)
-		}
-
 		let page = {
-			board: JSON.stringify(tempBoard),
+			board: JSON.stringify(pageToBoard(currentPage)),
 			operation: currentPage['operation'],
 			minoBoard: JSON.stringify(decodeOperation(currentPage['operation'])),
 			comment: currentPage['comment'],
@@ -1209,11 +1122,68 @@ function updateStyle() {
 	requestAnimationFrame(renderBoard)
 }
 
-function renderImages(fumen) {
-	  switch(document.getElementById('renderStyle').value){
-		  case 'four': fumencanvas(fumen); break;
-		  case 'fumen': fumenrender(fumen); break;
-	  }
+function renderImages(input) {
+	var container = document.getElementById('imageOutputs');
+	while (container.firstChild) {
+		container.removeChild(container.firstChild);
+	}
+
+	let fumenCodes = input.trim().split(/[\s,;]+/);
+	
+	// var fumens = fumenCodes.map((fumenCode, i) => {
+	// 	try {
+	// 		var pages = decoder.decode(fumenCode)
+	// 	} catch (error) { console.log(fumenCode, error) }
+	// 	return [fumenCode, pages]
+	// }).filter(fumen => fumen !== undefined) //only add valid decoded fumens
+
+	var convertedFumens = fumenCodes.map(fumenCode => {
+		try {
+			var pages = decoder.decode(fumenCode)
+		} catch (error) { console.log(fumenCode, error) }
+		return {code: fumenCode, pages: pages}
+	}).filter(convertedFumen => convertedFumen.pages !== undefined) //only keep conversions with valid fumens
+
+	//wasteful map
+	let fumens = convertedFumens.map(convertedFumen => convertedFumen.pages)
+	fumenCodes = convertedFumens.map(convertedFumen => convertedFumen.code)
+
+	// console.log(fumens)
+
+	switch (document.getElementById('renderStyle').value){
+		case 'four': var resultURLs = fumencanvas(fumens); break;
+		case 'fumen': var resultURLs = fumenrender(fumens); break;
+	}
+
+	let downloadBool = document.getElementById('downloadOutput').checked;
+	if (downloadBool) downloadByURL(resultURLs)
+
+	function downloadByURL(DataURLs) {
+		var zip = new JSZip();
+		DataURLs.forEach((DataURL, i) => {
+			let filetype = RegExp('image/(.+);').exec(DataURL)[1]
+			JSZipUtils.getBinaryContent(DataURL, function (err, data){
+				if (err) {
+					console.log(err)
+					return
+				} 
+				
+				var fileNaming = document.getElementById('naming').value
+				if (fileNaming == "index"){
+					var filename = (i+1)+filetype
+				} else if (fileNaming == "fumen") {
+					var filename = fumenCodes[i]+filetype;
+				}
+				
+				zip.file(filename, data, {base64:true});
+			});
+		})
+
+		zip.generateAsync({type:'blob'}).then(function(base64){
+			saveAs(base64, "output.zip");
+			console.log("downloaded");
+		});
+	}
 }
 
 function undo() {

@@ -1,69 +1,39 @@
 // const { decoder } = require('tetris-fumen');
 
-const fumen_colors = {
-    I: { normal: '#009999', light: '#00FFFF' },
-    T: { normal: '#990099', light: '#FF00FF' },
-    S: { normal: '#009900', light: '#00FF00' },
-    Z: { normal: '#990000', light: '#FF0000' },
-    L: { normal: '#996600', light: '#FF9900' },
-    J: { normal: '#0000BB', light: '#0000FF' },
-    O: { normal: '#999900', light: '#FFFF00' },
-    X: { normal: '#999999', light: '#CCCCCC' },
-    Empty: { normal: '#f3f3ed' }
-};
+function fumen_draw(fumenPage, numrows) {
+	var tileSize = document.getElementById('cellSize').valueAsNumber;
 
-function fumen_draw(fumenPage, numrows) { //the numrows here helps reduce computation, since you are guarenteed to have defined numrows calling from fumen_drawFumens
-	var tilesize = document.getElementById('cellSize').valueAsNumber;
-	
 	var numcols = document.getElementById('width').value;
-	const width = numcols * tilesize;
-	const height = numrows * tilesize;
-
+	const width = numcols * tileSize;
+	const height = numrows * tileSize;
+	
 	var canvas = document.createElement('canvas');
 	canvas.width = width;
     canvas.height = height;
-    const context = canvas.getContext('2d');
-    {
-		let gridCvs = document.createElement('canvas');
-		gridCvs.width = tilesize;
-		gridCvs.height = tilesize;
-		let gridCtx = gridCvs.getContext('2d');
-		
-		gridCtx.fillStyle = (document.getElementById('transparency').checked ? 'rgba(0, 0, 0, 0)': document.getElementById('bg').value)
-		gridCtx.fillRect(0, 0, tilesize, tilesize);
-		gridCtx.strokeStyle = '#888888';
-		gridCtx.strokeRect(0, 0, tilesize, tilesize);
-		var gridPattern = context.createPattern(gridCvs, 'repeat');
+    const canvasContext = canvas.getContext('2d');
+	canvasContext.clearRect(0, 0, width, height);	
+
+	var combinedBoardStats = {
+		board: pageToBoard(fumenPage), 
+		tileSize: tileSize, 
+		style: 'fumen', 
+		grid: {
+			fillStyle: (document.getElementById('transparency').checked ? '#00000000': document.getElementById('bg').value), 
+			strokeStyle: '#888888'
+		},
 	}
 
-	// context.fillStyle = '#000000';
-	// context.fillRect(0, 0, width, height);
-	context.clearRect(0, 0, width, height);
-	context.fillStyle = gridPattern;
-	context.fillRect(0, 0, width, height);
-	
-	const field = fumenPage.field;
-	for (i = 0; i < numcols; i++) {
-		for (j = 0; j < numrows; j++) {
-			if (field.at(i, j) != '_') {
-				drawCell(i, j, fumen_colors[field.at(i, j)].light)
-			}
-		}
-	}
-
+	//add glued minos to board
 	const operation = fumenPage.operation;
 	if (operation != undefined) {
+		var type = operation.type
 		for (position of operation.positions()) {
-			drawCell(position.x, position.y, fumen_colors[operation.type].light)
+			combinedBoardStats.board[19-position.y][position.x] = { t: 2, c: type } //operation is bottom-up
 		}
 	}
+	canvasContext.drawImage(renderBoardOnCanvas(combinedBoardStats), 0, -(20-numrows)*tileSize)
 
-	return canvas;
-
-	function drawCell(col, row, color) {
-		context.fillStyle = color
-		context.fillRect(col * tilesize + 1, height - (row + 1) * tilesize + 1, tilesize - 1, tilesize - 1);
-	}
+	return canvas
 }
 
 function getFumenMaxHeight(...fumenPages) {
@@ -135,65 +105,26 @@ function GIFDataURL(gif) {
 	return 'data:image/gif;base64,' + encode64(binary_gif);
 }
 
-function fumenrender(input) {
+function fumenrender(fumens) {
 	var container = document.getElementById('imageOutputs');
-	while (container.firstChild) {
-		container.removeChild(container.firstChild);
-	}
-
-	var fumenCodes = input.split(/[\s,;]+/);
 	resultURLs = [];
 
-    for (let code of fumenCodes) {
-        try {
-            var pages = decoder.decode(code);
+	for (let fumen of fumens) {
+		if (fumen.length == 1) {
+			let canvas = fumen_drawFumens(fumen, 0, undefined)[0];
+			var data_url = canvas.toDataURL("image/png")
+		} else if (fumen.length >= 2) {
+			let canvases = fumen_drawFumens(fumen, start, end);
+			var data_url = GIFDataURL(GenerateFumenGIF(canvases))
+		}
 
-			if (pages.length == 1) {
-				let canvas = fumen_drawFumens(pages, 0, undefined)[0];
-				var data_url = canvas.toDataURL("image/png")
-			} else if (pages.length >= 2) {
-				let canvases = fumen_drawFumens(pages, start, end);
-				var data_url = GIFDataURL(GenerateFumenGIF(canvases))
-			}
+		var img = new Image()
+		img.classList.add('imageOutput', 'fumenImageOutput')
+		img.src = data_url;
 
-			var img = new Image()
-			img.classList.add('imageOutput', 'fumenImageOutput')
-			img.src = data_url;
+		//fumen rendering doesn't show comments
 
-			//fumen rendering doesn't show comments
-
-			container.appendChild(img);
-			resultURLs.push(data_url);
-		} catch (error) { console.log(code, error); }
-	}
-		
-	var downloadBool = document.getElementById('downloadOutput').checked;
-	if (downloadBool) downloadByURL(resultURLs)
-
-	function downloadByURL(DataURLs) {
-		var zip = new JSZip();
-		for (let x = 0; x < DataURLs.length; x++) {
-			let filetype = RegExp('image/(.+);').exec(DataURLs[x])[1]
-			JSZipUtils.getBinaryContent(DataURLs[x], function (err, data){
-				if(err) {
-					console.log(err)
-					return
-				} 
-				
-				var fileNaming = document.getElementById('naming').value
-				if(fileNaming == "index"){
-					var filename = (x+1)+filetype
-				} else if (fileNaming == "fumen") {
-					var filename = fumenCodes[x]+filetype;
-				}
-				
-				zip.file(filename, data, {base64:true});
-			});
-		};
-
-		zip.generateAsync({type:'blob'}).then(function(base64){
-			saveAs(base64, "output.zip");
-			console.log("downloaded");
-		});
+		container.appendChild(img);
+		resultURLs.push(data_url);
 	}
 }

@@ -18,6 +18,7 @@
 <script src = "./Fumen Utils_files/modified-removeComments.js"></script>
 <script src = "./Fumen Utils_files/modified-fumen-canvas.js"></script>
 <script src = "./Fumen Utils_files/modified-fumen-render.js"></script>
+<script src = "./Fumen Utils_files/board-render.js"></script>
 <script src = "./Fumen Utils_files/jszip.min.js"></script>
 <script src = "./Fumen Utils_files/jszip-utils.min.js"></script>
 <script src = "./Fumen Utils_files/FileSaver.min.js"></script>
@@ -132,8 +133,10 @@
 							<label for = "gridColorPicker">Grid Color</label><br>
 							</div>
 
-						<input id = "displayMode" type = "checkbox" onclick = "fumencanvas(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"></input>
+						<input id = "displayMode" type = "checkbox" onclick = "renderImages(document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@'))"></input>
 						<label for = "displayMode">Display Comments</label><br>
+						<input id = "highlightLineClear" type = "checkbox"></input>
+						<label for = "highlightLineClear">Highlight Line Clears</label><br>
 					</div>
 					<div id = 'settings-panel'>
 						<center><h3>GIF Settings</h3></center>
