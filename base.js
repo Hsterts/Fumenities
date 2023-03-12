@@ -734,7 +734,7 @@ function encodeFumen(...book) {
 				mirror: false,
 				colorize: true,
 				comment: page['comment'],
-				lock: true,
+				lock: page['flags']['lock'],
 				piece: undefined,
 			},
 			index: pageNum, //necessary?
