@@ -595,6 +595,7 @@ function renderBoard() {  //renders board and minoModeBoard
 		board: JSON.parse(JSON.stringify(board)), 
 		tileSize: cellSize, 
 		style: canvasStyle,
+		lockFlag: document.getElementById('lockFlagInput').checked,
 		grid: {
 			fillStyle: '#000000CC',
 			strokeStyle: '#ffffff88'
@@ -607,7 +608,7 @@ function renderBoard() {  //renders board and minoModeBoard
 	}
 
 	var newCanvas = renderBoardOnCanvas(combinedBoardStats)
-	ctx.drawImage(newCanvas, 0, 0, newCanvas.width, newCanvas.height)
+	ctx.drawImage(newCanvas, 0, 0)
 }
 
 //CONTRIBUTED BY CONFIDENTIAL (confidential#1288)
@@ -683,19 +684,6 @@ function toField(board) { //only reads color of minos, ignoring the type
 		}
 	}
     return Field.create(FieldString)
-}
-
-function pageToBoard(page) {	
-	let fieldString = page.field.str()
-	let truncatedBoardColors = fieldString.split("\n").map(rowColor => rowColor.split(""))
-	truncatedBoardColors.pop() //remove garbage row
-
-	let emptyRowColors = Array(boardSize[0]).fill("_")
-	Array(boardSize[1]-truncatedBoardColors.length)
-	var boardColors = [...Array.from({length: boardSize[1]-truncatedBoardColors.length}, () => JSON.parse(JSON.stringify(emptyRowColors))), ...truncatedBoardColors] //pad top with empty rows
-	
-	let cellColorToCell = (cellColor) => cellColor === "_" ? { t: 0, c: '' } : { t: 1, c: cellColor }
-	return boardColors.map(rowColors => rowColors.map(cellColorToCell))
 }
 
 function decodeFumen() {
@@ -788,7 +776,7 @@ function decodeOperation(operation){
 	
 	piecePositions = shape_table[pieceColor][rotation]
 	for (let piecePosition of piecePositions) {
-		decodedMinoBoard[y + piecePosition[0]][x + piecePosition[1]] = {t: 1, c: pieceColor}
+		decodedMinoBoard[y + piecePosition[0]][x + piecePosition[1]] = { t: 1, c: pieceColor }
 	}
 	
 	return decodedMinoBoard

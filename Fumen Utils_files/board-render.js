@@ -1,12 +1,40 @@
 //sharing the same rendering process for both the editor board and the output images
 
+function pageToBoard(page) {	
+	let fieldString = page.field.str()
+	let truncatedBoardColors = fieldString.split("\n").map(rowColor => rowColor.split(""))
+	truncatedBoardColors.pop() //remove garbage row
+	let ExtraRows = Math.max(0, truncatedBoardColors.length - 20)
+	truncatedBoardColors = truncatedBoardColors.slice(ExtraRows) //ignore any cells above row 20
+
+	let emptyRowColors = Array(boardSize[0]).fill("_")
+	var boardColors = [...Array.from({length: boardSize[1]-truncatedBoardColors.length}, () => JSON.parse(JSON.stringify(emptyRowColors))), ...truncatedBoardColors] //pad top with empty rows
+	let cellColorToCell = (cellColor) => cellColor === "_" ? { t: 0, c: '' } : { t: 1, c: cellColor }
+	var board = boardColors.map(rowColors => rowColors.map(cellColorToCell))
+
+	//add glued minos to board
+	const operation = page.operation;
+	if (operation != undefined) {
+		var type = operation.type
+		for (position of operation.positions()) {
+			board[19-position.y][position.x] = { t: 2, c: type } //operation is bottom-up
+		}
+	}
+
+	return board
+}
+
 function renderBoardOnCanvas(combinedBoardStats) {
 	var tileSize = combinedBoardStats.tileSize
 	var canvas = document.createElement('canvas')
 	canvas.width = boardSize[0] * tileSize
 	canvas.height = boardSize[1] * tileSize
 	var canvasContext = canvas.getContext('2d')
+	var currentBoard = combinedBoardStats.board
 	
+	let isFilled = (cell) => cell.t != 0
+
+	//base grid
 	{
 		let gridCvs = document.createElement('canvas')
 		gridCvs.height = tileSize
@@ -16,23 +44,19 @@ function renderBoardOnCanvas(combinedBoardStats) {
 		gridCtx.fillRect(0, 0, tileSize, tileSize)
 		gridCtx.strokeStyle = combinedBoardStats.grid.strokeStyle
 		gridCtx.strokeRect(0, 0, tileSize + 1, tileSize + 1)
-		var gridPattern = canvasContext.createPattern(gridCvs, 'repeat')
+
+		let gridPattern = canvasContext.createPattern(gridCvs, 'repeat')
 		canvasContext.clearRect(0, 0, boardSize[0] * tileSize, boardSize[1] * tileSize)
-	}
-
-	var currentBoard = combinedBoardStats.board
-	
-	canvasContext.fillStyle = gridPattern
-	canvasContext.fillRect(0, 0, boardSize[0] * tileSize, boardSize[1] * tileSize)
-
-	let lockFlag = document.getElementById('highlightLineClear').checked
-	let isFilled = (cell) => cell.t != 0
+		canvasContext.fillStyle = gridPattern
+		canvasContext.fillRect(0, 0, boardSize[0] * tileSize, boardSize[1] * tileSize)
+	}	
 
 	if (combinedBoardStats.style == 'fumen') {
 		fumenRender()
 	} else if (combinedBoardStats.style == 'four') {
 		fourRender()
 	}
+	
 	return canvas
 	
 	function fumenRender() {
@@ -42,7 +66,7 @@ function renderBoardOnCanvas(combinedBoardStats) {
 		}
 
 		for (let row in currentBoard) {
-			let displayLineClear = lockFlag && currentBoard[row].every(isFilled)
+			let displayLineClear = combinedBoardStats.lockFlag && currentBoard[row].every(isFilled)
 			for (let col in currentBoard[row]) {
 				let cell = currentBoard[row][col]
 				let piece = cell.c
@@ -65,7 +89,7 @@ function renderBoardOnCanvas(combinedBoardStats) {
 		}
 		
 		for (let row in currentBoard) {
-			let displayLineClear = lockFlag && currentBoard[row].every(isFilled)
+			let displayLineClear = combinedBoardStats.lockFlag && currentBoard[row].every(isFilled)
 			for (let col in currentBoard[row]) {
 				let cell = currentBoard[row][col]
 				let piece = cell.c
@@ -90,7 +114,7 @@ function renderBoardOnCanvas(combinedBoardStats) {
 			canvasContext.fillRect(x * tileSize + 1, y * tileSize + 1, tileSize, tileSize) //copy fumen when grid is specified?
 		}
 
-		function draw3dHighlight(x, y, color) {
+		function draw3dHighlight(x, y, color) { //drawn above specified cell
 			const highlightSize = tileSize / 5
 			canvasContext.fillStyle = color
 			canvasContext.fillRect(x * tileSize + 1, y * tileSize + 1 - highlightSize, tileSize, highlightSize)

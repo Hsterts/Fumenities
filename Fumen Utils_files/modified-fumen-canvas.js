@@ -49,13 +49,15 @@ function draw(fumenPage, numrows) {
 	var tileSize = document.getElementById('cellSize').valueAsNumber;
 	var gridColor = document.getElementById('gridColor').value
 	let fillStyle = (document.getElementById('transparency').checked ? '#00000000': document.getElementById('bg').value)
+	let strokeStyle = (document.getElementById('gridToggle').checked ? gridColor + '60' : '#00000000')
 	var combinedBoardStats = {
 		board: pageToBoard(fumenPage), 
 		tileSize: tileSize, 
 		style: 'four', 
+		lockFlag: document.getElementById('highlightLineClear').checked,
 		grid: {
 			fillStyle: fillStyle, //turn to BGColor
-			strokeStyle: (document.getElementById('gridToggle').checked ? gridColor : '#00000000'), //turn to gridColor
+			strokeStyle: strokeStyle, //turn to gridColor
 		},
 	}
 	{
@@ -82,7 +84,7 @@ function draw(fumenPage, numrows) {
 	
 
 	const width = numcols * tilesize;
-	const height = numrows * tilesize;
+	const height = Math.min(20, numrows) * tilesize;
 
 	var canvas = document.createElement('canvas');
 	canvas.width = width;

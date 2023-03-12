@@ -5,7 +5,7 @@ function fumen_draw(fumenPage, numrows) {
 
 	var numcols = document.getElementById('width').value;
 	const width = numcols * tileSize;
-	const height = numrows * tileSize;
+	const height = Math.min(20, numrows) * tileSize;
 	
 	var canvas = document.createElement('canvas');
 	canvas.width = width;
@@ -17,21 +17,14 @@ function fumen_draw(fumenPage, numrows) {
 		board: pageToBoard(fumenPage), 
 		tileSize: tileSize, 
 		style: 'fumen', 
+		lockFlag: document.getElementById('highlightLineClear').checked,
 		grid: {
 			fillStyle: (document.getElementById('transparency').checked ? '#00000000': document.getElementById('bg').value), 
 			strokeStyle: '#888888'
 		},
 	}
 
-	//add glued minos to board
-	const operation = fumenPage.operation;
-	if (operation != undefined) {
-		var type = operation.type
-		for (position of operation.positions()) {
-			combinedBoardStats.board[19-position.y][position.x] = { t: 2, c: type } //operation is bottom-up
-		}
-	}
-	canvasContext.drawImage(renderBoardOnCanvas(combinedBoardStats), 0, -(20-numrows)*tileSize)
+	canvasContext.drawImage(renderBoardOnCanvas(combinedBoardStats), 0, -20*tileSize+height)
 
 	return canvas
 }
