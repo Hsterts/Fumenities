@@ -87,18 +87,50 @@ function renderBoardOnCanvas(combinedBoardStats) {
 			light:   { T: '#d161c9', I: '#3dc0fb', O: '#ffe34b', L: '#fea440', J: '#1997e3', S: '#7cd97a', Z: '#fd7660', X: '#bbbbbb' },
 			lighter: { T: '#fe89f7', I: '#75faf8', O: '#fbe97f', L: '#feb86d', J: '#1fd7f7', S: '#96f98b', Z: '#ff998c', X: '#dddddd' },
 		}
+
+		// There might be a better way to implement this border priority:
+		// 0. background grid
+		// 1. border around boundary of filled cells
+		// 2. ligher border between filled cells
+		// 3. border around highlight
+		// The problem comes from 2, which requires checking if both cells neighbouring the border are filled
+
+		const VerticalBorderOpacity = { //left-(border)-right: <cell boarder opacity>-<highlight border opacity>
+			'00': ['00', '00'], //empty neighbouring minos
+			'11': ['40', '00'], //lighter borders within filled minos
+			'01': ['FF', '00'], //boundary of filled cells
+			'10': ['FF', '00'],
+			'21': ['FF', '00'], //filled cell boundary takes priority over highlight
+			'12': ['FF', '00'],
+			'20': ['00', 'CC'],
+			'02': ['00', 'CC'],
+			'22': ['00', 'CC'],
+		}
+	
+		const HorizontalBorderOpacity = { //upper-(border)-lower: <cell boarder opacity>-<highlight border opacity>
+			'00': ['00', '00'], //empty neighbouring minos
+			'01': ['FF', '00'], //boundary of filled cells
+			'10': ['FF', '00'],
+			'21': ['FF', '00'],
+			'11': ['40', '00'], //lighter borders within filled minos
+			'02': ['00', 'CC'], //additional border for highlight
+			'12': ['FF', 'CC'],
+			//impossible states
+			'20': ['00', '00'],
+			'22': ['00', '00'],
+		}
+
+		var foureffectInput = document.getElementById('3dSetting').checked
 		
 		for (let row in currentBoard) {
 			let displayLineClear = combinedBoardStats.lockFlag && currentBoard[row].every(isFilled)
 			for (let col in currentBoard[row]) {
 				let cell = currentBoard[row][col]
 				let piece = cell.c
-				{
-					let foureffectInput = document.getElementById('3dSetting').checked
-					let cellAbove = (row == 0) || (currentBoard[row-1][col].t != 0) //no need to check for top row (since you wont see the highlight anyways), used to prevent error
-					//TODO: use .? chaining to remove (row == 0) condition?
-                    var have3dHighlight = (foureffectInput && !cellAbove)
-				}
+
+				let cellTypeAbove = currentBoard?.[row-1]?.[col]?.t ?? 0 // return cell type, defaulting to empty if out of board
+                let have3dHighlight = (foureffectInput && cellTypeAbove == 0)
+
 				if (cell.t === 2 || (cell.t === 1 && displayLineClear)) {
 					if (have3dHighlight) draw3dHighlight(col, row, FourPalette.lighter[piece])
 					drawMinoRect(col, row, FourPalette.light[piece])
@@ -118,6 +150,61 @@ function renderBoardOnCanvas(combinedBoardStats) {
 			const highlightSize = tileSize / 5
 			canvasContext.fillStyle = color
 			canvasContext.fillRect(x * tileSize + 1, y * tileSize + 1 - highlightSize, tileSize, highlightSize)
+		}
+
+		//grid lines for four is more complicated
+		var gridSettings = combinedBoardStats.grid
+		if (gridSettings !== undefined) {
+			//draw borders according to the surrounding
+			for (let row = 0; row < boardSize[1]+1; row++) {
+				for (let col = 0; col < boardSize[0]+1; col++) {
+					let leftType = getCellStatus(col-1, row)
+					let rightType = getCellStatus(col, row)
+					
+					let resultColors = getColors(VerticalBorderOpacity, leftType, rightType)
+					drawVerticalBorder(col, row, resultColors.cellBorderColor, tileSize) //cell
+					if (foureffectInput) drawVerticalBorder(col, row, resultColors.highlightBorderColor, tileSize/5) //highlight
+
+					let upperType = getCellStatus(col, row-1)
+					let lowerType = getCellStatus(col, row)
+
+					resultColors = getColors(HorizontalBorderOpacity, upperType, lowerType)
+					drawHorizontalBorder(col, row, resultColors.cellBorderColor, 0) //cell
+					if (foureffectInput) drawHorizontalBorder(col, row, resultColors.highlightBorderColor, (1-1/5) * tileSize) //highlight
+				}
+			}
+		}
+
+		function getColors(OpacityTable, firstType, secondType) {
+			let BorderOpacities = OpacityTable[String(firstType)+String(secondType)]
+			if (gridSettings.strokeStyle.length == 7) { //only change opacity if it isn't specified, this keeps tranparent colors unchanged
+				return {cellBorderColor: gridSettings.strokeStyle + BorderOpacities[0], highlightBorderColor: gridSettings.strokeStyle + BorderOpacities[1]}
+			} else {
+				return {cellBorderColor: gridSettings.strokeStyle, highlightBorderColor: gridSettings.strokeStyle}
+			}
+		}
+
+		function getCellStatus(col, row) {
+			let cellType = currentBoard?.[row]?.[col]?.t ?? 0
+			let cellTypeBelow = currentBoard?.[row+1]?.[col]?.t ?? 0
+			if (cellType != 0) {
+				return 1 //filled cell
+			} if (cellTypeBelow != 0) {
+				return 2 //highlight
+			} else {
+				return 0
+			}
+		}
+		
+		//use fillRect instead of strokeRect, as strokeRect is blurry. see: http://diveintohtml5.info/canvas.html#pixel-madness
+		function drawVerticalBorder(x, y, color, borderLength) { //draws left border
+			canvasContext.fillStyle = color
+			canvasContext.fillRect(x * tileSize, y * tileSize + (tileSize - borderLength), 1, borderLength)
+		}
+
+		function drawHorizontalBorder(x, y, color, heightOffset) { //draws upper border
+			canvasContext.fillStyle = color
+			canvasContext.fillRect(x * tileSize, y * tileSize + heightOffset, tileSize, 1)
 		}
 	}
 }

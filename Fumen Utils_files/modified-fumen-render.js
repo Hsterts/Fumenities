@@ -12,19 +12,24 @@ function fumen_draw(fumenPage, numrows) {
     canvas.height = height;
     const canvasContext = canvas.getContext('2d');
 	canvasContext.clearRect(0, 0, width, height);	
+	let strokeStyle = '#888888'
 
 	var combinedBoardStats = {
 		board: pageToBoard(fumenPage), 
 		tileSize: tileSize, 
 		style: 'fumen', 
-		lockFlag: document.getElementById('highlightLineClear').checked,
+		lockFlag: document.getElementById('highlightLineClear').checked && (fumenPage.flags.lock ?? false),
 		grid: {
 			fillStyle: (document.getElementById('transparency').checked ? '#00000000': document.getElementById('bg').value), 
-			strokeStyle: '#888888'
+			strokeStyle: strokeStyle
 		},
 	}
 
 	canvasContext.drawImage(renderBoardOnCanvas(combinedBoardStats), 0, -20*tileSize+height)
+
+	//add surrounding border
+	canvasContext.strokeStyle = strokeStyle
+	canvasContext.strokeRect(0.5, 0.5, canvas.width-1, canvas.height-1)
 
 	return canvas
 }
@@ -59,7 +64,7 @@ function getFumenMaxHeight(...fumenPages) {
 	}
 }
 
-function GenerateFumenGIF(canvases) {
+function GenerateFumenGIF(canvases) { //very slow
 	const encoder = new GIFEncoder();
 	encoder.start();
 	encoder.setRepeat(0); // 0 for repeat, -1 for no-repeat

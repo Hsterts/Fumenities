@@ -597,8 +597,8 @@ function renderBoard() {  //renders board and minoModeBoard
 		style: canvasStyle,
 		lockFlag: document.getElementById('lockFlagInput').checked,
 		grid: {
-			fillStyle: '#000000CC',
-			strokeStyle: '#ffffff88'
+			fillStyle: '#000000',
+			strokeStyle: '#ffffff'
 		},
 	}
 	for (let row in minoModeBoard) {
