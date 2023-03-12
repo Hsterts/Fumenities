@@ -271,23 +271,21 @@ function fumencanvas(fumens) {
 			var data_url = GIFDataURL(GenerateFourGIF(canvases));
 		}
 
-		var img = document.createElement('img');
+		var img = new Image();
 		img.classList.add('imageOutput', 'fourImageOutput');
 		img.src = data_url;
-		console.log("image width", img.width, img) //BUG: sometimes the FOUR output figures get all bunched up for no reason
-		//seems like this is triggered by toggling transparent bg & grid
+		img.onload = function() {console.log("loaded, width is: " + String(img.width))}
 
 		var figure = document.createElement('figure');
 		figure.appendChild(img);
-		figure.style.width = img.width;
 		
 		if (document.getElementById('displayMode').checked) {
 			var textBox = document.createElement('textarea')
 			textBox.value = fumen[0]['comment']; // only displays comment of first page, unless I find some way to loop text
-			textBox.style.width = img.width;
 			textBox.classList.add('commentDisplay');
 			
 			var commentBox = document.createElement('figcaption');
+			commentBox.style = "width:100%"
 			commentBox.appendChild(textBox);
 			
 			figure.appendChild(commentBox);
