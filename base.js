@@ -1,6 +1,5 @@
-const { Mino/*, Field*/ } = require('tetris-fumen');
-import { boardSize, cellSize, shape_table } from './Fumen Utils_files/global-utils.js'
-import { renderBoardOnCanvas } from './Fumen Utils_files/board-render.js';
+import { boardSize, cellSize } from './Fumen Utils_files/global-utils.js'
+import { renderBoard } from './Fumen Utils_files/board-render.js';
 import { updateBook, settoPage } from './Fumen Utils_files/event-listeners.js';
 
 //BOARD
@@ -48,14 +47,6 @@ function setPositionDisplay(pageIndex, totalPageNum) {
 	document.getElementById('positionDisplayOver').value = '/' + totalPageNum
 }
 
-function paintbucketColor() {
-	for (i = 0; i < document.paintbucket.length; i++) {
-		if (document.paintbucket[i].checked) {
-			return document.paintbucket[i].id;
-		}
-	}
-}
-
 function insertFollowingPage(currentBookPos) {
 	//push minomode onto current board
 	let board = JSON.parse(book[currentBookPos]['board'])
@@ -93,84 +84,6 @@ function insertFollowingPage(currentBookPos) {
 }
 
 
-function renderBoard() {  //renders board and minoModeBoard
-	//combine board and minomodeBoard
-	let canvasStyle = (document.getElementById('defaultRenderInput').checked ? 'fumen' : 'four')
-	var combinedBoardStats = {
-		board: JSON.parse(JSON.stringify(board)), 
-		tileSize: cellSize, 
-		style: canvasStyle,
-		lockFlag: document.getElementById('lockFlagInput').checked,
-		grid: {
-			fillStyle: '#000000',
-			strokeStyle: '#ffffff'
-		},
-	}
-	for (let row in minoModeBoard) {
-		for (let col in minoModeBoard[row]) {
-			if (minoModeBoard[row][col].t === 1) combinedBoardStats.board[row][col] = { t: 2, c: minoModeBoard[row][col].c }
-		}
-	}
-
-	var newCanvas = renderBoardOnCanvas(combinedBoardStats)
-	ctx.drawImage(newCanvas, 0, 0)
-}
-
-//CONTRIBUTED BY CONFIDENTIAL (confidential#1288)
-function readPiece(mino_positions, recognise_split_minos) {
-    // if (mino_positions.length != 4){
-    //     return 'X'
-    // }
-
-	//sort ascending by y then x
-	mino_positions.sort((a,b) => a[0] - b[0] || a[1] - b[1])
-	
-	var positions = (recognise_split_minos ? unsplit_minos(mino_positions) : mino_positions)
-    
-    for (let [piece, piece_table] of Object.entries(shape_table)) {
-		for (let [rotation, piece_positions] of Object.entries(piece_table)) {
-			// if the offset matches, then all pieces should converge to a single origin
-			let all_origins = []
-			for (let i = 0; i < piece_positions.length; i++) {
-				all_origins.push([positions[i][0] - piece_positions[i][0], positions[i][1] - piece_positions[i][1]])
-			}
-
-			if (agreed_origin(all_origins)) {
-				return new Mino(piece, rotation, all_origins[0][1], 19-all_origins[0][0]) //fumen has inverted y axis
-			}
-		}
-    }
-	return undefined //if none of the tables match, then it isn't a tetromino shape
-
-	function agreed_origin(all_origins) {
-		return all_origins.every((origin) => origin[0] == all_origins[0][0] && origin[1] == all_origins[0][1])
-	}
-
-	function unsplit_minos(mino_positions) { //assumed mino_positions is sorted by y then x, both ascending
-		//or implement as sliding windows, only increasing y by at most 1 each time
-		let unsplit_mino_positions = [mino_positions[0]]
-		for (let i in mino_positions) {
-			if (i == 0) continue;
-			let y_increment = Math.min(1, mino_positions[i][0] - mino_positions[i-1][0]) //clamp y increment per position to 1
-			let previous_mino_position = unsplit_mino_positions[unsplit_mino_positions.length-1]
-			unsplit_mino_positions.push([previous_mino_position[0] + y_increment, mino_positions[i][1]])
-		}
-		return unsplit_mino_positions;
-	}
-}
-
-
-//from io.js
-function toField(board) { //only reads color of minos, ignoring the type
-    FieldString = ''
-	for (let row of board) {
-		for (let cell of row) {
-			FieldString += (cell.c == '' ? '_' : cell.c)
-		}
-	}
-    return Field.create(FieldString)
-}
-
 // //gonna just leave this here, used it to convert wirelyre mino-board strings to fumens
 // function wireEncode(){
 // 	inputs = document.getElementById('input').value.split('\n')
@@ -201,4 +114,15 @@ function toField(board) { //only reads color of minos, ignoring the type
 // 	pages.push(page)
 
 // 	return encoder.encode(pages)
+// }
+
+// const { Field } = require('tetris-fumen');
+// function toField(board) { //only reads color of minos, ignoring the type
+//     var FieldString = ''
+// 	for (let row of board) {
+// 		for (let cell of row) {
+// 			FieldString += (cell.c == '' ? '_' : cell.c)
+// 		}
+// 	}
+//     return Field.create(FieldString)
 // }

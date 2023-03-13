@@ -1,6 +1,29 @@
 //sharing the same rendering process for both the editor board and the output images
 import { boardSize } from './global-utils.js'
 
+export function renderBoard() {  //renders board and minoModeBoard
+	//combine board and minomodeBoard
+	let canvasStyle = (document.getElementById('defaultRenderInput').checked ? 'fumen' : 'four')
+	var combinedBoardStats = {
+		board: JSON.parse(JSON.stringify(board)), 
+		tileSize: cellSize, 
+		style: canvasStyle,
+		lockFlag: document.getElementById('lockFlagInput').checked,
+		grid: {
+			fillStyle: '#000000',
+			strokeStyle: '#ffffff'
+		},
+	}
+	for (let row in minoModeBoard) {
+		for (let col in minoModeBoard[row]) {
+			if (minoModeBoard[row][col].t === 1) combinedBoardStats.board[row][col] = { t: 2, c: minoModeBoard[row][col].c }
+		}
+	}
+
+	var newCanvas = renderBoardOnCanvas(combinedBoardStats)
+	ctx.drawImage(newCanvas, 0, 0)
+}
+
 export function pageToBoard(page) {	
 	let fieldString = page.field.str()
 	let truncatedBoardColors = fieldString.split("\n").map(rowColor => rowColor.split(""))
@@ -17,7 +40,7 @@ export function pageToBoard(page) {
 	const operation = page.operation;
 	if (operation != undefined) {
 		var type = operation.type
-		for (position of operation.positions()) {
+		for (let position of operation.positions()) {
 			board[19-position.y][position.x] = { t: 2, c: type } //operation is bottom-up
 		}
 	}
