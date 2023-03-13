@@ -1,7 +1,7 @@
 const { Field } = require('tetris-fumen');
-import { fullEncode, encode } from "./fumen-editor-buttons.js";
-import { boardSize, cellSize } from '../global-utils.js'
+import { boardSize, cellSize, emptyBoard } from '../global-utils.js'
 import { renderBoard } from '../rendering/board-render.js';
+import { EditorState } from './EditorState.js';
 
 //BOARD
 //TODO: contain all of these globals inside this module
@@ -9,20 +9,12 @@ var board = []
 var book = []
 var undoLog = []
 var redoLog = []
-var operation // {type: 'I', rotation: 'reverse', x: 4, y: 0}
-var flags = {lock: true}
+// var operation // {type: 'I', rotation: 'reverse', x: 4, y: 0}
+// var flags = {lock: true}
 
-//MAKING FIRST EMPTY BOARD
-const aRow = []
-const emptyBoard = []
-for (let i = 0; i < boardSize[0]; i++) {aRow.push({ t: 0, c: '' })}
-for (let i = 0; i < boardSize[1]; i++) {emptyBoard.push(aRow)}
-
-var board = JSON.parse(JSON.stringify(emptyBoard)) // the lazy way of doing a deep copy
-var minoModeBoard = JSON.parse(JSON.stringify(emptyBoard)) // the lazy way of doing a deep copy
 
 var bookPos = 0
-book = [{board: JSON.stringify(emptyBoard), comment: '', operation: undefined, minoBoard: JSON.stringify(emptyBoard), flags},]
+book = [{board: JSON.stringify(emptyBoard()), comment: '', operation: undefined, minoBoard: JSON.stringify(emptyBoard()), flags: {lock: true}},]
 settoPage(bookPos)
 updateBook()
 window.requestAnimationFrame(renderBoard)
@@ -34,6 +26,8 @@ document.getElementById('b').width = boardSize[0] * cellSize
 document.getElementById('b').style.outline = '2px solid #ffffffcc'
 
 //INITIALIZATION
+updateAutoColor()
+updateRowFillInput()
 setPositionDisplay(bookPos, book.length)
 
 //SHORTCUTS
@@ -90,7 +84,6 @@ function retractSideBars() {
 	settingsSidebar.classList.add('hide-element')
 }
 
-
 export function autoEncode() {
     if (document.getElementById('autoEncode').checked == false) return;
 
@@ -98,6 +91,15 @@ export function autoEncode() {
 
     if (encodingType == 'fullFumen') fullEncode();
     else if (encodingType == 'currentFumenPage') encode();
+}
+
+export function encode() {
+	bookPos = getCurrentPosition()
+	document.getElementById('boardOutput').value = encodeFumen(book[bookPos]);
+}
+
+export function fullEncode() {
+	document.getElementById('boardOutput').value = encodeFumen(...book);
 }
 
 //from io.js
@@ -116,9 +118,9 @@ export function updateBook() { //temporary export, might not be necessary
 	bookPos = getCurrentPosition()
 	book[bookPos] = {
 		board: JSON.stringify(board),
-		minoBoard: JSON.stringify(minoModeBoard),
+		minoBoard: JSON.stringify(EditorState.getMinoModeBoard()),
 		comment: document.getElementById('commentBox').value,
-		operation: operation,
+		operation: EditorState.getOperation(),
 		flags: {lock: document.getElementById('lockFlagInput').checked},
 	}
 	document.getElementById('commentBox').value = (book[bookPos]['comment'] != undefined ? book[bookPos]['comment'] : '')
@@ -138,15 +140,36 @@ export function updateBook() { //temporary export, might not be necessary
 	window.requestAnimationFrame(renderBoard)
 }
 
+export function updateAutoColor() {
+	var autoColorBool = document.getElementById('autoColorInput').checked
+	var isAutoColorUsable = !document.getElementById('minoModeInput').checked
+	document.getElementById('autoColorInput').classList.toggle('disabled', !isAutoColorUsable)
+	
+	if(!(isAutoColorUsable && autoColorBool)) {
+		for (let row in board) {
+			for (let col in board[row]) {
+				if (board[row][col].t === 2){
+					board[row][col].t = 1 //solidify any minos
+				}
+			}
+		}
+	}
+}
+
+export function updateRowFillInput() {
+	var isRowFillUsable = !document.getElementById('minoModeInput').checked && !document.getElementById('autoColorInput').checked
+	document.getElementById('rowFillInput').classList.toggle('disabled', !isRowFillUsable)
+}
+
 export function settoPage(newPagePos) {
 	// Bound bookPos to existing pages
 	newPagePos = Math.max(Math.min(book.length-1, newPagePos), 0)
 
 	setPositionDisplay(newPagePos, book.length)
 	board = JSON.parse(book[newPagePos]['board'])
-	minoModeBoard = JSON.parse(book[newPagePos]['minoBoard'])
+	EditorState.setMinoModeBoard(JSON.parse(book[newPagePos]['minoBoard']))
 	document.getElementById('commentBox').value = book[newPagePos]['comment']
-	operation = book[newPagePos]['operation']
+	EditorState.setOperation(book[newPagePos]['operation'])
 	document.getElementById('lockFlagInput').checked = book[newPagePos]['flags']['lock']
 }
 
@@ -163,5 +186,5 @@ export function getCurrentPosition() {
 		return Position;
 }
 
-import "./fumen-editor-buttons.js"
-import "./fumen-editor-mouse.js"
+// import "./fumen-editor-buttons.js"
+// import "./fumen-editor-mouse.js"

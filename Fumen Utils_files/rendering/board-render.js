@@ -1,5 +1,6 @@
 //sharing the same rendering process for both the editor board and the output images
-import { boardSize } from '../global-utils.js'
+import { EditorState } from '../fumen-editor/EditorState.js'
+import { boardSize, cellSize } from '../global-utils.js'
 
 export function renderBoard() {  //renders board and minoModeBoard
 	//combine board and minomodeBoard
@@ -14,6 +15,8 @@ export function renderBoard() {  //renders board and minoModeBoard
 			strokeStyle: '#ffffff'
 		},
 	}
+
+	let minoModeBoard = EditorState.getMinoModeBoard()
 	for (let row in minoModeBoard) {
 		for (let col in minoModeBoard[row]) {
 			if (minoModeBoard[row][col].t === 1) combinedBoardStats.board[row][col] = { t: 2, c: minoModeBoard[row][col].c }
@@ -21,7 +24,7 @@ export function renderBoard() {  //renders board and minoModeBoard
 	}
 
 	var newCanvas = renderBoardOnCanvas(combinedBoardStats)
-	ctx.drawImage(newCanvas, 0, 0)
+	document.getElementById('b').getContext('2d').drawImage(newCanvas, 0, 0)
 }
 
 export function pageToBoard(page) {	

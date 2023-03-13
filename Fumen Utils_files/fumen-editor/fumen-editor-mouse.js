@@ -1,6 +1,7 @@
 import { inRange, shape_table } from "../global-utils.js";
 import { renderBoard } from "../rendering/board-render.js";
 import { autoEncode, updateBook, getCurrentPosition } from "./fumen-editor.js";
+import { EditorState } from "./EditorState.js";
 
 function paintbucketColor() {
 	for (i = 0; i < document.paintbucket.length; i++) {
@@ -20,7 +21,7 @@ document.getElementById('b').onmousedown = function mousedown(e) {
 	let cellRow = Math.floor((e.clientY - rect.top) / cellSize);
 	let cellCol = Math.floor((e.clientX - rect.left) / cellSize);
 
-	drawMode = (e.button === 0 && board[cellRow][cellCol]['c'] !== paintbucketColor() && minoModeBoard[cellRow][cellCol]['t'] === 0);
+	drawMode = (e.button === 0 && board[cellRow][cellCol]['c'] !== paintbucketColor() && EditorState.getMinoModeBoard()[cellRow][cellCol]['t'] === 0);
 
 	let positions = [];
 	for (let row in board) {
@@ -80,13 +81,14 @@ function drawCanvasCell(cellRow, cellCol) {
 	}
 
 	function drawCanvasMinoMode() {
+		let minoModeBoard = EditorState.getMinoModeBoard()
 		let drawnCount = drawnMinos(minoModeBoard, (cell) => cell.t !== 0); //should be equivalent to cell.t == 1
 
-		if (drawMode && drawnCount < 4 && board[cellRow][cellCol].t == 0) {
+		if (drawMode && drawnCount < 4 && board[cellRow][cellCol].t == 0) { // draw
 			minoModeBoard[cellRow][cellCol] = { t: 1, c: 'X' };
 		}
 
-		if (!drawMode) {
+		if (!drawMode) { // remove
 			minoModeBoard[cellRow][cellCol] = { t: 0, c: '' };
 			//remove colors when there are four minos and user deletes one
 			if (drawnCount == 4) {
@@ -99,6 +101,8 @@ function drawCanvasCell(cellRow, cellCol) {
 				}
 			}
 		}
+
+		EditorState.setMinoModeBoard(minoModeBoard)
 
 		function drawnMinos(someBoard, cellMatch) {
 			return someBoard.reduce((count,row) => {
@@ -167,6 +171,7 @@ document.onmouseup = function mouseup() {
 	requestAnimationFrame(renderBoard);
 
 	function finishMinoMode() {
+		let minoModeBoard = EditorState.getMinoModeBoard()
 		var positions = [];
 		//get all drawn cells + their coords
 		for (let row in minoModeBoard) {
@@ -177,17 +182,18 @@ document.onmouseup = function mouseup() {
 			}
 		}
 
-		if (positions.length != 4)
-			return;
+		if (positions.length != 4) return;
 
-		operation = readPiece(positions, false);
-		if (operation === undefined)
-			return;
+		let operation = readPiece(positions, false)
+		EditorState.setOperation(operation)
+		if (operation === undefined) return;
 
 		//coloring in
 		for (let position of positions) {
 			minoModeBoard[position[0]][position[1]].c = operation.type;
 		}
+		
+		EditorState.setMinoModeBoard(minoModeBoard)
 	}
 };
 

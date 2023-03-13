@@ -56,3 +56,17 @@ export const shape_table = {
 export function inRange(number, min, max) { // [min, max] inclusive
     return (min <= number && number <= max)
 }
+
+const aRow = []
+const anEmptyBoard = []
+for (let i = 0; i < boardSize[0]; i++) {aRow.push({ t: 0, c: '' })}
+for (let i = 0; i < boardSize[1]; i++) {anEmptyBoard.push(aRow)}
+
+export function emptyRow() {
+	return JSON.parse(JSON.stringify(aRow)) //do i need deep copy here?
+}
+
+export function emptyBoard() {
+	return JSON.parse(JSON.stringify(anEmptyBoard)) //do i need deep copy here?
+}
+

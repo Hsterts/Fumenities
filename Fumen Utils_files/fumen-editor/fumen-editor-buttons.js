@@ -1,14 +1,13 @@
-import { getDelimiter, shape_table } from "../global-utils.js"
-import { autoEncode, toField, updateBook, settoPage } from "./fumen-editor.js"
+const { encoder } = require('tetris-fumen')
+import { getDelimiter, shape_table, emptyBoard } from "../global-utils.js"
+import { autoEncode, fullEncode, encode, toField, updateBook, updateAutoColor, updateRowFillInput, settoPage, getCurrentPosition } from "./fumen-editor.js"
 import importImage from "./importImage.js"
 import { pageToBoard } from "../rendering/board-render.js"
-import { getCurrentPosition } from "../fumen-editor/fumen-editor.js"
+import { EditorState } from "./EditorState.js"
 
 //INITIALIZATION
 updateToolTips()
 updateMinoMode()
-updateAutoColor()
-updateRowFillInput()
 updateAutoEncoding()
 
 //SHORTCUTS
@@ -91,11 +90,6 @@ function toggleRowFillInput() {
 	updateRowFillInput()
 }
 
-function updateRowFillInput() {
-	var isRowFillUsable = !document.getElementById('minoModeInput').checked && !document.getElementById('autoColorInput').checked
-	document.getElementById('rowFillInput').classList.toggle('disabled', !isRowFillUsable)
-}
-
 function toggleToolTips() {
 	document.getElementById('tooltipSetting').checked = !document.getElementById('tooltipSetting').checked
 	updateToolTips() 
@@ -112,17 +106,17 @@ function toggleStyle() {
 }
 
 //cosmetic bindings
-for (let fumenOption in document.getElementsByClassName('fumen-option')) {
-	fumenOption.addEventListener("click", () => this.blur)
+for (let fumenOption of document.getElementsByClassName('fumen-option')) {
+	fumenOption.addEventListener("click", () => fumenOption.blur)
 }
 
 //html bindings
 document.getElementById("minoModeInput").addEventListener("click", updateMinoMode)
 function updateMinoMode() {
     let minoMode = document.getElementById('minoModeInput').checked
-    if (!minoMode && operation == undefined)  {
-		minoModeBoard = JSON.parse(JSON.stringify(emptyBoard))
-		operation = undefined
+    if (!minoMode && EditorState.getOperation() == undefined)  {
+		EditorState.setMinoModeBoard(emptyBoard())
+		EditorState.setOperation(undefined)
 		updateBook()
 	}
 	updateAutoColor()
@@ -179,8 +173,9 @@ function insertFollowingPage(currentBookPos) {
 	if (book[currentBookPos]['operation'] != undefined) {
 		for (let row in board){
 			for (let col in board[row]) {
-				if (minoModeBoard[row][col].t != 0){
-					board[row][col] = minoModeBoard[row][col]
+				let minoCell = EditorState.getMinoModeBoard()[row][col]
+				if (minoCell.t != 0){
+					board[row][col] = minoCell
 				}
 			}
 		}
@@ -200,7 +195,7 @@ function insertFollowingPage(currentBookPos) {
 	
 	let newPage = {
 		board: JSON.stringify(board),
-		minoBoard: JSON.stringify(emptyBoard),
+		minoBoard: JSON.stringify(emptyBoard()),
 		comment: book[currentBookPos]['comment'], //only works since we don't care about quiz mode
 		operation: undefined,
 		flags: {lock: document.getElementById('lockFlagInput').checked},
@@ -309,8 +304,8 @@ document.getElementById("clearPage").addEventListener("click", clearPage)
 function clearPage(){
 	bookPos = getCurrentPosition()
 	book[bookPos] = {
-		board: JSON.stringify(emptyBoard),
-		minoBoard: JSON.stringify(emptyBoard),
+		board: JSON.stringify(emptyBoard()),
+		minoBoard: JSON.stringify(emptyBoard()),
 		comment: '',
 		operation: undefined,
 		flags: flags
@@ -338,9 +333,9 @@ document.getElementById("reset").addEventListener("click", increaseResetLevel)
 function increaseResetLevel() {
 	let confirmedReset = document.getElementById('reset').classList.contains('confirm-delete-data')
 	if (confirmedReset)  {
-		board = JSON.parse(JSON.stringify(emptyBoard))
-		minoModeBoard = JSON.parse(JSON.stringify(emptyBoard))
-		book = [{board: JSON.parse(JSON.stringify(emptyBoard)), flags: flags}]
+		board = emptyBoard()
+		EditorState.setMinoModeBoard(emptyBoard())
+		book = [{board: emptyBoard(), flags: flags}]
 		setPositionDisplay(0, book.length)
 		document.getElementById('boardOutput').value = ''
 		document.getElementById('commentBox').value = ''
@@ -370,9 +365,9 @@ function decodeFumen() {
 	return tempBook;
 
     function decodeOperation(operation){
-        if (operation === undefined) return JSON.parse(JSON.stringify(emptyBoard)) //no operation
+        if (operation === undefined) return emptyBoard() //no operation
     
-        decodedMinoBoard = JSON.parse(JSON.stringify(emptyBoard))
+        decodedMinoBoard = emptyBoard()
         let pieceColor = operation.type
         let rotation = operation.rotation
         let x = operation.x
@@ -451,15 +446,8 @@ function encodeFumen(...book) {
 }
 
 document.getElementById("exportPage").addEventListener("click", encode)
-export function encode() {
-	bookPos = getCurrentPosition()
-	document.getElementById('boardOutput').value = encodeFumen(book[bookPos]);
-}
 
 document.getElementById("exportFumen").addEventListener("click", fullEncode)
-export function fullEncode() {
-	document.getElementById('boardOutput').value = encodeFumen(...book);
-}
 
 document.getElementById("addToInput").addEventListener("click", addToInput)
 function addToInput() {
@@ -483,21 +471,6 @@ function updateAutoEncoding() {
 
 
 document.getElementById("autoColorInput").addEventListener("click", updateAutoColor)
-export function updateAutoColor() {
-	var autoColorBool = document.getElementById('autoColorInput').checked
-	var isAutoColorUsable = !document.getElementById('minoModeInput').checked
-	document.getElementById('autoColorInput').classList.toggle('disabled', !isAutoColorUsable)
-	
-	if(!(isAutoColorUsable && autoColorBool)) {
-		for (let row in board) {
-			for (let col in board[row]) {
-				if (board[row][col].t === 2){
-					board[row][col].t = 1 //solidify any minos
-				}
-			}
-		}
-	}
-}
 
 document.getElementById("tooltipSetting").addEventListener("click", updateToolTips)
 function updateToolTips() {
