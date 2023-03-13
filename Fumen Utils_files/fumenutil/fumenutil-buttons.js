@@ -4,8 +4,7 @@ import mirrorFumen from "./modified-mirrorFumen.js"
 import combineFumen from "./modified-combineFumen.js"
 import splitFumen from "./modified-splitFumen.js"
 import removeComments from "./modified-removeComments.js"
-import renderImages from "./render-images.js"
-import importImage from "./importImage.js"
+import renderImages from "../rendering/render-images.js"
 
 //INITIALIZATION
 updateBGSelect()
@@ -97,27 +96,4 @@ function takeshot() {
             });
         }
     );
-}
-
-document.addEventListener('paste', (event) => {
-    let items = (event.clipboardData || event.originalEvent.clipboardData).items;
-    for (let item of items) {
-        if (item.kind == 'file') importImage(item.getAsFile());
-    }
-});
-
-document.getElementById("importImage").addEventListener("click", importImageButton)
-async function importImageButton() {
-	try {
-		const clipboardItems = await navigator.clipboard.read();
-		for (const clipboardItem of clipboardItems) {
-			for (const type of clipboardItem.types) {
-				const blob = await clipboardItem.getType(type);
-
-                importImage(blob);
-			}
-		}
-	} catch (err) {
-		console.log(err.message, "\nTry Ctrl V instead.");
-	}
 }

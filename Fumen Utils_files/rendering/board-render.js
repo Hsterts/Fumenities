@@ -1,5 +1,5 @@
 //sharing the same rendering process for both the editor board and the output images
-import { boardSize } from './global-utils.js'
+import { boardSize } from '../global-utils.js'
 
 export function renderBoard() {  //renders board and minoModeBoard
 	//combine board and minomodeBoard

@@ -1,5 +1,5 @@
 const { decoder } = require('tetris-fumen');
-import { LineTerminator } from "./global-utils.js"
+import { LineTerminator } from "../global-utils.js"
 import fumencanvas from "./modified-fumen-canvas.js"
 import fumenrender from "./modified-fumen-render.js"
 

@@ -1,5 +1,5 @@
-import { updateBook } from "./event-listeners.js";
-import { inRange } from "./global-utils.js";
+import { updateBook } from "./fumen-editor.js"
+import { inRange } from "../global-utils.js";
 
 export default async function importImage(blob) {
     // Create an abstract canvas and get context

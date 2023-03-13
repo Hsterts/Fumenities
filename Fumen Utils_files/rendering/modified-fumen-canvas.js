@@ -1,5 +1,5 @@
 import { pageToBoard, renderBoardOnCanvas } from "./board-render.js"
-import encode64 from "./b64.js"
+import encode64 from "../lib/b64.js"
 // import { GIFEncoder, quantize, applyPalette } from 'https://unpkg.com/gifenc@1.0.3';
 
 function getFumenMaxHeight(...fumenPages) {

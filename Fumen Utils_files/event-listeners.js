@@ -1,15 +1,3 @@
-import { pageToBoard } from "./board-render.js"
-import { getCurrentPosition } from "./fumen-editor-mouse.js"
-
-
-
-
-
-//INITIALIZATION
-updateAutoColor()
-updateRowFillInput() //unnecessary
-updateAutoEncoding()
-setPositionDisplay(bookPos, book.length)
 
 //BINDINGS
 document.getElementById("toggleFumenSettings").addEventListener("click", toggleFumenSettings)
@@ -50,62 +38,5 @@ function toggleSidePanel() {
 	}
 	fumenSidebar.classList.toggle('hide-element')
 }
-
-import "./fumenutil-buttons.js"
-
-function settoPage(newPagePos) {
-	// Bound bookPos to existing pages
-	newPagePos = Math.max(Math.min(book.length-1, newPagePos), 0)
-
-	setPositionDisplay(newPagePos, book.length)
-	board = JSON.parse(book[newPagePos]['board'])
-	minoModeBoard = JSON.parse(book[newPagePos]['minoBoard'])
-	document.getElementById('commentBox').value = book[newPagePos]['comment']
-	operation = book[newPagePos]['operation']
-	document.getElementById('lockFlagInput').checked = book[newPagePos]['flags']['lock']
-}
-
-function solidifyAutoColor(currentBookPos) {
-	let currentBoard = JSON.parse(book[currentBookPos]['board'])
-	for (let row in currentBoard){
-		for (let col in currentBoard[row]) {
-			if (currentBoard[row][col].t === 2){
-				currentBoard[row][col].t = 1
-			}
-		}
-	}
-	book[currentBookPos]['board'] = JSON.stringify(currentBoard)
-}
-
-
-
-document.getElementById("commentBox").addEventListener("change", updateBook)
-document.getElementById("lockFlagInput").addEventListener("click", updateBook)
-// Updates all of the board properties: board, minoBoard, operation, comments
-export function updateBook() { //temporary export, might not be necessary
-	bookPos = getCurrentPosition()
-	book[bookPos] = {
-		board: JSON.stringify(board),
-		minoBoard: JSON.stringify(minoModeBoard),
-		comment: document.getElementById('commentBox').value,
-		operation: operation,
-		flags: {lock: document.getElementById('lockFlagInput').checked},
-	}
-	document.getElementById('commentBox').value = (book[bookPos]['comment'] != undefined ? book[bookPos]['comment'] : '')
-
-	undoLog.push(JSON.stringify(book))
-	//Limit undos to 100 entries
-	if(undoLog.length > 100){
-		undoLog.shift()
-	}
-
-	//Clearing redo if branch is overwritten
-	redoLog = [];
-
-	setPositionDisplay(bookPos, book.length)
-	updateAutoColor()
-	window.requestAnimationFrame(renderBoard)
-}
-
 
 

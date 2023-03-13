@@ -1,5 +1,5 @@
 const {decoder, encoder, Field} = require('tetris-fumen');
-import { getDelimiter, LineTerminator } from './global-utils.js'
+import { getDelimiter, LineTerminator } from '../global-utils.js'
 
 const rowLen = 10;
 

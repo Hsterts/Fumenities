@@ -1,5 +1,5 @@
 const { decoder, encoder } = require('tetris-fumen');
-import { LineTerminator, getDelimiter } from './global-utils.js'
+import { LineTerminator, getDelimiter } from '../global-utils.js'
 
 var gluePieces = {
     T: [

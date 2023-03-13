@@ -1,5 +1,5 @@
 import { pageToBoard, renderBoardOnCanvas } from "./board-render.js"
-import encode64 from "./b64.js"
+import encode64 from "../lib/b64.js"
 
 function fumen_draw(fumenPage, numrows) {
 	var tileSize = document.getElementById('cellSize').valueAsNumber;

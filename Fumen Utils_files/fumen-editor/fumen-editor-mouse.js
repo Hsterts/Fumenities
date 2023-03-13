@@ -1,7 +1,6 @@
-import { inRange, shape_table } from "./global-utils.js";
-import { updateBook } from "./event-listeners.js";
-import { renderBoard } from "./board-render.js";
-import { autoEncode } from "./fumen-editor.js";
+import { inRange, shape_table } from "../global-utils.js";
+import { renderBoard } from "../rendering/board-render.js";
+import { autoEncode, updateBook, getCurrentPosition } from "./fumen-editor.js";
 
 function paintbucketColor() {
 	for (i = 0; i < document.paintbucket.length; i++) {
@@ -100,6 +99,14 @@ function drawCanvasCell(cellRow, cellCol) {
 				}
 			}
 		}
+
+		function drawnMinos(someBoard, cellMatch) {
+			return someBoard.reduce((count,row) => {
+				return count += row.reduce((tval,cell) => {
+					return tval += cellMatch(cell)
+				}, 0)
+			}, 0)
+		}
 	}
 
 	function drawCanvasNormalMode() {
@@ -183,15 +190,6 @@ document.onmouseup = function mouseup() {
 		}
 	}
 };
-
-export function getCurrentPosition() {
-	let Position = parseInt(document.getElementById('positionDisplay').value) - 1;
-	if (isNaN(Position))
-		return 0;
-	else
-		return Position;
-}
-
 
 //CONTRIBUTED BY CONFIDENTIAL (confidential#1288)
 function readPiece(mino_positions, recognise_split_minos) { //this has been majorly reworked

@@ -1,10 +1,15 @@
-import { getDelimiter, shape_table } from "./global-utils.js"
-import { updateBook } from "./event-listeners.js";
-import { autoEncode, toField } from "./fumen-editor.js";
+import { getDelimiter, shape_table } from "../global-utils.js"
+import { autoEncode, toField, updateBook, settoPage } from "./fumen-editor.js"
+import importImage from "./importImage.js"
+import { pageToBoard } from "../rendering/board-render.js"
+import { getCurrentPosition } from "../fumen-editor/fumen-editor.js"
 
 //INITIALIZATION
 updateToolTips()
 updateMinoMode()
+updateAutoColor()
+updateRowFillInput()
+updateAutoEncoding()
 
 //SHORTCUTS
 Mousetrap.bind({
@@ -121,9 +126,21 @@ function updateMinoMode() {
 		updateBook()
 	}
 	updateAutoColor()
+	updateRowFillInput()
 }
 
 document.getElementById("prevPage").addEventListener("click", prevPage)
+function solidifyAutoColor(currentBookPos) {
+	let currentBoard = JSON.parse(book[currentBookPos]['board'])
+	for (let row in currentBoard){
+		for (let col in currentBoard[row]) {
+			if (currentBoard[row][col].t === 2){
+				currentBoard[row][col].t = 1
+			}
+		}
+	}
+	book[currentBookPos]['board'] = JSON.stringify(currentBoard)
+}
 function prevPage() {
 	bookPos = getCurrentPosition()
 	solidifyAutoColor(bookPos)
@@ -154,6 +171,42 @@ function gotoPage() {
 	settoPage(bookPos)
 	window.requestAnimationFrame(renderBoard)
 	autoEncode()
+}
+
+function insertFollowingPage(currentBookPos) {
+	//push minomode onto current board
+	let board = JSON.parse(book[currentBookPos]['board'])
+	if (book[currentBookPos]['operation'] != undefined) {
+		for (let row in board){
+			for (let col in board[row]) {
+				if (minoModeBoard[row][col].t != 0){
+					board[row][col] = minoModeBoard[row][col]
+				}
+			}
+		}
+	}
+
+	//Line clears if flag lock is on
+	if (book[currentBookPos]['flags']['lock'] === true) {
+		//going top down guarentees all line clears are performed
+		for (let row in board) {
+			let isFilled = (cell) => cell.t != 0
+			if (board[row].every(isFilled)) {
+				board.splice(row, 1)
+				board.unshift(aRow)
+			}
+		}
+	}
+	
+	let newPage = {
+		board: JSON.stringify(board),
+		minoBoard: JSON.stringify(emptyBoard),
+		comment: book[currentBookPos]['comment'], //only works since we don't care about quiz mode
+		operation: undefined,
+		flags: {lock: document.getElementById('lockFlagInput').checked},
+	}
+
+	book.splice(currentBookPos+1, 0, newPage)
 }
 
 document.getElementById("nextPage").addEventListener("click", nextPage)
@@ -334,6 +387,29 @@ function decodeFumen() {
     }
 }
 
+document.addEventListener('paste', (event) => {
+    let items = (event.clipboardData || event.originalEvent.clipboardData).items;
+    for (let item of items) {
+        if (item.kind == 'file') importImage(item.getAsFile());
+    }
+});
+
+document.getElementById("importImage").addEventListener("click", importImageButton)
+async function importImageButton() {
+	try {
+		const clipboardItems = await navigator.clipboard.read();
+		for (const clipboardItem of clipboardItems) {
+			for (const type of clipboardItem.types) {
+				const blob = await clipboardItem.getType(type);
+
+                importImage(blob);
+			}
+		}
+	} catch (err) {
+		console.log(err.message, "\nTry Ctrl V instead.");
+	}
+}
+
 document.getElementById("insertFumen").addEventListener("click", decodeInsert)
 function decodeInsert() {
     bookPos = getCurrentPosition()
@@ -411,7 +487,7 @@ export function updateAutoColor() {
 	var autoColorBool = document.getElementById('autoColorInput').checked
 	var isAutoColorUsable = !document.getElementById('minoModeInput').checked
 	document.getElementById('autoColorInput').classList.toggle('disabled', !isAutoColorUsable)
-	updateRowFillInput()
+	
 	if(!(isAutoColorUsable && autoColorBool)) {
 		for (let row in board) {
 			for (let col in board[row]) {
@@ -467,3 +543,7 @@ function redo() {
 	}
 	window.requestAnimationFrame(renderBoard)
 }
+
+//automatic update bindings
+document.getElementById("commentBox").addEventListener("change", updateBook)
+document.getElementById("lockFlagInput").addEventListener("click", updateBook)

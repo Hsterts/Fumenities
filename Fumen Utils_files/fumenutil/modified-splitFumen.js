@@ -1,5 +1,5 @@
 const { decoder, encoder } = require('tetris-fumen');
-import { getDelimiter, LineTerminator } from './global-utils.js'
+import { getDelimiter, LineTerminator } from '../global-utils.js'
 
 export default function splitFumen() {
     var input = document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@')
