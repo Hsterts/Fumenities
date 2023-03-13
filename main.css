@@ -249,7 +249,7 @@ input[type='radio'] {
     height: 40px;
 }
 
-.minomode{
+.minoMode{
     color: white;
     padding: 6px;
     margin: 2px;
@@ -297,7 +297,7 @@ input[type='radio'] {
     text-align: left;
     display: grid;
     justify-content: space-between;
-    height: 500px;
+    height: auto;
 }
 
 .bottom-right-fumen-panel{
@@ -460,7 +460,7 @@ input[type='radio'] {
     justify-content: center;
     text-align: center;
     background-color: #23212c66;
-    height: 525px;
+    height: 570px;
 }
 
 .pager { /* redundant? */
