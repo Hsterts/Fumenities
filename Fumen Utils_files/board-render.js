@@ -1,6 +1,7 @@
 //sharing the same rendering process for both the editor board and the output images
+import { boardSize } from './global-utils.js'
 
-function pageToBoard(page) {	
+export function pageToBoard(page) {	
 	let fieldString = page.field.str()
 	let truncatedBoardColors = fieldString.split("\n").map(rowColor => rowColor.split(""))
 	truncatedBoardColors.pop() //remove garbage row
@@ -24,7 +25,7 @@ function pageToBoard(page) {
 	return board
 }
 
-function renderBoardOnCanvas(combinedBoardStats) {
+export function renderBoardOnCanvas(combinedBoardStats) {
 	var tileSize = combinedBoardStats.tileSize
 	var canvas = document.createElement('canvas')
 	canvas.width = boardSize[0] * tileSize

@@ -1,24 +1,24 @@
-// const { decoder, encoder } = require('tetris-fumen');
+const { decoder, encoder } = require('tetris-fumen');
+import { getDelimiter, LineTerminator } from './global-utils.js'
 
-function removeComments(input) {
-    var fumenCodes = [];
-    results = [];
-    for (let rawInput of input.split("\t")) {
-        fumenCodes.push(...rawInput.split(/\s/));
-    }
-
-    for (let code of fumenCodes) {
+export default function removeComments() {
+    var input = document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@')
+    var fumenCodes = input.trim().split(LineTerminator)
+    
+    var results = fumenCodes.map(fumenCode => {
         try {
-            let pages = decoder.decode(code);
-            for (let i = 0; i < pages.length; i++) {
-                pages[i].comment = '';
-                pages[i].quiz = false;
-            }
-            results.push(encoder.encode(pages));
+            let pages = decoder.decode(fumenCode);
 
+            pages.forEach((page, index, pages) => {
+                page.comment = ''
+                page.quiz = false
+                pages[index] = page
+            })
+            
+            return encoder.encode(pages)
         } catch (error) { console.log(code, error); }
-    }
+    })
 
     console.log(results.join(' '));
-    document.getElementById("output").value = results.join(delimiter);
+    document.getElementById("output").value = results.join(getDelimiter());
 }

@@ -1,16 +1,17 @@
-// const { decoder, encoder } = require('tetris-fumen');
+const { decoder, encoder } = require('tetris-fumen');
+import { getDelimiter, LineTerminator } from './global-utils.js'
 
-colorMapping = {
-    "S": 7,
-    "J": 6,
-    "T": 5,
-    "Z": 4,
-    "O": 3,
-    "L": 2,
-    "I": 1
-}
+// var colorMapping = { //unused
+//     "S": 7,
+//     "J": 6,
+//     "T": 5,
+//     "Z": 4,
+//     "O": 3,
+//     "L": 2,
+//     "I": 1
+// }
 
-reverseMapping = {
+var reverseMapping = {
     7: 4,
     4: 7,
     6: 2,
@@ -22,7 +23,7 @@ reverseMapping = {
     8: 8
 }
 
-reverseMappingLetters = {
+var reverseMappingLetters = {
     "L": "J",
     "J": "L",
     "S": "Z",
@@ -32,34 +33,31 @@ reverseMappingLetters = {
     "I": "I",
 }
 
-reverseMappingRotation = {
+var reverseMappingRotation = {
     "spawn": "spawn",
     "right": "left",
     "reverse": "reverse",
     "left": "right"
 }
 
-function mirrorFumen(input) {
-    var fumenCodes = [];
-    results = [];
-    for (let rawInput of input.split("\t")) {
-        fumenCodes.push(...rawInput.split(/\s/));
-    }
+export default function mirrorFumen() {
+    var input = document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@')
+    var fumenCodes = input.trim().split(LineTerminator);
+    var results = [];
 
     for (let code of fumenCodes) {
         try {
             let inputPages = decoder.decode(code);
             for (let i = 0; i < inputPages.length; i++) {
-
-                toMirrorBoard = inputPages[i]["_field"]["field"]["pieces"];
+                let toMirrorBoard = inputPages[i]["_field"]["field"]["pieces"];
                 for (let rowIndex = 0; rowIndex < 23; rowIndex++) {
-                    row = toMirrorBoard.slice(rowIndex * 10, (rowIndex + 1) * 10);
+                    let row = toMirrorBoard.slice(rowIndex * 10, (rowIndex + 1) * 10);
                     for (let colIndex = 0; colIndex < 10; colIndex++) {
                         toMirrorBoard[rowIndex * 10 + colIndex] = reverseMapping[row[9 - colIndex]];
                     }
                 }
 
-                op = inputPages[i]["operation"];
+                let op = inputPages[i]["operation"];
                 if (op) {
                     op.type = reverseMappingLetters[op.type];
                     op.x = 9 - op.x;
@@ -79,5 +77,5 @@ function mirrorFumen(input) {
     }
 
     console.log(results.join(' '));
-    document.getElementById("output").value = results.join(delimiter);
+    document.getElementById("output").value = results.join(getDelimiter());
 }

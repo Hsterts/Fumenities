@@ -1,23 +1,17 @@
-// const { decoder, encoder } = require('tetris-fumen');
+const { decoder, encoder } = require('tetris-fumen');
+import { LineTerminator } from "./global-utils.js";
 
-function combineFumen(input) {
-    var fumenCodes = [];
-    for (let rawInput of input.split("\t")) {
-        fumenCodes.push(...rawInput.split(/\s/));
-    }
+export default function combineFumen() {
+    var input = document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@')
+    var fumenCodes = input.trim().split(LineTerminator)
 
-    combined = [];
-
-    for (let code of fumenCodes) {
+    let combined = fumenCodes.flatMap((fumenCode) => {
         try {
-            let inputPages = decoder.decode(code);
-            for (let i = 0; i < inputPages.length; i++) {
-                combined.push(inputPages[i]);
-            }
-        } catch (error) { console.log(code, error); }
-    }
+            return decoder.decode(fumenCode);
+        } catch (error) { console.log(fumenCode, error); }
+    })
 
-    result = encoder.encode(combined);
+    let result = encoder.encode(combined);
     console.log(result);
     document.getElementById("output").value = result;
 }

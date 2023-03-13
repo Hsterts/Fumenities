@@ -1,21 +1,22 @@
-// const { decoder, encoder } = require('tetris-fumen');
+const { decoder, encoder } = require('tetris-fumen');
+import { getDelimiter, LineTerminator } from './global-utils.js'
 
-function splitFumen(input) {
-    var fumenCodes = [];
-    results = [];
-    for (let rawInput of input.split("\t")) {
-        fumenCodes.push(...rawInput.split(/\s/));
-    }
-
-    for (let code of fumenCodes) {
+export default function splitFumen() {
+    var input = document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@')
+    var fumenCodes = input.trim().split(LineTerminator);
+    
+    let results = fumenCodes.flatMap(fumenCode => {
         try {
-            let inputPages = decoder.decode(code);
-            for (let i = 0; i < inputPages.length; i++) {
-                if (inputPages[0].flags.colorize) inputPages[i].flags.colorize = true;
-                results.push(encoder.encode([inputPages[i]]));
-            }
+            let inputPages = decoder.decode(fumenCode);
+            let colorize = inputPages[0].flags.colorize
+
+            return inputPages.map(inputPage => {
+                inputPage.flags.colorize = colorize
+                return encoder.encode([inputPage])
+            })
         } catch (error) { console.log(code, error); }
-    }
+    });
+
     console.log(results.join(' '));
-    document.getElementById("output").value = results.join(delimiter);
+    document.getElementById("output").value = results.join(getDelimiter());
 }

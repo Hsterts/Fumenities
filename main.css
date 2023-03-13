@@ -463,12 +463,12 @@ input[type='radio'] {
     height: 525px;
 }
 
-.pager {
+.pager { /* redundant? */
     display: inline-block;
     vertical-align: middle;
 }
 
-.shifter{
+.square-button{
     display: inline-block;
     vertical-align: middle;
 }

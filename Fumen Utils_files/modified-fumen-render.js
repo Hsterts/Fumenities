@@ -1,4 +1,5 @@
-// const { decoder } = require('tetris-fumen');
+import { pageToBoard, renderBoardOnCanvas } from "./board-render.js"
+import encode64 from "./b64.js"
 
 function fumen_draw(fumenPage, numrows) {
 	var tileSize = document.getElementById('cellSize').valueAsNumber;
@@ -94,18 +95,18 @@ function fumen_drawFumens(fumenPages, start, end) {
 	return canvases
 }
 
-cellSize = 22;
-start = 0; //start and end are unmodified, TODO: make settings that control these
-end = undefined;
+// cellSize = 22;
+var start = 0; //start and end are unmodified, TODO: make settings that control these
+var end = undefined;
 
 function GIFDataURL(gif) {
 	var binary_gif = gif.stream().getData(); //notice this is different from the as3gif package!
 	return 'data:image/gif;base64,' + encode64(binary_gif);
 }
 
-function fumenrender(fumens) {
+export default function fumenrender(fumens) {
 	var container = document.getElementById('imageOutputs');
-	resultURLs = [];
+	var resultURLs = [];
 
 	for (let fumen of fumens) {
 		if (fumen.length == 1) {
@@ -125,4 +126,6 @@ function fumenrender(fumens) {
 		container.appendChild(img);
 		resultURLs.push(data_url);
 	}
+
+	return resultURLs
 }
