@@ -1,5 +1,6 @@
 import { updateBook } from "./fumen-editor.js"
 import { inRange } from "../global-utils.js";
+import { EditorState } from "./EditorState.js";
 
 export default async function importImage(blob) {
     // Create an abstract canvas and get context
@@ -49,6 +50,7 @@ export default async function importImage(blob) {
                 console.log(hsv, nearestMinoRepresentation(...hsv)); // debugging purposes
                 tmpRow.push(nearestMinoRepresentation(...hsv));
             }
+            console.log(tmpRow)
             tempBoard.push(tmpRow);
         }
         /* // old alg from just scaling it down to x by y pixels
@@ -59,7 +61,7 @@ export default async function importImage(blob) {
             console.log(hsv, nearestColor(hsv[0], hsv[1], hsv[2])); // debugging purposes
             nDat.push(nearestColor(hsv[0], hsv[1], hsv[2]));
         }*/
-        board = JSON.parse(JSON.stringify(tempBoard));
+        EditorState.setBoard(tempBoard)
         updateBook();
     };
 

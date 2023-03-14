@@ -82,8 +82,8 @@ export default function unglueFumen() {
             let toUnglueBoard = inputPages[0]["_field"]["field"]["pieces"];
             let rowsCleared = [];
 
-            for (let pageNum = 0; pageNum < inputPages.length; pageNum++) {
-                let op = inputPages[pageNum]["operation"];
+            for (let inputPage of inputPages) {
+                let op = inputPage["operation"];
                 let piece = gluePieces[op["type"]][rotationMapping[op["rotation"]]];
 
                 for (let mino of piece) {
@@ -102,8 +102,8 @@ export default function unglueFumen() {
                     yIndex = clearedOffset(rowsCleared, yIndex);
                     if (yIndex >= 0) { // sanity check
                         let currentRow = toUnglueBoard.slice(yIndex * 10, yIndex * 10 + 10)
+                        
                         let rowCleared = currentRow.every(mino => mino != 0);
-
                         if (rowCleared) {
                             temp.push(yIndex);
                         }
@@ -129,5 +129,5 @@ export default function unglueFumen() {
     }
 
     console.log(results.join(' '));
-    document.getElementById("output").value = results.join(getDelimiter);
+    document.getElementById("output").value = results.join(getDelimiter());
 }

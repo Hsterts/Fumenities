@@ -16,7 +16,7 @@ export default function removeComments() {
             })
             
             return encoder.encode(pages)
-        } catch (error) { console.log(code, error); }
+        } catch (error) { console.log(fumenCode, error); }
     })
 
     console.log(results.join(' '));

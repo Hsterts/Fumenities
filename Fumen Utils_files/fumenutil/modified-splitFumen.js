@@ -14,7 +14,7 @@ export default function splitFumen() {
                 inputPage.flags.colorize = colorize
                 return encoder.encode([inputPage])
             })
-        } catch (error) { console.log(code, error); }
+        } catch (error) { console.log(fumenCode, error); }
     });
 
     console.log(results.join(' '));

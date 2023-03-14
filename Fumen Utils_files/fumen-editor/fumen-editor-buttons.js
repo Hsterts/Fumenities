@@ -2,7 +2,7 @@ const { encoder } = require('tetris-fumen')
 import { getDelimiter, shape_table, emptyBoard } from "../global-utils.js"
 import { autoEncode, fullEncode, encode, toField, updateBook, updateAutoColor, updateRowFillInput, settoPage, getCurrentPosition } from "./fumen-editor.js"
 import importImage from "./importImage.js"
-import { pageToBoard } from "../rendering/board-render.js"
+import { pageToBoard, renderBoard } from "../rendering/board-render.js"
 import { EditorState } from "./EditorState.js"
 
 //INITIALIZATION
@@ -114,7 +114,7 @@ for (let fumenOption of document.getElementsByClassName('fumen-option')) {
 document.getElementById("minoModeInput").addEventListener("click", updateMinoMode)
 function updateMinoMode() {
     let minoMode = document.getElementById('minoModeInput').checked
-    if (!minoMode && EditorState.getOperation() == undefined)  {
+    if (!minoMode && EditorState.operation == undefined)  {
 		EditorState.setMinoModeBoard(emptyBoard())
 		EditorState.setOperation(undefined)
 		updateBook()
@@ -124,8 +124,9 @@ function updateMinoMode() {
 }
 
 document.getElementById("prevPage").addEventListener("click", prevPage)
-function solidifyAutoColor(currentBookPos) {
-	let currentBoard = JSON.parse(book[currentBookPos]['board'])
+function solidifyAutoColor(currentBookPos) { //TODO: alter board instead, and push changes to book?
+	let currentBook = EditorState.book
+	let currentBoard = JSON.parse(currentBook[currentBookPos]['board'])
 	for (let row in currentBoard){
 		for (let col in currentBoard[row]) {
 			if (currentBoard[row][col].t === 2){
@@ -133,47 +134,53 @@ function solidifyAutoColor(currentBookPos) {
 			}
 		}
 	}
-	book[currentBookPos]['board'] = JSON.stringify(currentBoard)
+
+	currentBook[currentBookPos]['board'] = JSON.stringify(currentBoard)
+	EditorState.setBook(currentBook)
 }
 function prevPage() {
-	bookPos = getCurrentPosition()
-	solidifyAutoColor(bookPos)
-	settoPage(bookPos-1)
+	EditorState.setBookPos(getCurrentPosition())
+	solidifyAutoColor(EditorState.bookPos)
+	settoPage(EditorState.bookPos-1)
 	window.requestAnimationFrame(renderBoard)
 	autoEncode()
 }
 
 document.getElementById("startPage").addEventListener("click", startPage)
 function startPage(){
-	bookPos = 0
-	settoPage(bookPos)
+	EditorState.setBookPos(0)
+	settoPage(EditorState.bookPos)
 	window.requestAnimationFrame(renderBoard)
 	autoEncode()
 }
 
 document.getElementById("currentPage").addEventListener("change", gotoPage)
 function gotoPage() {
-	solidifyAutoColor(bookPos) //relying on global to solidify the page before we leave it
+	solidifyAutoColor(EditorState.bookPos) //relying on global stored value to solidify the page before we leave it
 	//TODO: something like this? https://stackoverflow.com/questions/1909992/how-to-get-old-value-with-onchange-event-in-text-box
 	// check for numeric input and within bounds
-	bookPos = getCurrentPosition()
-	if(isNaN(bookPos)){
-		bookPos = 0
+	let currentBookPos = getCurrentPosition()
+	if(isNaN(currentBookPos)){
+		currentBookPos = 0
 	}
-	bookPos = Math.max(Math.min(book.length, bookPos), 0)
+	currentBookPos = Math.max(Math.min(EditorState.book.length, currentBookPos), 0)
+	EditorState.setBookPos(currentBookPos)
 	
-	settoPage(bookPos)
+	settoPage(EditorState.bookPos)
 	window.requestAnimationFrame(renderBoard)
 	autoEncode()
 }
 
-function insertFollowingPage(currentBookPos) {
+function insertFollowingPage() { //TODOL move this into EditorState?
+	let currentBookPos = getCurrentPosition()
+	let currentBook = EditorState.book
+
 	//push minomode onto current board
-	let board = JSON.parse(book[currentBookPos]['board'])
-	if (book[currentBookPos]['operation'] != undefined) {
+	let board = JSON.parse(currentBook[currentBookPos]['board'])
+	if (currentBook[currentBookPos]['operation'] != undefined) {
 		for (let row in board){
 			for (let col in board[row]) {
-				let minoCell = EditorState.getMinoModeBoard()[row][col]
+				let minoCell = EditorState.minoModeBoard[row][col]
 				if (minoCell.t != 0){
 					board[row][col] = minoCell
 				}
@@ -182,7 +189,7 @@ function insertFollowingPage(currentBookPos) {
 	}
 
 	//Line clears if flag lock is on
-	if (book[currentBookPos]['flags']['lock'] === true) {
+	if (currentBook[currentBookPos]['flags']['lock'] === true) {
 		//going top down guarentees all line clears are performed
 		for (let row in board) {
 			let isFilled = (cell) => cell.t != 0
@@ -196,25 +203,26 @@ function insertFollowingPage(currentBookPos) {
 	let newPage = {
 		board: JSON.stringify(board),
 		minoBoard: JSON.stringify(emptyBoard()),
-		comment: book[currentBookPos]['comment'], //only works since we don't care about quiz mode
+		comment: currentBook[currentBookPos]['comment'], //only works since we don't care about quiz mode
 		operation: undefined,
 		flags: {lock: document.getElementById('lockFlagInput').checked},
 	}
 
-	book.splice(currentBookPos+1, 0, newPage)
+	currentBook.splice(currentBookPos+1, 0, newPage)
+	EditorState.setBook(currentBook)
 }
 
 document.getElementById("nextPage").addEventListener("click", nextPage)
 function nextPage() {
-	bookPos = getCurrentPosition()
+	EditorState.setBookPos(getCurrentPosition())
 
-	if (bookPos == book.length-1) { // Create new page when at the page
-		solidifyAutoColor(bookPos)
-		insertFollowingPage(bookPos)
+	if (EditorState.bookPos == EditorState.book.length-1) { // Create new page when at the page
+		solidifyAutoColor(EditorState.bookPos)
+		insertFollowingPage()
 	}
 
-	bookPos += 1 // next page
-	settoPage(bookPos)
+	EditorState.setBookPos(EditorState.bookPos + 1) // next page
+	settoPage(EditorState.bookPos)
 	window.requestAnimationFrame(renderBoard)
 	updateBook()
 	autoEncode()
@@ -222,7 +230,7 @@ function nextPage() {
 
 document.getElementById("endPage").addEventListener("click", endPage)
 function endPage(){
-	settoPage(book.length-1)
+	settoPage(EditorState.book.length-1)
 	window.requestAnimationFrame(renderBoard)
 	autoEncode()
 }
@@ -274,56 +282,60 @@ function mirror() {
 
 document.getElementById("mirrorFumen").addEventListener("click", fullMirror)
 function fullMirror() {
-	for (let page in book) {
-		var tempBoard = JSON.parse(book[page]['board']);
+	let currentBook = EditorState.book
+	for (let page in currentBook) {
+		var tempBoard = JSON.parse(currentBook[page]['board']);
 		for (let row in tempBoard) {
 			tempBoard[row].reverse();
 			for (let col in tempBoard[row]) {
 				if (tempBoard[row][col].t == 1) tempBoard[row][col].c = reversed[tempBoard[row][col].c];
 			}
 		}
-		book[page]['board'] = JSON.stringify(tempBoard);
+		currentBook[page]['board'] = JSON.stringify(tempBoard);
 	}
-	board = tempBoard;
+	EditorState.setBook(currentBook)
+	EditorState.setBoard(tempBoard)
 	updateBook();
 	window.requestAnimationFrame(renderBoard);
 }
 
 document.getElementById("duplicatePage").addEventListener("click", dupliPage)
 function dupliPage(){
-	bookPos = getCurrentPosition()
-	solidifyAutoColor(bookPos)
-	insertFollowingPage(bookPos)
+	EditorState.setBookPos(getCurrentPosition())
+	solidifyAutoColor(EditorState.bookPos)
+	insertFollowingPage()
 	//technically you don't need to update since it's the same page
-	settoPage(bookPos)
+	settoPage(EditorState.bookPos)
 	window.requestAnimationFrame(renderBoard)
 	autoEncode()
 }
 
 document.getElementById("clearPage").addEventListener("click", clearPage)
-function clearPage(){
-	bookPos = getCurrentPosition()
-	book[bookPos] = {
+function clearPage(){ //TODO: move to EditorState?
+	EditorState.setBookPos(getCurrentPosition())
+	let currentBook = EditorState.book
+	currentBook[EditorState.bookPos] = {
 		board: JSON.stringify(emptyBoard()),
 		minoBoard: JSON.stringify(emptyBoard()),
 		comment: '',
 		operation: undefined,
 		flags: flags
 	}
-	settoPage(bookPos)
+	EditorState.setBook(currentBook)
+	settoPage(EditorState.bookPos)
 	window.requestAnimationFrame(renderBoard)
 	autoEncode()
 }
 
 document.getElementById("deletePage").addEventListener("click", deletePage)
-function deletePage(){
-	bookPos = getCurrentPosition()
-	if(book.length == 1){
+function deletePage(){ //TODO: move to EditorState?
+	EditorState.setBookPos(getCurrentPosition())
+	if (EditorState.book.length == 1) {
 		clearPage()
 	} else {
-		book.splice(bookPos,1)
-		bookPos = Math.min(bookPos,book.length-1) // Bound bookPos to end of book
-		settoPage(bookPos)
+		EditorState.setBook(EditorState.book.splice(EditorState.bookPos,1))
+		EditorState.setBookPos(Math.min(EditorState.bookPos,EditorState.book.length-1)) // Bound bookPos to end of book
+		settoPage(EditorState.bookPos)
 	}
 	window.requestAnimationFrame(renderBoard)
 	autoEncode()
@@ -333,13 +345,13 @@ document.getElementById("reset").addEventListener("click", increaseResetLevel)
 function increaseResetLevel() {
 	let confirmedReset = document.getElementById('reset').classList.contains('confirm-delete-data')
 	if (confirmedReset)  {
-		board = emptyBoard()
+		EditorState.setBookPos(0)
+		EditorState.setBoard(emptyBoard())
 		EditorState.setMinoModeBoard(emptyBoard())
-		book = [{board: emptyBoard(), flags: flags}]
-		setPositionDisplay(0, book.length)
+		EditorState.resetBook()
+		settoPage(EditorState.bookPos)
 		document.getElementById('boardOutput').value = ''
 		document.getElementById('commentBox').value = ''
-		comments = []
 		updateBook() // record initial state in logs, testing
 		autoEncode()
 		window.requestAnimationFrame(renderBoard)
@@ -407,43 +419,21 @@ async function importImageButton() {
 
 document.getElementById("insertFumen").addEventListener("click", decodeInsert)
 function decodeInsert() {
-    bookPos = getCurrentPosition()
-	var bookInsert = decodeFumen()
-	book.splice(bookPos, 0, ...bookInsert)
-	settoPage(bookPos)
+	EditorState.setBookPos(getCurrentPosition())
+    var bookInsert = decodeFumen()
+	EditorState.setBook(EditorState.book.splice(EditorState.bookPos, 0, ...bookInsert))
+	settoPage(EditorState.bookPos)
 	updateBook()
 	window.requestAnimationFrame(renderBoard)
 };
 
 document.getElementById("importFumen").addEventListener("click", fullDecode)
 function fullDecode() {
-	book = decodeFumen();
-	bookPos = 0;
-	settoPage(bookPos)
+	EditorState.setBook(decodeFumen())
+	EditorState.setBookPos(0)
+	settoPage(EditorState.bookPos)
 	window.requestAnimationFrame(renderBoard);
 };
-
-function encodeFumen(...book) {
-	var fullBook = []
-	for (let pageNum in book) {
-		let page = book[pageNum]
-		fullBook.push({
-			comment: page['comment'],
-			operation: page['operation'],
-			field: toField(JSON.parse(page['board'])),
-			flags: {
-				rise: false,
-				mirror: false,
-				colorize: true,
-				comment: page['comment'],
-				lock: page['flags']['lock'],
-				piece: undefined,
-			},
-			index: pageNum, //necessary?
-		});
-	}
-	return encoder.encode(fullBook)
-}
 
 document.getElementById("exportPage").addEventListener("click", encode)
 
@@ -490,30 +480,13 @@ function updateStyle() {
 
 document.getElementById("undo").addEventListener("click", undo)
 function undo() {
-	bookPos = getCurrentPosition()
-	if (undoLog.length <= 1){
-		console.log('No previous actions logged')
-	} else {
-		redoLog.push(undoLog.pop())
-		book = JSON.parse(undoLog[undoLog.length-1])
-		// console.log(bookPos, book.length-1)
-		bookPos = Math.min(bookPos, book.length-1) // Bound bookPos to end of book, temporary measure
-		
-		settoPage(bookPos)
-	}
+	EditorState.undo()
 	window.requestAnimationFrame(renderBoard)
 }
 
 document.getElementById("redo").addEventListener("click", redo)
 function redo() {
-	bookPos = getCurrentPosition()
-	if (redoLog.length == 0){
-		console.log('No following actions logged')
-	} else {
-		undoLog.push(redoLog.pop())
-		book = JSON.parse(undoLog[undoLog.length-1])
-		settoPage(bookPos)
-	}
+	EditorState.redo()
 	window.requestAnimationFrame(renderBoard)
 }
 

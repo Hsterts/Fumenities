@@ -4,11 +4,10 @@ import { boardSize, cellSize } from '../global-utils.js'
 
 export function renderBoard() {  //renders board and minoModeBoard
 	//combine board and minomodeBoard
-	let canvasStyle = (document.getElementById('defaultRenderInput').checked ? 'fumen' : 'four')
 	var combinedBoardStats = {
-		board: JSON.parse(JSON.stringify(board)), 
+		board: JSON.parse(JSON.stringify(EditorState.board)), 
 		tileSize: cellSize, 
-		style: canvasStyle,
+		style: (document.getElementById('defaultRenderInput').checked ? 'fumen' : 'four'),
 		lockFlag: document.getElementById('lockFlagInput').checked,
 		grid: {
 			fillStyle: '#000000',
@@ -16,7 +15,7 @@ export function renderBoard() {  //renders board and minoModeBoard
 		},
 	}
 
-	let minoModeBoard = EditorState.getMinoModeBoard()
+	let minoModeBoard = EditorState.minoModeBoard
 	for (let row in minoModeBoard) {
 		for (let col in minoModeBoard[row]) {
 			if (minoModeBoard[row][col].t === 1) combinedBoardStats.board[row][col] = { t: 2, c: minoModeBoard[row][col].c }
@@ -37,18 +36,18 @@ export function pageToBoard(page) {
 	let emptyRowColors = Array(boardSize[0]).fill("_")
 	var boardColors = [...Array.from({length: boardSize[1]-truncatedBoardColors.length}, () => JSON.parse(JSON.stringify(emptyRowColors))), ...truncatedBoardColors] //pad top with empty rows
 	let cellColorToCell = (cellColor) => cellColor === "_" ? { t: 0, c: '' } : { t: 1, c: cellColor }
-	var board = boardColors.map(rowColors => rowColors.map(cellColorToCell))
+	var newBoard = boardColors.map(rowColors => rowColors.map(cellColorToCell))
 
 	//add glued minos to board
 	const operation = page.operation;
 	if (operation != undefined) {
 		var type = operation.type
 		for (let position of operation.positions()) {
-			board[19-position.y][position.x] = { t: 2, c: type } //operation is bottom-up
+			newBoard[19-position.y][position.x] = { t: 2, c: type } //operation is bottom-up
 		}
 	}
 
-	return board
+	return newBoard
 }
 
 export function renderBoardOnCanvas(combinedBoardStats) {
@@ -219,7 +218,7 @@ export function renderBoardOnCanvas(combinedBoardStats) {
 			} if (cellTypeBelow != 0) {
 				return 2 //highlight
 			} else {
-				return 0
+				return 0 //empty
 			}
 		}
 		

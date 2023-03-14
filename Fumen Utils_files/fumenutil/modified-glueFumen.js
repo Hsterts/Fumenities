@@ -210,7 +210,7 @@ export default function glueFumen(){
     var allPiecesArr = [];
     var allFumens = [];
     var fumenIssues = 0;
-    for(let code of fumenCodes){
+    for (let code of fumenCodes){
         let inputPages = decoder.decode(code);
         let thisGlueFumens = []; // holds the glue fumens for this fumenCode
         for(let pageNum = 0; pageNum < inputPages.length; pageNum++){
@@ -222,12 +222,12 @@ export default function glueFumen(){
 
             scanField(0, height - 1, field, [], allPiecesArr, removeLineClearBool);
             
-            if(allPiecesArr.length == 0){
+            if (allPiecesArr.length == 0){
                 console.log(code + " couldn't be glued");
                 fumenIssues++;
             }
             
-            for(let piecesArr of allPiecesArr){
+            for (let piecesArr of allPiecesArr){
                 let pages = [];
                 pages.push({
                     field: emptyField,
@@ -242,7 +242,7 @@ export default function glueFumen(){
                 thisGlueFumens.push(pieceFumen);
             }
 
-            if(allPiecesArr.length > 1){
+            if (allPiecesArr.length > 1){
                 // multiple outputs warning
                 allFumens.push("Warning: " + code + " led to " + allPiecesArr.length + " outputs: " + thisGlueFumens.join(" "));
             }
@@ -251,7 +251,7 @@ export default function glueFumen(){
         // add the glue fumens for this code to all the fumens
         allFumens.push(...thisGlueFumens)
     }
-    if(fumenCodes.length > allFumens.length){
+    if (fumenCodes.length > allFumens.length){
         console.log("Warning: " + fumenIssues + " fumens couldn't be glued");
     }
 
