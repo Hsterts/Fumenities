@@ -59,8 +59,9 @@ function draw(fumenPage, numrows) {
 	canvas.height = height;
 
 	const context = canvas.getContext('2d');
+	context.imageSmoothingEnabled = false // no anti-aliasing
 	context.drawImage(renderBoardOnCanvas(combinedBoardStats), 0, -20*tileSize + height)
-
+	
 	//add surrounding border
 	context.strokeStyle = strokeStyle
 	context.strokeRect(0.5, 0.5, canvas.width-1, canvas.height-1)

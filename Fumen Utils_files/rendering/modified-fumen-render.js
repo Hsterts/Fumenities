@@ -26,6 +26,7 @@ function fumen_draw(fumenPage, numrows) {
 		},
 	}
 
+	canvasContext.imageSmoothingEnabled = false // no anti-aliasing
 	canvasContext.drawImage(renderBoardOnCanvas(combinedBoardStats), 0, -20*tileSize+height)
 
 	//add surrounding border

@@ -114,7 +114,6 @@ function drawCanvasCell(cellRow, cellCol) {
 			}
 			currentBoard[cellRow][cellCol] = { t: 0, c: '' };
 		} else {
-			console.log(cellCol, cellRow)
 			currentBoard[cellRow][cellCol] = (drawMode ? { t: 1, c: paintbucketColor() } : { t: 0, c: '' });
 		}
 		EditorState.setBoard(currentBoard)

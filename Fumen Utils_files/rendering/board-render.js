@@ -23,7 +23,9 @@ export function renderBoard() {  //renders board and minoModeBoard
 	}
 
 	var newCanvas = renderBoardOnCanvas(combinedBoardStats)
-	document.getElementById('b').getContext('2d').drawImage(newCanvas, 0, 0)
+	let context = document.getElementById('b').getContext('2d')
+	context.imageSmoothingEnabled = false // no anti-aliasing
+	context.drawImage(newCanvas, 0, 0)
 }
 
 export function pageToBoard(page) {	
@@ -68,7 +70,7 @@ export function renderBoardOnCanvas(combinedBoardStats) {
 		let gridCtx = gridCvs.getContext('2d')
 		gridCtx.fillStyle = combinedBoardStats.grid.fillStyle
 		gridCtx.fillRect(0, 0, tileSize, tileSize)
-		gridCtx.strokeStyle = combinedBoardStats.grid.strokeStyle
+		gridCtx.strokeStyle = combinedBoardStats.grid.strokeStyle + '60'
 		gridCtx.strokeRect(0, 0, tileSize + 1, tileSize + 1)
 
 		let gridPattern = canvasContext.createPattern(gridCvs, 'repeat')
@@ -123,7 +125,7 @@ export function renderBoardOnCanvas(combinedBoardStats) {
 
 		const VerticalBorderOpacity = { //left-(border)-right: <cell boarder opacity>-<highlight border opacity>
 			'00': ['00', '00'], //empty neighbouring minos
-			'11': ['40', '00'], //lighter borders within filled minos
+			'11': ['70', '00'], //lighter borders within filled minos
 			'01': ['FF', '00'], //boundary of filled cells
 			'10': ['FF', '00'],
 			'21': ['FF', '00'], //filled cell boundary takes priority over highlight
@@ -138,7 +140,7 @@ export function renderBoardOnCanvas(combinedBoardStats) {
 			'01': ['FF', '00'], //boundary of filled cells
 			'10': ['FF', '00'],
 			'21': ['FF', '00'],
-			'11': ['40', '00'], //lighter borders within filled minos
+			'11': ['70', '00'], //lighter borders within filled minos
 			'02': ['00', 'CC'], //additional border for highlight
 			'12': ['FF', 'CC'],
 			//impossible states
@@ -154,7 +156,7 @@ export function renderBoardOnCanvas(combinedBoardStats) {
 				let cell = currentBoard[row][col]
 				let piece = cell.c
 
-				let cellTypeAbove = currentBoard?.[row-1]?.[col]?.t ?? 0 // return cell type, defaulting to empty if out of board
+				let cellTypeAbove = currentBoard?.[row-1]?.[col]?.t ?? 0 // return cell type, defaulting to filled if out of board
                 let have3dHighlight = (foureffectInput && cellTypeAbove == 0)
 
 				if (cell.t === 2 || (cell.t === 1 && displayLineClear)) {
@@ -169,13 +171,13 @@ export function renderBoardOnCanvas(combinedBoardStats) {
 		
 		function drawMinoRect(x, y, color) {
 			canvasContext.fillStyle = color
-			canvasContext.fillRect(x * tileSize + 1, y * tileSize + 1, tileSize, tileSize) //copy fumen when grid is specified?
+			canvasContext.fillRect(x * tileSize, y * tileSize, tileSize+1, tileSize+1) //copy fumen when grid is specified?
 		}
 
 		function draw3dHighlight(x, y, color) { //drawn above specified cell
 			const highlightSize = tileSize / 5
 			canvasContext.fillStyle = color
-			canvasContext.fillRect(x * tileSize + 1, y * tileSize + 1 - highlightSize, tileSize, highlightSize)
+			canvasContext.fillRect(x * tileSize, y * tileSize - highlightSize, tileSize+1, highlightSize+1)
 		}
 
 		//grid lines for four is more complicated
