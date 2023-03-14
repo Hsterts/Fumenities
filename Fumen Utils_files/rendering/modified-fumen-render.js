@@ -36,7 +36,7 @@ function fumen_draw(fumenPage, numrows) {
 }
 
 function getFumenMaxHeight(...fumenPages) {
-	if (!document.getElementById('autoheight').checked) return parseInt(document.getElementById('height').value)
+	if (!document.getElementById('autoheight').checked) return parseFloat(document.getElementById('height').value)
 
 	var highestRow = Math.max(...fumenPages.map(highestPageHeight))
 	return Math.max(1, Math.min(23, highestRow))
