@@ -1,5 +1,5 @@
 import { pageToBoard, renderBoardOnCanvas } from "./board-render.js"
-import encode64 from "../lib/b64.js"
+import { GIFEncoder as gifenc, quantize, applyPalette } from 'https://unpkg.com/gifenc@1.0.3/dist/gifenc.esm.js';
 
 function fumen_draw(fumenPage, numrows) {
 	var tileSize = document.getElementById('cellSize').valueAsNumber;
@@ -13,7 +13,7 @@ function fumen_draw(fumenPage, numrows) {
     canvas.height = height;
     const canvasContext = canvas.getContext('2d');
 	canvasContext.clearRect(0, 0, width, height);	
-	let strokeStyle = '#888888'
+	let strokeStyle = '#888888' // fixed fumen grid color
 
 	var combinedBoardStats = {
 		board: pageToBoard(fumenPage), 
@@ -66,19 +66,23 @@ function getFumenMaxHeight(...fumenPages) {
 	}
 }
 
-function GenerateFumenGIF(canvases) { //very slow
-	const encoder = new GIFEncoder();
-	encoder.start();
-	encoder.setRepeat(0); // 0 for repeat, -1 for no-repeat
-	encoder.setDelay(500); // frame delay in ms, fixed to 500ms for fumen
-	encoder.setQuality(1); // image quality. 10 is default.
-	if (document.getElementById('transparency').checked) {
-		encoder.setTransparent('rgba(0, 0, 0, 0)');
-	}
-	canvases.forEach(canvas => encoder.addFrame(canvas.getContext('2d')))
-	encoder.finish();
-	// encoder.download('download.gif');
-	return encoder;
+function GenerateGIFAlt(canvases) {
+	let transparent = document.getElementById('transparency').checked
+	let delay = 500 // fixed 500ms delay for fumen
+	const gif = new gifenc();
+	canvases.forEach(canvas => {
+		const { data, width, height } = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height)
+		const palette = quantize(data, 256, {format: 'rgba4444'});
+		const index = applyPalette(data, palette, {format: 'rgba4444'});
+		gif.writeFrame(index, width, height, { palette, transparent, delay }); //assumes that the first element in palette is [0,0,0,0].
+	})
+	gif.finish();
+	return gif;
+}
+
+function GIFDataURLAlt(gif) {
+	let bytes = gif.stream.bytes()
+	return 'data:image/gif;base64,' + base64js.fromByteArray(bytes);
 }
 
 function fumen_drawFumens(fumenPages, start, end) {
@@ -100,22 +104,19 @@ function fumen_drawFumens(fumenPages, start, end) {
 var start = 0; //start and end are unmodified, TODO: make settings that control these
 var end = undefined;
 
-function GIFDataURL(gif) {
-	var binary_gif = gif.stream().getData(); //notice this is different from the as3gif package!
-	return 'data:image/gif;base64,' + encode64(binary_gif);
-}
-
 export default function fumenrender(fumens) {
 	var container = document.getElementById('imageOutputs');
 	var resultURLs = [];
 
 	for (let fumen of fumens) {
 		if (fumen.length == 1) {
+			console.log('page')
 			let canvas = fumen_drawFumens(fumen, 0, undefined)[0];
 			var data_url = canvas.toDataURL("image/png")
 		} else if (fumen.length >= 2) {
+			console.log('pages')
 			let canvases = fumen_drawFumens(fumen, start, end);
-			var data_url = GIFDataURL(GenerateFumenGIF(canvases))
+			var data_url = GIFDataURLAlt(GenerateGIFAlt(canvases))
 		}
 
 		var img = new Image()

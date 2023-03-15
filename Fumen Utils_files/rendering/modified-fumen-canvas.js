@@ -1,6 +1,5 @@
 import { pageToBoard, renderBoardOnCanvas } from "./board-render.js"
-import encode64 from "../lib/b64.js"
-// import { GIFEncoder, quantize, applyPalette } from 'https://unpkg.com/gifenc@1.0.3';
+import { GIFEncoder as gifenc, quantize, applyPalette } from 'https://unpkg.com/gifenc@1.0.3/dist/gifenc.esm.js';
 
 function getFumenMaxHeight(...fumenPages) {
 	if (!document.getElementById('autoheight').checked) return parseFloat(document.getElementById('height').value)
@@ -48,11 +47,10 @@ function draw(fumenPage, numrows) {
 		},
 	}
 	
-	var tilesize = document.getElementById('cellSize').valueAsNumber;
 	var numcols = document.getElementById('width').valueAsNumber;
 
-	const width = numcols * tilesize;
-	const height = Math.min(20, numrows) * tilesize;
+	const width = numcols * tileSize;
+	const height = Math.min(20, numrows) * tileSize;
 
 	var canvas = document.createElement('canvas');
 	canvas.width = width;
@@ -82,47 +80,26 @@ function drawFumens(fumenPages, start, end) {
 	return canvases
 }
 
-function GenerateFourGIF(canvases) { //very slow
-	var startTime = performance.now()
-	const encoder = new GIFEncoder();
-	encoder.start();
-	encoder.setRepeat(0); // 0 for repeat, -1 for no-repeat
-	encoder.setDelay(document.getElementById('delay').value); // frame delay in ms
-	encoder.setQuality(1); // image quality. 10 is default.
-	if (document.getElementById('transparency').checked) {
-		encoder.setTransparent('rgba(0, 0, 0, 0)');
-	}
-	canvases.forEach(canvas => encoder.addFrame(canvas.getContext('2d')))
-	canvases.forEach(canvas => console.log(canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height)))
-	encoder.finish();
-	// encoder.download('download.gif');
-	console.log(performance.now() - startTime)
-	return encoder;
+function GenerateFourGIFAlt(canvases) {
+	let transparent = document.getElementById('transparency').checked
+	let delay = parseFloat(document.getElementById('delay').value)
+	const gif = new gifenc();
+	canvases.forEach(canvas => {
+		const { data, width, height } = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height)
+		const palette = quantize(data, 256, {format: 'rgba4444'});
+		const index = applyPalette(data, palette, {format: 'rgba4444'});
+		gif.writeFrame(index, width, height, { palette, transparent, delay }); //assumes that the first element in palette is [0,0,0,0].
+	})
+	gif.finish();
+	return gif;
 }
-
-// function GenerateFourGIFAlt(canvases) {
-// 	var startTime = performance.now()
-// 	const gif = new GIFEncoder();
-// 	canvases.forEach(canvas => {
-// 		const { data, width, height } = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height)
-// 		const palette = quantize(data, 256);
-// 		const index = applyPalette(data, palette);
-// 		gif.writeFrame(index, width, height, { palette });
-// 	})
-// 	gif.finish();
-// 	console.log(performance.now() - startTime)
-// 	return gif;
-// }
-
-// gridToggle = false;
-// max_col = 10;
 
 var start = 0;
 var end = undefined;
 
-function GIFDataURL(gif) {
-	var binary_gif = gif.stream().getData(); //notice this is different from the as3gif package!
-	return 'data:image/gif;base64,' + encode64(binary_gif);
+function GIFDataURLAlt(gif) {
+	let bytes = gif.stream.bytes()
+	return 'data:image/gif;base64,' + base64js.fromByteArray(bytes);
 }
 
 //the transparent bg of the png anf gif are different
@@ -136,7 +113,7 @@ export default function fumencanvas(fumens) {
 			var data_url = canvas.toDataURL("image/png")
 		} else if (fumen.length >= 2) {
 			let canvases = drawFumens(fumen, start, end);
-			var data_url = GIFDataURL(GenerateFourGIF(canvases));
+			var data_url = GIFDataURLAlt(GenerateFourGIFAlt(canvases));
 		}
 
 		var img = new Image();

@@ -72,9 +72,9 @@ export function renderBoardOnCanvas(combinedBoardStats) {
 		gridCtx.fillRect(0, 0, tileSize, tileSize)
 		gridCtx.strokeStyle = combinedBoardStats.grid.strokeStyle + '60'
 		gridCtx.strokeRect(0, 0, tileSize + 1, tileSize + 1)
-
+		
+		// canvasContext.clearRect(0, 0, boardSize[0] * tileSize, boardSize[1] * tileSize)
 		let gridPattern = canvasContext.createPattern(gridCvs, 'repeat')
-		canvasContext.clearRect(0, 0, boardSize[0] * tileSize, boardSize[1] * tileSize)
 		canvasContext.fillStyle = gridPattern
 		canvasContext.fillRect(0, 0, boardSize[0] * tileSize, boardSize[1] * tileSize)
 	}	
