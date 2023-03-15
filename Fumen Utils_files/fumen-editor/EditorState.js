@@ -18,7 +18,7 @@ export let EditorState = {
 	redoLog: [],
 
     setBookPos(bookPos) { //currently overused, TODO: reduce usage
-        this.bookpos = bookPos
+        this.bookPos = bookPos
     },
     //should only update when: changed internally or change manually from positionDisplay
 

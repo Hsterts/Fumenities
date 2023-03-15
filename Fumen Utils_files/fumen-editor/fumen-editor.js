@@ -1,4 +1,4 @@
-const { Field } = require('tetris-fumen');
+const { Field, encoder } = require('tetris-fumen');
 import { boardSize, cellSize, emptyBoard } from '../global-utils.js'
 import { renderBoard } from '../rendering/board-render.js';
 import { EditorState } from './EditorState.js';
@@ -124,7 +124,7 @@ export function fullEncode() {
 
 //from io.js
 export function toField(board) { //only reads color of minos, ignoring the type
-    FieldString = ''
+    let FieldString = ''
 	for (let row of board) {
 		for (let cell of row) {
 			FieldString += (cell.c == '' ? '_' : cell.c)

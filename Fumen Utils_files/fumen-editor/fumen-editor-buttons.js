@@ -1,4 +1,4 @@
-const { encoder } = require('tetris-fumen')
+const { decoder } = require('tetris-fumen')
 import { getDelimiter, shape_table, emptyBoard } from "../global-utils.js"
 import { autoEncode, fullEncode, encode, toField, updateBook, updateAutoColor, updateRowFillInput, settoPage, getCurrentPosition } from "./fumen-editor.js"
 import importImage from "./importImage.js"
@@ -171,7 +171,7 @@ function gotoPage() {
 	autoEncode()
 }
 
-function insertFollowingPage() { //TODOL move this into EditorState?
+function insertFollowingPage() { //TODO: move this into EditorState?
 	let currentBookPos = getCurrentPosition()
 	let currentBook = EditorState.book
 
@@ -215,12 +215,12 @@ function insertFollowingPage() { //TODOL move this into EditorState?
 document.getElementById("nextPage").addEventListener("click", nextPage)
 function nextPage() {
 	EditorState.setBookPos(getCurrentPosition())
-
+	
 	if (EditorState.bookPos == EditorState.book.length-1) { // Create new page when at the page
 		solidifyAutoColor(EditorState.bookPos)
 		insertFollowingPage()
 	}
-
+	
 	EditorState.setBookPos(EditorState.bookPos + 1) // next page
 	settoPage(EditorState.bookPos)
 	window.requestAnimationFrame(renderBoard)
