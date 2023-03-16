@@ -2,6 +2,36 @@
 import { EditorState } from '../fumen-editor/EditorState.js'
 import { boardSize, cellSize } from '../global-utils.js'
 
+export function getFumenMaxHeight(...fumenPages) {
+	if (!document.getElementById('autoheight').checked) return parseFloat(document.getElementById('height').value)
+
+	var highestRow = Math.max(...fumenPages.map(highestPageHeight))
+	return Math.max(1, Math.min(23, highestRow))
+
+	function highestOperationHeight(operation) {
+		var positionRows = operation.positions().map(position => position.y + 1) //one-indexed
+		return Math.max(1, ...positionRows)
+	}
+	
+	function highestPageHeight(fumenPage) {
+		var highestMino = (fumenPage.operation != undefined ? highestOperationHeight(fumenPage.operation) : 0)
+
+		let fieldString = fumenPage.field.str().replace(RegExp('\n', 'g'), '')
+		fieldString = fieldString.slice(0, -10) //ignore garbage line
+		// console.log(fieldString)
+		let longestEmptyFieldString = fieldString.match(RegExp('^_+'))
+		
+		if (longestEmptyFieldString === null) {
+			var highestFilledIndex = fieldString.length
+		} else {
+			var highestFilledIndex = fieldString.length - longestEmptyFieldString[0].length
+		}
+		var highestField = Math.max(1, Math.ceil(highestFilledIndex / 10)) //one-indexed
+		
+		return Math.max(highestMino, highestField)
+	}
+}
+
 export function renderBoard() {  //renders board and minoModeBoard
 	//combine board and minomodeBoard
 	var combinedBoardStats = {
@@ -70,7 +100,11 @@ export function renderBoardOnCanvas(combinedBoardStats) {
 		let gridCtx = gridCvs.getContext('2d')
 		gridCtx.fillStyle = combinedBoardStats.grid.fillStyle
 		gridCtx.fillRect(0, 0, tileSize, tileSize)
-		gridCtx.strokeStyle = combinedBoardStats.grid.strokeStyle + '60'
+		if (combinedBoardStats.grid.strokeStyle == 7) { //only change opacity if it isn't specified, this keeps tranparent colors unchanged
+			gridCtx.strokeStyle = combinedBoardStats.grid.strokeStyle + '60'
+		} else {
+			gridCtx.strokeStyle = combinedBoardStats.grid.strokeStyle
+		}
 		gridCtx.strokeRect(0, 0, tileSize + 1, tileSize + 1)
 		
 		// canvasContext.clearRect(0, 0, boardSize[0] * tileSize, boardSize[1] * tileSize)

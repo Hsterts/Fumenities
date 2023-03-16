@@ -1,41 +1,13 @@
-import { pageToBoard, renderBoardOnCanvas } from "./board-render.js"
+import { pageToBoard, renderBoardOnCanvas, getFumenMaxHeight } from "./board-render.js"
 import { GIFEncoder as gifenc, quantize, applyPalette } from 'https://unpkg.com/gifenc@1.0.3/dist/gifenc.esm.js';
 
-function getFumenMaxHeight(...fumenPages) {
-	if (!document.getElementById('autoheight').checked) return parseFloat(document.getElementById('height').value)
-
-	var highestRow = Math.max(...fumenPages.map(highestPageHeight))
-	return Math.max(1, Math.min(23, highestRow))
-
-	function highestOperationHeight(operation) {
-		var positionRows = operation.positions().map(position => position.y + 1) //one-indexed
-		return Math.max(1, ...positionRows)
-	}
-	
-	function highestPageHeight(fumenPage) {
-		var highestMino = (fumenPage.operation != undefined ? highestOperationHeight(fumenPage.operation) : 0)
-
-		let fieldString = fumenPage.field.str().replace(RegExp('\n', 'g'), '')
-		fieldString = fieldString.slice(0, -10) //ignore garbage line
-		// console.log(fieldString)
-		let longestEmptyFieldString = fieldString.match(RegExp('^_+'))
-		
-		if (longestEmptyFieldString === null) {
-			var highestFilledIndex = fieldString.length
-		} else {
-			var highestFilledIndex = fieldString.length - longestEmptyFieldString[0].length
-		}
-		var highestField = Math.max(1, Math.ceil(highestFilledIndex / 10)) //one-indexed
-		
-		return Math.max(highestMino, highestField)
-	}
-}
-
 function draw(fumenPage, numrows) {
-	var tileSize = document.getElementById('cellSize').valueAsNumber;
-	var gridColor = document.getElementById('gridColor').value
+	var tileSize = Math.max(document.getElementById('cellSize').valueAsNumber)
 	let fillStyle = (document.getElementById('transparency').checked ? '#00000000': document.getElementById('bg').value)
+	
+	let gridColor = document.getElementById('gridColor').value
 	let strokeStyle = (document.getElementById('gridToggle').checked ? gridColor : '#00000000')
+	
 	var combinedBoardStats = {
 		board: pageToBoard(fumenPage), 
 		tileSize: tileSize, 
@@ -47,8 +19,8 @@ function draw(fumenPage, numrows) {
 		},
 	}
 	
+	
 	var numcols = document.getElementById('width').valueAsNumber;
-
 	const width = numcols * tileSize;
 	const height = Math.min(20, numrows) * tileSize;
 
@@ -56,13 +28,14 @@ function draw(fumenPage, numrows) {
 	canvas.width = width;
 	canvas.height = height;
 
-	const context = canvas.getContext('2d');
-	context.imageSmoothingEnabled = false // no anti-aliasing
-	context.drawImage(renderBoardOnCanvas(combinedBoardStats), 0, -20*tileSize + height)
+	const canvasContext = canvas.getContext('2d');
+	canvasContext.imageSmoothingEnabled = false // no anti-aliasing
+	canvasContext.drawImage(renderBoardOnCanvas(combinedBoardStats), 0, -20*tileSize + height)
 	
 	//add surrounding border
-	context.strokeStyle = strokeStyle
-	context.strokeRect(0.5, 0.5, canvas.width-1, canvas.height-1)
+	canvasContext.strokeStyle = strokeStyle
+	canvasContext.strokeRect(0.5, 0.5, canvas.width-1, canvas.height-1)
+	
 	return canvas
 }
 
@@ -80,7 +53,7 @@ function drawFumens(fumenPages, start, end) {
 	return canvases
 }
 
-function GenerateFourGIFAlt(canvases) {
+function GenerateFourGIF(canvases) {
 	let transparent = document.getElementById('transparency').checked
 	let delay = parseFloat(document.getElementById('delay').value)
 	const gif = new gifenc();
@@ -97,29 +70,30 @@ function GenerateFourGIFAlt(canvases) {
 var start = 0;
 var end = undefined;
 
-function GIFDataURLAlt(gif) {
+function GIFDataURL(gif) {
 	let bytes = gif.stream.bytes()
 	return 'data:image/gif;base64,' + base64js.fromByteArray(bytes);
 }
 
-//the transparent bg of the png anf gif are different
 export default function fumencanvas(fumens) {
 	var container = document.getElementById('imageOutputs');
 	var resultURLs = [];
+	let startTime = performance.now()
 
 	for (let fumen of fumens) {
+		let startTime = performance.now()
 		if (fumen.length == 1) {
 			let canvas = drawFumens(fumen, 0, undefined)[0]
 			var data_url = canvas.toDataURL("image/png")
 		} else if (fumen.length >= 2) {
 			let canvases = drawFumens(fumen, start, end);
-			var data_url = GIFDataURLAlt(GenerateFourGIFAlt(canvases));
+			var data_url = GIFDataURL(GenerateFourGIF(canvases));
 		}
-
+		
 		var img = new Image();
 		img.classList.add('imageOutput', 'fourImageOutput');
 		img.src = data_url;
-
+		
 		var figure = document.createElement('figure');
 		figure.appendChild(img);
 		
@@ -134,10 +108,13 @@ export default function fumencanvas(fumens) {
 			
 			figure.appendChild(commentBox);
 		};
-
+		
 		container.appendChild(figure);
 		resultURLs.push(data_url);
+		console.log("Rendered in " + String(performance.now() - startTime) + "ms")
 	}
+	console.log("Finished in " + String(performance.now() - startTime) + "ms")
 
 	return resultURLs
 }
+

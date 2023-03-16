@@ -1,18 +1,10 @@
-import { pageToBoard, renderBoardOnCanvas } from "./board-render.js"
+import { pageToBoard, renderBoardOnCanvas, getFumenMaxHeight } from "./board-render.js"
 import { GIFEncoder as gifenc, quantize, applyPalette } from 'https://unpkg.com/gifenc@1.0.3/dist/gifenc.esm.js';
 
 function fumen_draw(fumenPage, numrows) {
-	var tileSize = document.getElementById('cellSize').valueAsNumber;
-
-	var numcols = document.getElementById('width').value;
-	const width = numcols * tileSize;
-	const height = Math.min(20, numrows) * tileSize;
+	var tileSize = Math.max(document.getElementById('cellSize').valueAsNumber)
+	let fillStyle = (document.getElementById('transparency').checked ? '#00000000': document.getElementById('bg').value)
 	
-	var canvas = document.createElement('canvas');
-	canvas.width = width;
-    canvas.height = height;
-    const canvasContext = canvas.getContext('2d');
-	canvasContext.clearRect(0, 0, width, height);	
 	let strokeStyle = '#888888' // fixed fumen grid color
 
 	var combinedBoardStats = {
@@ -21,13 +13,22 @@ function fumen_draw(fumenPage, numrows) {
 		style: 'fumen', 
 		lockFlag: document.getElementById('highlightLineClear').checked && (fumenPage.flags.lock ?? false),
 		grid: {
-			fillStyle: (document.getElementById('transparency').checked ? '#00000000': document.getElementById('bg').value), 
-			strokeStyle: strokeStyle
+			fillStyle: fillStyle,
+			strokeStyle: strokeStyle,
 		},
 	}
+	
+	var numcols = document.getElementById('width').valueAsNumber;
+	const width = numcols * tileSize;
+	const height = Math.min(20, numrows) * tileSize;
 
+	var canvas = document.createElement('canvas');
+	canvas.width = width;
+    canvas.height = height;
+
+    const canvasContext = canvas.getContext('2d');
 	canvasContext.imageSmoothingEnabled = false // no anti-aliasing
-	canvasContext.drawImage(renderBoardOnCanvas(combinedBoardStats), 0, -20*tileSize+height)
+	canvasContext.drawImage(renderBoardOnCanvas(combinedBoardStats), 0, -20*tileSize + height)
 
 	//add surrounding border
 	canvasContext.strokeStyle = strokeStyle
@@ -36,37 +37,7 @@ function fumen_draw(fumenPage, numrows) {
 	return canvas
 }
 
-function getFumenMaxHeight(...fumenPages) {
-	if (!document.getElementById('autoheight').checked) return parseFloat(document.getElementById('height').value)
-
-	var highestRow = Math.max(...fumenPages.map(highestPageHeight))
-	return Math.max(1, Math.min(23, highestRow))
-
-	function highestOperationHeight(operation) {
-		var positionRows = operation.positions().map(position => position.y + 1) //one-indexed
-		return Math.max(1, ...positionRows)
-	}
-	
-	function highestPageHeight(fumenPage) {
-		var highestMino = (fumenPage.operation != undefined ? highestOperationHeight(fumenPage.operation) : 0)
-
-		let fieldString = fumenPage.field.str().replace(RegExp('\n', 'g'), '')
-		fieldString = fieldString.slice(0, -10) //ignore garbage line
-		// console.log(fieldString)
-		let longestEmptyFieldString = fieldString.match(RegExp('^_+'))
-		
-		if (longestEmptyFieldString === null) {
-			var highestFilledIndex = fieldString.length
-		} else {
-			var highestFilledIndex = fieldString.length - longestEmptyFieldString[0].length
-		}
-		var highestField = Math.max(1, Math.ceil(highestFilledIndex / 10)) //one-indexed
-		
-		return Math.max(highestMino, highestField)
-	}
-}
-
-function GenerateGIFAlt(canvases) {
+function GenerateGIF(canvases) {
 	let transparent = document.getElementById('transparency').checked
 	let delay = 500 // fixed 500ms delay for fumen
 	const gif = new gifenc();
@@ -80,13 +51,12 @@ function GenerateGIFAlt(canvases) {
 	return gif;
 }
 
-function GIFDataURLAlt(gif) {
+function GIFDataURL(gif) {
 	let bytes = gif.stream.bytes()
 	return 'data:image/gif;base64,' + base64js.fromByteArray(bytes);
 }
 
 function fumen_drawFumens(fumenPages, start, end) {
-	//for some reason, last page of a glued fumen isn't rendered. (fumen style specific)
 	if (end == undefined) {
 		end = fumenPages.length;
 	}
@@ -100,7 +70,6 @@ function fumen_drawFumens(fumenPages, start, end) {
 	return canvases
 }
 
-// cellSize = 22;
 var start = 0; //start and end are unmodified, TODO: make settings that control these
 var end = undefined;
 
@@ -110,13 +79,11 @@ export default function fumenrender(fumens) {
 
 	for (let fumen of fumens) {
 		if (fumen.length == 1) {
-			console.log('page')
 			let canvas = fumen_drawFumens(fumen, 0, undefined)[0];
 			var data_url = canvas.toDataURL("image/png")
 		} else if (fumen.length >= 2) {
-			console.log('pages')
 			let canvases = fumen_drawFumens(fumen, start, end);
-			var data_url = GIFDataURLAlt(GenerateGIFAlt(canvases))
+			var data_url = GIFDataURL(GenerateGIF(canvases))
 		}
 
 		var img = new Image()
