@@ -81,7 +81,6 @@ export default function fumencanvas(fumens) {
 	let startTime = performance.now()
 
 	for (let fumen of fumens) {
-		let startTime = performance.now()
 		if (fumen.length == 1) {
 			let canvas = drawFumens(fumen, 0, undefined)[0]
 			var data_url = canvas.toDataURL("image/png")
@@ -111,7 +110,6 @@ export default function fumencanvas(fumens) {
 		
 		container.appendChild(figure);
 		resultURLs.push(data_url);
-		console.log("Rendered in " + String(performance.now() - startTime) + "ms")
 	}
 	console.log("Finished in " + String(performance.now() - startTime) + "ms")
 
