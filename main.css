@@ -460,7 +460,7 @@ input[type='radio'] {
     justify-content: center;
     text-align: center;
     background-color: #23212c66;
-    height: 570px;
+    height: auto;
 }
 
 .pager { /* redundant? */
