@@ -2,7 +2,7 @@ import { pageToBoard, renderBoardOnCanvas, getFumenMaxHeight } from "./board-ren
 import { GIFEncoder as gifenc, quantize, applyPalette } from 'https://unpkg.com/gifenc@1.0.3/dist/gifenc.esm.js';
 
 function fumen_draw(fumenPage, numrows) {
-	var tileSize = Math.max(document.getElementById('cellSize').valueAsNumber)
+	var tileSize = Math.max(1, document.getElementById('cellSize').valueAsNumber || 0)
 	let fillStyle = (document.getElementById('transparency').checked ? '#00000000': document.getElementById('bg').value)
 	
 	let strokeStyle = '#888888' // fixed fumen grid color
@@ -56,12 +56,13 @@ function GIFDataURL(gif) {
 	return 'data:image/gif;base64,' + base64js.fromByteArray(bytes);
 }
 
-function fumen_drawFumens(fumenPages, start, end) {
-	if (end == undefined) {
-		end = fumenPages.length;
-	}
+function fumen_drawFumens(fumenPages) {
+	let start = document.getElementById('startPage').valueAsNumber-1 || 0
+	start = Math.min(fumenPages.length, Math.max(0, start))
+	let end = document.getElementById('endPage').valueAsNumber-1 || 0
+	end = Math.min(fumenPages.length, Math.max(0, end))
 
-	var drawnFumenPages = fumenPages.slice(start, end)
+	var drawnFumenPages = fumenPages.slice(start, end+1) //slice excludes right bound
 
 	var numrows = getFumenMaxHeight(...drawnFumenPages)
 
@@ -70,19 +71,17 @@ function fumen_drawFumens(fumenPages, start, end) {
 	return canvases
 }
 
-var start = 0; //start and end are unmodified, TODO: make settings that control these
-var end = undefined;
-
 export default function fumenrender(fumens) {
 	var container = document.getElementById('imageOutputs');
 	var resultURLs = [];
+	let startTime = performance.now()
 
 	for (let fumen of fumens) {
 		if (fumen.length == 1) {
-			let canvas = fumen_drawFumens(fumen, 0, undefined)[0];
+			let canvas = fumen_drawFumens(fumen)[0];
 			var data_url = canvas.toDataURL("image/png")
 		} else if (fumen.length >= 2) {
-			let canvases = fumen_drawFumens(fumen, start, end);
+			let canvases = fumen_drawFumens(fumen);
 			var data_url = GIFDataURL(GenerateGIF(canvases))
 		}
 
@@ -95,6 +94,7 @@ export default function fumenrender(fumens) {
 		container.appendChild(img);
 		resultURLs.push(data_url);
 	}
+	console.log("Finished in " + String(performance.now() - startTime) + "ms")
 
 	return resultURLs
 }

@@ -1,5 +1,5 @@
 const { decoder } = require('tetris-fumen')
-import { getDelimiter, shape_table, emptyBoard } from "../global-utils.js"
+import { getDelimiter, shape_table, emptyBoard, emptyRow } from "../global-utils.js"
 import { autoEncode, fullEncode, encode, toField, updateBook, updateAutoColor, updateRowFillInput, settoPage, getCurrentPosition } from "./fumen-editor.js"
 import importImage from "./importImage.js"
 import { pageToBoard, renderBoard } from "../rendering/board-render.js"
@@ -195,7 +195,7 @@ function insertFollowingPage() { //TODO: move this into EditorState?
 			let isFilled = (cell) => cell.t != 0
 			if (board[row].every(isFilled)) {
 				board.splice(row, 1)
-				board.unshift(aRow)
+				board.unshift(emptyRow())
 			}
 		}
 	}
@@ -250,10 +250,10 @@ function shift(direction){
 			break;
 		case 'up':
 				board.shift()
-				board.push(JSON.parse(JSON.stringify(aRow)))
+				board.push(JSON.parse(JSON.stringify(emptyRow())))
 			break;
 		case 'down':
-				board.unshift(JSON.parse(JSON.stringify(aRow)))
+				board.unshift(JSON.parse(JSON.stringify(emptyRow())))
 				board.pop()
 			break;
 		case 'right':

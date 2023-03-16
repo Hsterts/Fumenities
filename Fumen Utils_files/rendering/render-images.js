@@ -5,29 +5,33 @@ import fumenrender from "./modified-fumen-render.js"
 
 function downloadByURL(DataURLs) {
     var zip = new JSZip();
-    DataURLs.forEach((DataURL, i) => {
-        let filetype = RegExp('image/(.+);').exec(DataURL)[1]
-        JSZipUtils.getBinaryContent(DataURL, function (err, data){
-            if (err) {
-                console.log(err)
-                return
-            } 
-            
-            var fileNaming = document.getElementById('naming').value
-            if (fileNaming == "index"){
-                var filename = (i+1)+filetype
-            } else if (fileNaming == "fumen") {
-                var filename = fumenCodes[i]+filetype;
-            }
-            
-            zip.file(filename, data, {base64:true});
+    let promises = DataURLs.map((DataURL, i) => {
+        return new Promise((resolve, reject) => {
+            let filetype = RegExp('image/(.+);').exec(DataURL)[1]
+            JSZipUtils.getBinaryContent(DataURL, (err, data) => { //async
+                if (err) {
+                    reject(err)
+                }
+                
+                var fileNaming = document.getElementById('naming').value
+                if (fileNaming == "index"){
+                    var filename = (i+1)+'.'+filetype
+                } else if (fileNaming == "fumen") {
+                    var filename = fumenCodes[i]+'.'+filetype;
+                }
+                
+                zip.file(filename, data, {base64:true});
+                resolve()
+            });
+        })
+    })
+    console.log(promises)
+    Promise.allSettled(promises).then(() => {
+        zip.generateAsync({type:'blob'}).then(blob => {
+            saveAs(blob, "output.zip");
+            console.log("downloaded");
         });
     })
-
-    zip.generateAsync({type:'blob'}).then(function(base64){
-        saveAs(base64, "output.zip");
-        console.log("downloaded");
-    });
 }
 
 export default function renderImages() {
