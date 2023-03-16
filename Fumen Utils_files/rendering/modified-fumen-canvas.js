@@ -1,3 +1,4 @@
+import { boardSize } from "../global-utils.js";
 import { pageToBoard, renderBoardOnCanvas, getFumenMaxHeight } from "./board-render.js"
 import { GIFEncoder as gifenc, quantize, applyPalette } from 'https://unpkg.com/gifenc@1.0.3/dist/gifenc.esm.js';
 
@@ -18,19 +19,14 @@ function draw(fumenPage, numrows) {
 			strokeStyle: strokeStyle, //turn to gridColor
 		},
 	}
-	
-	
-	var numcols = document.getElementById('width').valueAsNumber;
-	const width = numcols * tileSize;
-	const height = Math.min(20, numrows) * tileSize;
 
 	var canvas = document.createElement('canvas');
-	canvas.width = width;
-	canvas.height = height;
+	canvas.width = Math.min(boardSize[0], document.getElementById('width').valueAsNumber) * tileSize
+	canvas.height = Math.min(boardSize[1], numrows) * tileSize;
 
 	const canvasContext = canvas.getContext('2d');
 	canvasContext.imageSmoothingEnabled = false // no anti-aliasing
-	canvasContext.drawImage(renderBoardOnCanvas(combinedBoardStats), 0, -20*tileSize + height)
+	canvasContext.drawImage(renderBoardOnCanvas(combinedBoardStats), 0, -20*tileSize + canvas.height)
 	
 	//add surrounding border
 	canvasContext.strokeStyle = strokeStyle

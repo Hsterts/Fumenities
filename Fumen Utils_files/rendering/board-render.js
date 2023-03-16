@@ -123,8 +123,8 @@ export function renderBoardOnCanvas(combinedBoardStats) {
 	
 	function fumenRender() {
 		const FumenPalette = {
-			normal: { T: '#990099', I: '#009999', O: '#999900', L: '#996600', J: '#0000bb', S: '#009900', Z: '#990000', X: '#999999' },
-			light:  { T: '#cc33cc', I: '#33cccc', O: '#cccc33', L: '#cc9933', J: '#3333cc', S: '#33cc33', Z: '#cc3333', X: '#cccccc' },
+			normal: { T: '#990099', I: '#009999', L: '#996600', J: '#0000bb', S: '#009900', Z: '#990000', O: '#999900', X: '#999999' },
+			clear:  { T: '#cc33cc', I: '#33cccc', L: '#cc9933', J: '#3333cc', S: '#33cc33', Z: '#cc3333', O: '#cccc33', X: '#cccccc' },
 		}
 
 		for (let row in currentBoard) {
@@ -132,7 +132,7 @@ export function renderBoardOnCanvas(combinedBoardStats) {
 			for (let col in currentBoard[row]) {
 				let cell = currentBoard[row][col]
 				let piece = cell.c
-				if (cell.t === 2 || (cell.t === 1 && displayLineClear)) drawMinoRect(col, row, FumenPalette.light[piece])
+				if (cell.t === 2 || (cell.t === 1 && displayLineClear)) drawMinoRect(col, row, FumenPalette.clear[piece])
 				else if (cell.t === 1) drawMinoRect(col, row, FumenPalette.normal[piece])
 			}
 		}
@@ -145,9 +145,9 @@ export function renderBoardOnCanvas(combinedBoardStats) {
 
 	function fourRender() {
 		const FourPalette = {
-			normal:  { T: '#b451ac', I: '#41afde', O: '#f7d33e', L: '#ef9535', J: '#1983bf', S: '#66c65c', Z: '#ef624d', X: '#999999' },
-			light:   { T: '#d161c9', I: '#3dc0fb', O: '#ffe34b', L: '#fea440', J: '#1997e3', S: '#7cd97a', Z: '#fd7660', X: '#bbbbbb' },
-			lighter: { T: '#fe89f7', I: '#75faf8', O: '#fbe97f', L: '#feb86d', J: '#1fd7f7', S: '#96f98b', Z: '#ff998c', X: '#dddddd' },
+			normal:    { T: '#9739a2', I: '#42afe1', L: '#f38927', J: '#1165b5', S: '#51b84d', Z: '#eb4f65', O: '#f6d03c', X: '#868686' },
+			clear:     { T: '#b94bc6', I: '#5cc7f9', L: '#f99e4c', J: '#2c84da', S: '#70d36d', Z: '#f96c67', O: '#f9df6c', X: '#bdbdbd' },
+			highlight: { T: '#d958e9', I: '#6ceaff', L: '#ffba59', J: '#339bff', S: '#82f57e', Z: '#ff7f79', O: '#ffff7f', X: '#dddddd' },
 		}
 
 		// There might be a better way to implement this border priority:
@@ -194,10 +194,10 @@ export function renderBoardOnCanvas(combinedBoardStats) {
                 let have3dHighlight = (foureffectInput && cellTypeAbove == 0)
 
 				if (cell.t === 2 || (cell.t === 1 && displayLineClear)) {
-					if (have3dHighlight) draw3dHighlight(col, row, FourPalette.lighter[piece])
-					drawMinoRect(col, row, FourPalette.light[piece])
+					if (have3dHighlight) draw3dHighlight(col, row, FourPalette.highlight[piece])
+					drawMinoRect(col, row, FourPalette.clear[piece])
 				} else if (cell.t === 1) {
-					if (have3dHighlight) draw3dHighlight(col, row, FourPalette.light[piece])
+					if (have3dHighlight) draw3dHighlight(col, row, FourPalette.highlight[piece])
 					drawMinoRect(col, row, FourPalette.normal[piece])
 				}
 			}
