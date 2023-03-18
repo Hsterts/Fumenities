@@ -319,7 +319,7 @@ function clearPage(){ //TODO: move to EditorState?
 		minoBoard: JSON.stringify(emptyBoard()),
 		comment: '',
 		operation: undefined,
-		flags: flags
+		flags: {lock: true}
 	}
 	EditorState.setBook(currentBook)
 	settoPage(EditorState.bookPos)
@@ -333,7 +333,9 @@ function deletePage(){ //TODO: move to EditorState?
 	if (EditorState.book.length == 1) {
 		clearPage()
 	} else {
-		EditorState.setBook(EditorState.book.splice(EditorState.bookPos,1))
+		let book = EditorState.book
+		book.splice(EditorState.bookPos,1)
+		EditorState.setBook(book)
 		EditorState.setBookPos(Math.min(EditorState.bookPos,EditorState.book.length-1)) // Bound bookPos to end of book
 		settoPage(EditorState.bookPos)
 	}

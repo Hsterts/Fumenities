@@ -1,4 +1,5 @@
 import { emptyBoard } from "../global-utils.js"
+import { getCurrentPosition, settoPage } from "./fumen-editor.js"
 
 // keeps track of everything the board can display
 const emptyBook = [{board: JSON.stringify(emptyBoard()), minoBoard: JSON.stringify(emptyBoard()), comment: '', operation: undefined, flags: {lock: true}},]
@@ -12,13 +13,12 @@ export let EditorState = {
 	operation: undefined, // {type: 'I', rotation: 'reverse', x: 4, y: 0}
 	flags: {lock: true},
 
-    book: emptyBook,
-	// book: this.resetBook(),
+    book: JSON.parse(JSON.stringify(emptyBook)),
 	undoLog: [], //TODO: undo + redo -> Log + pointer?
 	redoLog: [],
 
     setBookPos(bookPos) { //currently overused, TODO: reduce usage
-        this.bookPos = bookPos
+        this.bookPos = Math.min(this.book.length-1, Math.max(0, bookPos))
     },
     //should only update when: changed internally or change manually from positionDisplay
 
@@ -60,7 +60,7 @@ export let EditorState = {
     },
 
     resetBook() {
-        this.book = emptyBook
+        this.book = JSON.parse(JSON.stringify(emptyBook))
     },
 
     undo() {

@@ -168,7 +168,7 @@ export function updateRowFillInput() {
 	document.getElementById('rowFillInput').classList.toggle('disabled', !isRowFillUsable)
 }
 
-export function settoPage(newPagePos) {
+export function settoPage(newPagePos) { //move from book to board, minoboard and operation //TODO: move to EditorState?
 	// Bound bookPos to existing pages
 	newPagePos = Math.max(Math.min(EditorState.book.length-1, newPagePos), 0)
 
