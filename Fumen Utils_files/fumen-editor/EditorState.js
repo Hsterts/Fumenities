@@ -18,7 +18,7 @@ export let EditorState = {
 	redoLog: [],
 
     setBookPos(bookPos) { //currently overused, TODO: reduce usage
-        this.bookPos = Math.min(this.book.length-1, Math.max(0, bookPos))
+        this.bookPos = Math.min(this.book.length-1, Math.max(0, bookPos || 0))
     },
     //should only update when: changed internally or change manually from positionDisplay
 
