@@ -1,8 +1,17 @@
 import { emptyBoard } from "../global-utils.js"
-import { settoPage } from "./fumen-editor.js"
+import { autoEncode, settoPage } from "./fumen-editor.js"
+import { renderBoard } from "../rendering/board-render.js"
 
 // keeps track of everything the board can display
-const emptyBook = [{board: JSON.stringify(emptyBoard()), minoBoard: JSON.stringify(emptyBoard()), comment: '', operation: undefined, flags: {lock: true}},]
+
+function emptyPage() {
+    return {board: JSON.stringify(emptyBoard()), minoBoard: JSON.stringify(emptyBoard()), comment: '', operation: undefined, flags: {lock: true}}
+}
+const emptyBook = [emptyPage(),]
+
+let displayState = { //move bookPos, board, minoModeBoard, comment, operation, flags here
+
+}
 
 //TODO: encoding and decoding of board state should be done here, not in fumen-editor
 export let EditorState = {
@@ -19,11 +28,11 @@ export let EditorState = {
 	redoLog: [],
 
     setBookPos(bookPos) { //currently overused, TODO: reduce usage
-        console.log("bookpos set")
         this.bookPos = Math.min(this.book.length-1, Math.max(0, bookPos))
-        // settoPage(this.bookPos)
+        settoPage(this.bookPos)
+        // window.requestAnimationFrame(renderBoard)
+        // autoEncode()
     },
-    //should only update when: changed internally or change manually from positionDisplay
 
     setBoard(board) {
         this.board = board
@@ -58,7 +67,7 @@ export let EditorState = {
         this.redoLog = [];
     },
 
-    setBook(book) {
+    setBook(book) { //TODO: should be reduced, push changes from board/minoboard/etc. instead
         this.book = book
     },
 
@@ -72,9 +81,7 @@ export let EditorState = {
         } else {
             this.redoLog.push(this.undoLog.pop())
             this.book = JSON.parse(this.undoLog[this.undoLog.length-1])
-            // console.log(bookPos, book.length-1)
             this.bookPos = Math.min(this.bookPos, this.book.length-1) // Bound bookPos to end of book, temporary measure
-            
             settoPage(this.bookPos)
         }
     },

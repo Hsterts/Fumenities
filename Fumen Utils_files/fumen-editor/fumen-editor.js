@@ -1,23 +1,12 @@
 const { Field, encoder } = require('tetris-fumen');
-import { boardSize, cellSize, emptyBoard } from '../global-utils.js'
+import { boardSize, cellSize } from '../global-utils.js'
 import { renderBoard } from '../rendering/board-render.js';
 import { EditorState } from './EditorState.js';
 
 //BOARD
-//TODO: contain all of these globals inside this module
-// var board = []
-// var book = []
-// var undoLog = []
-// var redoLog = []
-// var operation // {type: 'I', rotation: 'reverse', x: 4, y: 0}
-// var flags = {lock: true}
-
-//INITIALIZATION
-updateAutoColor()
-updateRowFillInput()
 
 // var bookPos = 0
-settoPage(0)
+EditorState.setBookPos(0)
 updateBook()
 window.requestAnimationFrame(renderBoard)
 
@@ -91,6 +80,17 @@ export function autoEncode() {
     else if (encodingType == 'currentFumenPage') encode();
 }
 
+//from io.js
+function toField(board) { //only reads color of minos, ignoring the type
+    let FieldString = ''
+	for (let row of board) {
+		for (let cell of row) {
+			FieldString += (cell.c == '' ? '_' : cell.c)
+		}
+	}
+    return Field.create(FieldString)
+}
+
 function encodeFumen(...book) {
 	var fullBook = []
 	for (let pageNum in book) {
@@ -121,19 +121,9 @@ export function fullEncode() {
 	document.getElementById('boardOutput').value = encodeFumen(...EditorState.book);
 }
 
-//from io.js
-function toField(board) { //only reads color of minos, ignoring the type
-    let FieldString = ''
-	for (let row of board) {
-		for (let cell of row) {
-			FieldString += (cell.c == '' ? '_' : cell.c)
-		}
-	}
-    return Field.create(FieldString)
-}
-
 // Updates all of the board properties: board, minoBoard, operation, comments
 export function updateBook() { //temporary export, might not be necessary
+	//display -> storage
 	let currentBook = EditorState.book
 	currentBook[EditorState.bookPos] = { //TODO: maybe alter the board in the EditorState, then push into the book, instead of setting the book yourself?
 		board: JSON.stringify(EditorState.board),
@@ -143,30 +133,15 @@ export function updateBook() { //temporary export, might not be necessary
 		flags: {lock: document.getElementById('lockFlagInput').checked},
 	}
 	EditorState.setBook(currentBook)
-	document.getElementById('commentBox').value = EditorState.book[EditorState.bookPos]['comment'] ?? '' //use cuurent comment instead?
-
 	EditorState.addLog()
 
-	updateAutoColor()
-	updateRowFillInput()
 	autoEncode()
 	window.requestAnimationFrame(renderBoard)
 }
 
-export function updateAutoColor() {
-	var autoColorBool = document.getElementById('autoColorInput').checked
-	var isAutoColorUsable = !document.getElementById('minoModeInput').checked
-	document.getElementById('autoColorInput').classList.toggle('disabled', !isAutoColorUsable)
-	
-	if(!(isAutoColorUsable && autoColorBool)) EditorState.solidifyBoard()
-}
-
-export function updateRowFillInput() {
-	var isRowFillUsable = !document.getElementById('minoModeInput').checked && !document.getElementById('autoColorInput').checked
-	document.getElementById('rowFillInput').classList.toggle('disabled', !isRowFillUsable)
-}
-
-export function settoPage(newPagePos) { //move from book to board, minoboard and operation //TODO: move to EditorState?
+export function settoPage(newPagePos) {
+	// storage -> display 
+	//move from book to board, minoboard and operation //TODO: move to EditorState?
 	// Bound bookPos to existing pages
 	newPagePos = Math.max(Math.min(EditorState.book.length-1, newPagePos), 0)
 
@@ -176,11 +151,11 @@ export function settoPage(newPagePos) { //move from book to board, minoboard and
 	setPositionDisplay(newPagePos, EditorState.book.length)
 	document.getElementById('commentBox').value = EditorState.book[newPagePos]['comment']
 	document.getElementById('lockFlagInput').checked = EditorState.book[newPagePos]['flags']['lock']
-}
 
-function setPositionDisplay(pageIndex, totalPageNum) {
-	document.getElementById('positionDisplay').value = pageIndex+1
-	document.getElementById('positionDisplayOver').value = '/' + totalPageNum
+	function setPositionDisplay(pageIndex, totalPageNum) {
+		document.getElementById('positionDisplay').value = pageIndex+1
+		document.getElementById('positionDisplayOver').value = '/' + totalPageNum
+	}
 }
 // import "./fumen-editor-buttons.js"
 // import "./fumen-editor-mouse.js"

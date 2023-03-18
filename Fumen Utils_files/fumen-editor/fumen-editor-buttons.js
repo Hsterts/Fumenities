@@ -1,13 +1,15 @@
 const { decoder } = require('tetris-fumen')
 import { getDelimiter, shape_table, emptyBoard, emptyRow } from "../global-utils.js"
-import { autoEncode, fullEncode, encode, updateBook, updateAutoColor, updateRowFillInput, settoPage } from "./fumen-editor.js"
+import { autoEncode, fullEncode, encode, updateBook, settoPage } from "./fumen-editor.js"
 import importImage from "./importImage.js"
 import { pageToBoard, renderBoard } from "../rendering/board-render.js"
 import { EditorState } from "./EditorState.js"
 
 //INITIALIZATION
-updateToolTips()
 updateMinoMode()
+updateAutoColor()
+updateRowFillInput()
+updateToolTips()
 updateAutoEncoding()
 
 //SHORTCUTS
@@ -84,10 +86,21 @@ function toggleAutoColor() {
 	document.getElementById('autoColorInput').checked = !document.getElementById('autoColorInput').checked
 	updateAutoColor()
 }
+function updateAutoColor() {
+	var autoColorBool = document.getElementById('autoColorInput').checked
+	var isAutoColorUsable = !document.getElementById('minoModeInput').checked
+	document.getElementById('autoColorInput').classList.toggle('disabled', !isAutoColorUsable)
+	
+	if(!(isAutoColorUsable && autoColorBool)) EditorState.solidifyBoard()
+}
 
 function toggleRowFillInput() {
 	document.getElementById('rowFillInput').checked = !document.getElementById('rowFillInput').checked
 	updateRowFillInput()
+}
+function updateRowFillInput() {
+	var isRowFillUsable = !document.getElementById('minoModeInput').checked && !document.getElementById('autoColorInput').checked
+	document.getElementById('rowFillInput').classList.toggle('disabled', !isRowFillUsable)
 }
 
 function toggleToolTips() {
@@ -112,21 +125,20 @@ for (let fumenOption of document.getElementsByClassName('fumen-option')) {
 
 //html bindings
 document.getElementById("minoModeInput").addEventListener("click", updateMinoMode)
+document.getElementById("minoModeInput").addEventListener("click", updateAutoColor)
+document.getElementById("minoModeInput").addEventListener("click", updateRowFillInput)
 function updateMinoMode() {
     let minoMode = document.getElementById('minoModeInput').checked
-    if (!minoMode && EditorState.operation == undefined)  {
+    if (!minoMode && EditorState.operation == undefined) { //clear minoModeBoard without a glued piece when exiting minoMode
 		EditorState.setMinoModeBoard(emptyBoard())
 		EditorState.setOperation(undefined)
 		updateBook()
 	}
-	updateAutoColor()
-	updateRowFillInput()
 }
 
 document.getElementById("startPage").addEventListener("click", startPage)
-function startPage(){
+function startPage() {
 	EditorState.setBookPos(0)
-	settoPage(EditorState.bookPos)
 	window.requestAnimationFrame(renderBoard)
 	autoEncode()
 }
@@ -149,7 +161,6 @@ function solidifyAutoColor(currentBookPos) { //TODO: alter board instead, and pu
 function prevPage() {
 	solidifyAutoColor(EditorState.bookPos)
 	EditorState.setBookPos(EditorState.bookPos-1)
-	settoPage(EditorState.bookPos)
 	window.requestAnimationFrame(renderBoard)
 	autoEncode()
 }
@@ -161,7 +172,6 @@ function gotoPage() {
 	//TODO: something like this? https://stackoverflow.com/questions/1909992/how-to-get-old-value-with-onchange-event-in-text-box
 	// check for numeric input and within bounds
 	EditorState.setBookPos(getCurrentPosition())
-	settoPage(EditorState.bookPos)
 
 	window.requestAnimationFrame(renderBoard)
 	autoEncode()
@@ -224,7 +234,6 @@ function nextPage() {
 	}
 	
 	EditorState.setBookPos(EditorState.bookPos + 1) // next page
-	settoPage(EditorState.bookPos)
 	window.requestAnimationFrame(renderBoard)
 	updateBook()
 	autoEncode()
@@ -232,7 +241,7 @@ function nextPage() {
 
 document.getElementById("endPage").addEventListener("click", endPage)
 function endPage(){
-	settoPage(EditorState.book.length-1)
+	EditorState.setBookPos(EditorState.book.length-1)
 	window.requestAnimationFrame(renderBoard)
 	autoEncode()
 }
@@ -347,7 +356,6 @@ function increaseResetLevel() {
 		EditorState.setBoard(emptyBoard())
 		EditorState.setMinoModeBoard(emptyBoard())
 		EditorState.resetBook()
-		settoPage(EditorState.bookPos)
 		document.getElementById('boardOutput').value = ''
 		document.getElementById('commentBox').value = ''
 		updateBook() // record initial state in logs, testing
@@ -428,7 +436,6 @@ document.getElementById("importFumen").addEventListener("click", fullDecode)
 function fullDecode() {
 	EditorState.setBook(decodeFumen())
 	EditorState.setBookPos(0)
-	settoPage(EditorState.bookPos)
 	window.requestAnimationFrame(renderBoard);
 };
 
@@ -487,6 +494,11 @@ function redo() {
 	window.requestAnimationFrame(renderBoard)
 }
 
+//additional setting bindings
+document.getElementById("autoColorInput").addEventListener("click", updateAutoColor)
+document.getElementById("autoColorInput").addEventListener("click", updateRowFillInput)
+document.getElementById("rowFillInput").addEventListener("click", updateRowFillInput)
+
 //automatic update bindings
-document.getElementById("commentBox").addEventListener("change", updateBook)
+document.getElementById("commentBox").addEventListener("change", updateBook) //this guarentees that comments get automatically written to book
 document.getElementById("lockFlagInput").addEventListener("click", updateBook)
