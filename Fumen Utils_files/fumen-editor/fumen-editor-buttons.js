@@ -110,7 +110,7 @@ function toggleToolTips() {
 
 function toggle3dSetting() {
 	document.getElementById('3dSetting').checked = !document.getElementById('3dSetting').checked
-	requestAnimationFrame(renderBoard)
+	window.requestAnimationFrame(renderBoard)
 }
 
 function toggleStyle() {
@@ -144,7 +144,8 @@ function startPage() {
 }
 
 document.getElementById("prevPage").addEventListener("click", prevPage)
-function solidifyAutoColor(currentBookPos) { //TODO: alter board instead, and push changes to book?
+function solidifyAutoColor(currentBookPos) { //turn autocolor cells into normal cells
+	//TODO: alter board instead, and push changes to book?
 	let currentBook = EditorState.book
 	let currentBoard = JSON.parse(currentBook[currentBookPos]['board'])
 	for (let row in currentBoard){
@@ -168,9 +169,7 @@ function prevPage() {
 
 document.getElementById("positionDisplay").addEventListener("focusout", gotoPage)
 function gotoPage() {
-	solidifyAutoColor(EditorState.bookPos) //relying on global stored value to solidify the page before we leave it
-	//TODO: something like this? https://stackoverflow.com/questions/1909992/how-to-get-old-value-with-onchange-event-in-text-box
-	// check for numeric input and within bounds
+	solidifyAutoColor(EditorState.bookPos)
 	EditorState.setBookPos(getCurrentPosition())
 
 	window.requestAnimationFrame(renderBoard)
@@ -478,7 +477,7 @@ function updateToolTips() {
 document.getElementById("defaultRenderInput").addEventListener("click", updateStyle)
 function updateStyle() {
 	document.getElementById('3dToggle').classList.toggle('disabled', document.getElementById('defaultRenderInput').checked)
-	requestAnimationFrame(renderBoard)
+	window.requestAnimationFrame(renderBoard)
 }
 
 

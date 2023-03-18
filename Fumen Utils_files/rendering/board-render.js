@@ -33,7 +33,6 @@ export function getFumenMaxHeight(...fumenPages) {
 }
 
 export function renderBoard() {  //renders board and minoModeBoard
-	//combine board and minomodeBoard
 	var combinedBoardStats = {
 		board: JSON.parse(JSON.stringify(EditorState.board)), 
 		tileSize: cellSize, 
@@ -44,7 +43,8 @@ export function renderBoard() {  //renders board and minoModeBoard
 			strokeStyle: '#ffffff'
 		},
 	}
-
+	
+	//combine board and minomodeBoard
 	let minoModeBoard = EditorState.minoModeBoard
 	for (let row in minoModeBoard) {
 		for (let col in minoModeBoard[row]) {
