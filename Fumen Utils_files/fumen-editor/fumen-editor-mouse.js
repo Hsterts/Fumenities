@@ -23,51 +23,51 @@ function drawnMinos(someBoard, cellMatch) {
 //FUMEN EDITOR BINDINGS
 var mouseHeld = false;
 var drawMode = true;
-document.getElementById('b').onmousedown = function mousedown(e) {
+document.getElementById('b').addEventListener('mousedown', (e) => {
 	var autoColorBool = document.getElementById('autoColorInput').checked;
 	EditorState.setBookPos(getCurrentPosition())
 	let rect = document.getElementById('b').getBoundingClientRect();
 	let cellRow = Math.floor((e.clientY - rect.top) / cellSize);
 	let cellCol = Math.floor((e.clientX - rect.left) / cellSize);
-
+	
 	// drawMode is 0 (remove) if you a) right click, or b) left click on a filled cell with the same color as the paintbucket color, or c) left click on a filled mino cell
 	drawMode = !(e.button !== 0 || EditorState.board[cellRow][cellCol]['c'] === paintbucketColor() || EditorState.minoModeBoard[cellRow][cellCol]['t'] === 1);
-
+	
 	let autoColorCount = drawnMinos(EditorState.board, cell => cell.t === 2)
 	if (autoColorBool && drawMode && autoColorCount == 4) {
 		EditorState.solidifyBoard()
 	}
 	drawCanvasCell(cellRow, cellCol);
-
+	
 	updateBook();
 	autoEncode();
 	requestAnimationFrame(renderBoard);
 	mouseHeld = true;
-};
+})
 
-document.getElementById('b').onmousemove = function mousemove(e) {
+document.getElementById('b').addEventListener('mousemove', (e) => {
 	EditorState.setBookPos(getCurrentPosition())
 	let rect = document.getElementById('b').getBoundingClientRect();
-
+	
 	let cellRow = Math.floor((e.clientY - rect.top) / cellSize);
 	let cellCol = Math.floor((e.clientX - rect.left) / cellSize);
-
+	
 	let marginX = (e.clientX - rect.left) % cellSize;
 	let marginY = (e.clientY - rect.top) % cellSize;
-
+	
 	let inSameCell = inRange(marginX - e.movementX, 0, cellSize - 1) && inRange(marginY - e.movementY, 0, cellSize - 1); // check if previous position crossed cell boundary
-
+	
 	// now triggers even when re-entering the same cell, but the effect is inconsequential
 	let updateCanvas = mouseHeld && !inSameCell;
 	if (!updateCanvas)
 		return;
-
+	
 	drawCanvasCell(cellRow, cellCol);
-
+	
 	updateBook();
 	autoEncode();
 	requestAnimationFrame(renderBoard);
-};
+})
 
 function drawCanvasCell(cellRow, cellCol) {
 	var minoMode = document.getElementById('minoModeInput').checked;
@@ -154,17 +154,17 @@ function drawCanvasCell(cellRow, cellCol) {
 	}
 }
 
-document.onmouseup = function mouseup() {
+document.addEventListener('mouseup', () => {
 	var minoMode = document.getElementById('minoModeInput').checked;
 	EditorState.setBookPos(getCurrentPosition())  //used by program, only updates bookPos
-
+	
 	if (minoMode) finishMinoMode();
-
+	
 	mouseHeld = false;
 	updateBook();
 	//autoEncode() prevent overwriting text pasted into textboxes
 	requestAnimationFrame(renderBoard);
-
+	
 	function finishMinoMode() {
 		let minoModeBoard = EditorState.minoModeBoard
 		var positions = [];
@@ -176,13 +176,13 @@ document.onmouseup = function mouseup() {
 				}
 			}
 		}
-
+	
 		if (positions.length != 4) return;
-
+	
 		let operation = readPiece(positions, false)
 		EditorState.setOperation(operation)
 		if (operation === undefined) return;
-
+	
 		//coloring in
 		for (let position of positions) {
 			minoModeBoard[position[0]][position[1]] = { t: 1, c: operation.type };
@@ -190,7 +190,7 @@ document.onmouseup = function mouseup() {
 		
 		EditorState.setMinoModeBoard(minoModeBoard)
 	}
-};
+})
 
 //CONTRIBUTED BY CONFIDENTIAL (confidential#1288)
 function readPiece(mino_positions, recognise_split_minos) { //this has been majorly reworked
