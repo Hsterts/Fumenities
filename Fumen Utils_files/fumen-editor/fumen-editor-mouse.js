@@ -22,7 +22,7 @@ function drawnMinos(someBoard, cellMatch) {
 
 //FUMEN EDITOR BINDINGS
 var mouseHeld = false;
-var drawMode = true;
+var drawMode = true; // 0 for erasing, 1 for painting a cell
 document.getElementById('b').addEventListener('mousedown', (e) => {
 	var autoColorBool = document.getElementById('autoColorInput').checked;
 	EditorState.setBookPos(getCurrentPosition())
@@ -59,8 +59,7 @@ document.getElementById('b').addEventListener('mousemove', (e) => {
 	
 	// now triggers even when re-entering the same cell, but the effect is inconsequential
 	let updateCanvas = mouseHeld && !inSameCell;
-	if (!updateCanvas)
-		return;
+	if (!updateCanvas) return
 	
 	drawCanvasCell(cellRow, cellCol);
 	
@@ -84,11 +83,12 @@ function drawCanvasCell(cellRow, cellCol) {
 		let currentMinoModeBoard = EditorState.minoModeBoard
 		let drawnCount = drawnMinos(currentMinoModeBoard, cell => cell.t === 1);
 
-		if (drawMode && drawnCount < 4 && EditorState.board[cellRow][cellCol].t == 0) { // draw
+		if (drawMode && drawnCount < 4 && EditorState.board[cellRow][cellCol].t == 0) { // draw if a) drawing, b) not exceeding 4 minos, and c) not drawing over existing minos
+			//TODO: this probably calls for a combined board instead of a board for normal and glued cells
 			currentMinoModeBoard[cellRow][cellCol] = { t: 1, c: 'X' };
 		}
 
-		if (!drawMode) { // remove
+		if (!drawMode) { // erase
 			currentMinoModeBoard[cellRow][cellCol] = { t: 0, c: '' };
 			//remove colors when there are four minos and user deletes one
 			if (drawnCount == 4) {
@@ -110,11 +110,12 @@ function drawCanvasCell(cellRow, cellCol) {
 		let currentBoard = EditorState.board
 		if (rowFill) {
 			for (let col in currentBoard[cellRow]) {
-				currentBoard[cellRow][col] = (drawMode ? { t: 1, c: paintbucketColor() } : { t: 0, c: '' });
+				currentBoard[cellRow][col] = (drawMode && EditorState.minoModeBoard[cellRow][col].t != 1 ? { t: 1, c: paintbucketColor() } : { t: 0, c: '' }); //so not draw if over a glued mino
 			}
 			currentBoard[cellRow][cellCol] = { t: 0, c: '' };
 		} else {
-			currentBoard[cellRow][cellCol] = (drawMode ? { t: 1, c: paintbucketColor() } : { t: 0, c: '' });
+			EditorState.minoModeBoard[cellRow][cellCol]
+			currentBoard[cellRow][cellCol] = (drawMode && EditorState.minoModeBoard[cellRow][cellCol].t != 1 ? { t: 1, c: paintbucketColor() } : { t: 0, c: '' });
 		}
 		EditorState.setBoard(currentBoard)
 	}
