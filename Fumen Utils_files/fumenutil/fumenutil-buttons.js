@@ -53,8 +53,7 @@ function updateBGSelect() {
 
 document.getElementById("gridToggle").addEventListener("click", updateGrid)
 function updateGrid() {
-	gridToggle = document.getElementById('gridToggle').checked
-	document.getElementById('gridColorPicker').classList.toggle('hide-element', !gridToggle)
+	document.getElementById('gridColorPicker').classList.toggle('hide-element', !document.getElementById('gridToggle').checked)
 }
 
 document.getElementById("downloadOutput").addEventListener("click", updateDownloadSettings)

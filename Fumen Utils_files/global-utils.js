@@ -60,7 +60,7 @@ export function inRange(number, min, max) { // [min, max] inclusive
 const aRow = []
 const anEmptyBoard = []
 for (let i = 0; i < boardSize[0]; i++) {aRow.push({ t: 0, c: '' })}
-for (let i = 0; i < boardSize[1]; i++) {anEmptyBoard.push(aRow)}
+for (let i = 0; i < boardSize[1]; i++) {anEmptyBoard.push(aRow)} //no need for deep copy since this is read-only
 
 export function emptyRow() {
 	return JSON.parse(JSON.stringify(aRow)) //do i need deep copy here?
