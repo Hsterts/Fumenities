@@ -62,8 +62,6 @@ function updateDownloadSettings() {
 	document.getElementById('downloadSettings').classList.toggle('hide-element', !document.getElementById('downloadOutput').checked)
 }
 
-// document.getElementById("delim").addEventListener("change", updateDelim) //no longer keeping track, retrieving everytime it is needed instead
-
 document.getElementById("CopyTextboxOutput").addEventListener("click", function() {navigator.clipboard.writeText(document.getElementById('output').value)})
 
 document.getElementById("moveOutputToInput").addEventListener("click", moveOutputToInput)
@@ -84,16 +82,14 @@ function takeshot() {
         width: container.clientWidth,
         height: container.clientHeight,
         scrollY: -window.scrollY
-    }).then(
-        function (canvas) {
-            canvas.toBlob(blob => {
-                try { navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]); }
-                catch (error) {
-                    dataURL = canvas.toDataURL();
-                    console.log("Firefox doesn't support dropping images into clipboard, try pasting this DataURL into a new tab and copy pasting the image: ", dataURL);
-                    navigator.clipboard.writeText(dataURL);
-                }
-            });
-        }
-    );
+    }).then(canvas => {
+		canvas.toBlob(blob => {
+			try { navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]); }
+			catch (error) {
+				dataURL = canvas.toDataURL();
+				console.log("Firefox doesn't support dropping images into clipboard, try pasting this DataURL into a new tab and copy pasting the image: ", dataURL);
+				navigator.clipboard.writeText(dataURL);
+			}
+		});
+	});
 }
