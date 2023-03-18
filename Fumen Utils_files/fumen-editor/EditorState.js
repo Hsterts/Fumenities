@@ -1,5 +1,5 @@
 import { emptyBoard } from "../global-utils.js"
-import { getCurrentPosition, settoPage } from "./fumen-editor.js"
+import { settoPage } from "./fumen-editor.js"
 
 // keeps track of everything the board can display
 const emptyBook = [{board: JSON.stringify(emptyBoard()), minoBoard: JSON.stringify(emptyBoard()), comment: '', operation: undefined, flags: {lock: true}},]
@@ -7,6 +7,7 @@ const emptyBook = [{board: JSON.stringify(emptyBoard()), minoBoard: JSON.stringi
 //TODO: encoding and decoding of board state should be done here, not in fumen-editor
 export let EditorState = {
     bookPos: 0, //TODO: make it so that when bookPos is changed, it automatically changes the displayed stuff below
+    //and also update unpacked page if book is altered (and vice versa)?
 	board: emptyBoard(),
 	minoModeBoard: emptyBoard(), //TODO: might be better to keep minoModeBoard as an array denoting the position of at most 4 cells
     //comment?
@@ -18,7 +19,9 @@ export let EditorState = {
 	redoLog: [],
 
     setBookPos(bookPos) { //currently overused, TODO: reduce usage
-        this.bookPos = Math.min(this.book.length-1, Math.max(0, bookPos || 0))
+        console.log("bookpos set")
+        this.bookPos = Math.min(this.book.length-1, Math.max(0, bookPos))
+        // settoPage(this.bookPos)
     },
     //should only update when: changed internally or change manually from positionDisplay
 
@@ -64,7 +67,6 @@ export let EditorState = {
     },
 
     undo() {
-        this.bookPos = getCurrentPosition()
         if (this.undoLog.length <= 1){
             console.log('No previous actions logged')
         } else {
@@ -78,7 +80,6 @@ export let EditorState = {
     },
 
     redo() {
-        this.bookPos = getCurrentPosition()
         if (this.redoLog.length == 0){
             console.log('No following actions logged')
         } else {

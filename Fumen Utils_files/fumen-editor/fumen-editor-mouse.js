@@ -1,7 +1,7 @@
 const { Mino } = require('tetris-fumen')
 import { inRange, shape_table, cellSize, boardSize } from "../global-utils.js";
 import { renderBoard } from "../rendering/board-render.js";
-import { autoEncode, updateBook, getCurrentPosition } from "./fumen-editor.js";
+import { autoEncode, updateBook } from "./fumen-editor.js";
 import { EditorState } from "./EditorState.js";
 
 function paintbucketColor() {
@@ -25,7 +25,6 @@ var mouseHeld = false;
 var drawMode = true; // 0 for erasing, 1 for painting a cell
 document.getElementById('b').addEventListener('mousedown', (e) => {
 	var autoColorBool = document.getElementById('autoColorInput').checked;
-	EditorState.setBookPos(getCurrentPosition())
 	let rect = document.getElementById('b').getBoundingClientRect();
 	let cellRow = Math.floor((e.clientY - rect.top) / cellSize);
 	let cellCol = Math.floor((e.clientX - rect.left) / cellSize);
@@ -46,7 +45,6 @@ document.getElementById('b').addEventListener('mousedown', (e) => {
 })
 
 document.getElementById('b').addEventListener('mousemove', (e) => {
-	EditorState.setBookPos(getCurrentPosition())
 	let rect = document.getElementById('b').getBoundingClientRect();
 	
 	let cellRow = Math.floor((e.clientY - rect.top) / cellSize);
@@ -157,7 +155,6 @@ function drawCanvasCell(cellRow, cellCol) {
 
 document.addEventListener('mouseup', () => {
 	var minoMode = document.getElementById('minoModeInput').checked;
-	EditorState.setBookPos(getCurrentPosition())  //used by program, only updates bookPos
 	
 	if (minoMode) finishMinoMode();
 	

@@ -114,7 +114,6 @@ function encodeFumen(...book) {
 }
 
 export function encode() { //use current page instead of accessing book?
-	EditorState.setBookPos(getCurrentPosition())
 	document.getElementById('boardOutput').value = encodeFumen(EditorState.book[EditorState.bookPos]);
 }
 
@@ -123,7 +122,7 @@ export function fullEncode() {
 }
 
 //from io.js
-export function toField(board) { //only reads color of minos, ignoring the type
+function toField(board) { //only reads color of minos, ignoring the type
     let FieldString = ''
 	for (let row of board) {
 		for (let cell of row) {
@@ -135,8 +134,6 @@ export function toField(board) { //only reads color of minos, ignoring the type
 
 // Updates all of the board properties: board, minoBoard, operation, comments
 export function updateBook() { //temporary export, might not be necessary
-	EditorState.setBookPos(getCurrentPosition())
-	EditorState.bookPos = getCurrentPosition()
 	let currentBook = EditorState.book
 	currentBook[EditorState.bookPos] = { //TODO: maybe alter the board in the EditorState, then push into the book, instead of setting the book yourself?
 		board: JSON.stringify(EditorState.board),
@@ -152,6 +149,7 @@ export function updateBook() { //temporary export, might not be necessary
 
 	updateAutoColor()
 	updateRowFillInput()
+	autoEncode()
 	window.requestAnimationFrame(renderBoard)
 }
 
@@ -184,14 +182,5 @@ function setPositionDisplay(pageIndex, totalPageNum) {
 	document.getElementById('positionDisplay').value = pageIndex+1
 	document.getElementById('positionDisplayOver').value = '/' + totalPageNum
 }
-
-export function getCurrentPosition() { //TODO: get value from EditorState instead of the html
-	let Position = parseInt(document.getElementById('positionDisplay').value) - 1;
-	if (isNaN(Position))
-		return 0;
-	else
-		return Position;
-}
-
 // import "./fumen-editor-buttons.js"
 // import "./fumen-editor-mouse.js"

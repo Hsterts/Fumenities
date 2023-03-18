@@ -1,6 +1,6 @@
 const { decoder } = require('tetris-fumen')
 import { getDelimiter, shape_table, emptyBoard, emptyRow } from "../global-utils.js"
-import { autoEncode, fullEncode, encode, toField, updateBook, updateAutoColor, updateRowFillInput, settoPage, getCurrentPosition } from "./fumen-editor.js"
+import { autoEncode, fullEncode, encode, updateBook, updateAutoColor, updateRowFillInput, settoPage } from "./fumen-editor.js"
 import importImage from "./importImage.js"
 import { pageToBoard, renderBoard } from "../rendering/board-render.js"
 import { EditorState } from "./EditorState.js"
@@ -123,6 +123,14 @@ function updateMinoMode() {
 	updateRowFillInput()
 }
 
+document.getElementById("startPage").addEventListener("click", startPage)
+function startPage(){
+	EditorState.setBookPos(0)
+	settoPage(EditorState.bookPos)
+	window.requestAnimationFrame(renderBoard)
+	autoEncode()
+}
+
 document.getElementById("prevPage").addEventListener("click", prevPage)
 function solidifyAutoColor(currentBookPos) { //TODO: alter board instead, and push changes to book?
 	let currentBook = EditorState.book
@@ -139,40 +147,36 @@ function solidifyAutoColor(currentBookPos) { //TODO: alter board instead, and pu
 	EditorState.setBook(currentBook)
 }
 function prevPage() {
-	EditorState.setBookPos(getCurrentPosition())
 	solidifyAutoColor(EditorState.bookPos)
-	settoPage(EditorState.bookPos-1)
-	window.requestAnimationFrame(renderBoard)
-	autoEncode()
-}
-
-document.getElementById("startPage").addEventListener("click", startPage)
-function startPage(){
-	EditorState.setBookPos(0)
+	EditorState.setBookPos(EditorState.bookPos-1)
 	settoPage(EditorState.bookPos)
 	window.requestAnimationFrame(renderBoard)
 	autoEncode()
 }
 
-document.getElementById("currentPage").addEventListener("change", gotoPage)
+
+document.getElementById("positionDisplay").addEventListener("focusout", gotoPage)
 function gotoPage() {
 	solidifyAutoColor(EditorState.bookPos) //relying on global stored value to solidify the page before we leave it
 	//TODO: something like this? https://stackoverflow.com/questions/1909992/how-to-get-old-value-with-onchange-event-in-text-box
 	// check for numeric input and within bounds
-	let currentBookPos = getCurrentPosition()
-	if(isNaN(currentBookPos)){
-		currentBookPos = 0
-	}
-	currentBookPos = Math.max(Math.min(EditorState.book.length, currentBookPos), 0)
-	EditorState.setBookPos(currentBookPos)
-	
+	EditorState.setBookPos(getCurrentPosition())
 	settoPage(EditorState.bookPos)
+
 	window.requestAnimationFrame(renderBoard)
 	autoEncode()
+
+	function getCurrentPosition() {
+		let Position = parseInt(document.getElementById('positionDisplay').value) - 1;
+		if (isNaN(Position))
+			return 0;
+		else
+			return Position;
+	}
 }
 
-function insertFollowingPage() { //TODO: move this into EditorState?
-	let currentBookPos = getCurrentPosition()
+function insertFollowingPage() { //TODO: move this into EditorState? or use the unpacked board instead of book
+	let currentBookPos = EditorState.bookPos
 	let currentBook = EditorState.book
 
 	//push minomode onto current board
@@ -214,9 +218,7 @@ function insertFollowingPage() { //TODO: move this into EditorState?
 
 document.getElementById("nextPage").addEventListener("click", nextPage)
 function nextPage() {
-	EditorState.setBookPos(getCurrentPosition())
-	
-	if (EditorState.bookPos == EditorState.book.length-1) { // Create new page when at the page
+	if (EditorState.bookPos == EditorState.book.length-1) { // Create new page when at the last page
 		solidifyAutoColor(EditorState.bookPos)
 		insertFollowingPage()
 	}
@@ -300,19 +302,15 @@ function fullMirror() {
 }
 
 document.getElementById("duplicatePage").addEventListener("click", dupliPage)
-function dupliPage(){
-	EditorState.setBookPos(getCurrentPosition())
+function dupliPage() {
 	solidifyAutoColor(EditorState.bookPos)
 	insertFollowingPage()
-	//technically you don't need to update since it's the same page
-	settoPage(EditorState.bookPos)
 	window.requestAnimationFrame(renderBoard)
 	autoEncode()
 }
 
 document.getElementById("clearPage").addEventListener("click", clearPage)
 function clearPage(){ //TODO: move to EditorState?
-	EditorState.setBookPos(getCurrentPosition())
 	let currentBook = EditorState.book
 	currentBook[EditorState.bookPos] = {
 		board: JSON.stringify(emptyBoard()),
@@ -329,14 +327,12 @@ function clearPage(){ //TODO: move to EditorState?
 
 document.getElementById("deletePage").addEventListener("click", deletePage)
 function deletePage(){ //TODO: move to EditorState?
-	EditorState.setBookPos(getCurrentPosition())
 	if (EditorState.book.length == 1) {
 		clearPage()
 	} else {
 		let book = EditorState.book
 		book.splice(EditorState.bookPos,1)
 		EditorState.setBook(book)
-		EditorState.setBookPos(Math.min(EditorState.bookPos,EditorState.book.length-1)) // Bound bookPos to end of book
 		settoPage(EditorState.bookPos)
 	}
 	window.requestAnimationFrame(renderBoard)
@@ -360,8 +356,6 @@ function increaseResetLevel() {
 	}
 	document.getElementById('reset').classList.toggle('confirm-delete-data')
 }
-
-
 
 function decodeFumen() {
 	var fumen = document.getElementById('boardOutput').value;
@@ -406,7 +400,7 @@ document.addEventListener('paste', (event) => {
 document.getElementById("importImage").addEventListener("click", importImageButton)
 async function importImageButton() {
 	try {
-		const clipboardItems = await navigator.clipboard.read();
+		const clipboardItems = await navigator.clipboard.read(); //not supported on firefox
 		for (const clipboardItem of clipboardItems) {
 			for (const type of clipboardItem.types) {
 				const blob = await clipboardItem.getType(type);
@@ -421,9 +415,10 @@ async function importImageButton() {
 
 document.getElementById("insertFumen").addEventListener("click", decodeInsert)
 function decodeInsert() {
-	EditorState.setBookPos(getCurrentPosition())
     var bookInsert = decodeFumen()
-	EditorState.setBook(EditorState.book.splice(EditorState.bookPos, 0, ...bookInsert))
+	let book = EditorState.book
+	book.splice(EditorState.bookPos, 0, ...bookInsert)
+	EditorState.setBook(book)
 	settoPage(EditorState.bookPos)
 	updateBook()
 	window.requestAnimationFrame(renderBoard)
