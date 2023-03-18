@@ -1,7 +1,7 @@
 const { decoder } = require('tetris-fumen');
 import { LineTerminator } from "../global-utils.js"
-import fumencanvas from "./modified-fumen-canvas.js"
-import fumenrender from "./modified-fumen-render.js"
+import fumencanvas from "./board-render-four.js"
+import fumenrender from "./board-render-fumen.js"
 
 function downloadByURL(DataURLs) {
     var zip = new JSZip();
