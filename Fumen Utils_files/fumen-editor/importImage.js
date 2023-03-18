@@ -1,39 +1,43 @@
 import { updateBook } from "./fumen-editor.js"
-import { inRange } from "../global-utils.js";
+import { inRange, emptyBoard, boardSize } from "../global-utils.js";
 import { EditorState } from "./EditorState.js";
 
 export default async function importImage(blob) {
     // Create an abstract canvas and get context
-    var mycanvas = document.createElement('canvas');
-    var ctx = mycanvas.getContext('2d');
-
+    
     // Create an image
     var img = new Image();
-
+    
     // Once the image loads, render the img on the canvas
     img.onload = function () {
-        console.log(this.width, this.height);
-        let scale = this.width / 10.0;
-        let x = 10;
-        let y = Math.min(Math.round(this.height / scale), 22);
-        console.log(x, y);
+        console.log(this)
+        // console.log(this.width, this.height);
+        let numcols = boardSize[0];
+        let scale = this.width / numcols;
+        let numrows = Math.min(Math.round(this.height / scale), 20);
+        // console.log(numcols, numrows);
+
+        let mycanvas = document.createElement('canvas');
         mycanvas.width = this.width;
         mycanvas.height = this.height;
-
-        // Draw the image
+        
+        // Draw image on canvas and convert to pixel data
+        let ctx = mycanvas.getContext('2d');
+        ctx.imageSmoothingEnabled = false // no anti-aliasing
         ctx.drawImage(img, 0, 0, this.width, this.height);
-        let tempBoard = new Array(20 - y).fill(new Array(10).fill({ t: 0, c: '' })); // empty top [40-y] rows
-
         let data = Object.values(ctx.getImageData(0, 0, this.width, this.height).data);
-        for (let row = 0; row < y; row++) {
-            let tmpRow = [];
-            for (let col = 0; col < 10; col++) {
+
+        let tempBoard = emptyBoard()
+
+        for (let row = 0; row < numrows; row++) {
+            for (let col = 0; col < numcols; col++) {
                 // get median value of pixels that should correspond to [row col] mino
                 // if this is too computationally expensive maybe switch to mean
                 let minoPixelsR = [];
                 let minoPixelsG = [];
                 let minoPixelsB = [];
 
+                //get all rgb values of the pixels in this cell 
                 for (let pixelRow = Math.floor(row * scale); pixelRow < row * scale + scale; pixelRow++) {
                     for (let pixelCol = Math.floor(col * scale); pixelCol < col * scale + scale; pixelCol++) {
                         let index = (pixelRow * this.width + pixelCol) * 4;
@@ -43,15 +47,12 @@ export default async function importImage(blob) {
                     }
                 }
 
-                let medianR = median(minoPixelsR);
-                let medianG = median(minoPixelsG);
-                let medianB = median(minoPixelsB);
-                let hsv = rgb2hsv(medianR, medianG, medianB);
-                console.log(hsv, nearestMinoRepresentation(...hsv)); // debugging purposes
-                tmpRow.push(nearestMinoRepresentation(...hsv));
+                let hsv = rgb2hsv(median(minoPixelsR), median(minoPixelsG), median(minoPixelsB));
+                // console.log(hsv, nearestMinoRepresentation(...hsv)); // debugging purposes
+                console.log(boardSize[1] - numrows + row, col)
+                console.log(tempBoard[boardSize[1] - numrows + row][col])
+                tempBoard[boardSize[1] - numrows + row][col] = nearestMinoRepresentation(...hsv)
             }
-            console.log(tmpRow)
-            tempBoard.push(tmpRow);
         }
         /* // old alg from just scaling it down to x by y pixels
         let nDat = [];
