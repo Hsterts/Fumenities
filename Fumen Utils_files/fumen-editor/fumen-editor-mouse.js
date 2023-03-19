@@ -1,8 +1,6 @@
 const { Mino } = require('tetris-fumen')
 import { inRange, shape_table, cellSize, boardSize } from "../global-utils.js";
-import { renderBoard } from "../rendering/board-render.js";
-import { autoEncode, updateBook } from "./fumen-editor.js";
-import { EditorState } from "./EditorState.js";
+import { displayState } from "./EditorState.js";
 
 function paintbucketColor() {
 	for (let colorOption of document.paintbucket) {
@@ -30,17 +28,13 @@ document.getElementById('b').addEventListener('mousedown', (e) => {
 	let cellCol = Math.floor((e.clientX - rect.left) / cellSize);
 	
 	// drawMode is 0 (remove) if you a) right click, or b) left click on a filled cell with the same color as the paintbucket color, or c) left click on a filled mino cell
-	drawMode = !(e.button !== 0 || EditorState.board[cellRow][cellCol]['c'] === paintbucketColor() || EditorState.minoModeBoard[cellRow][cellCol]['t'] === 1);
+	drawMode = !(e.button !== 0 || displayState.board[cellRow][cellCol].c === paintbucketColor() || displayState.minoModeBoard[cellRow][cellCol].t === 1);
 	
-	let autoColorCount = drawnMinos(EditorState.board, cell => cell.t === 2)
+	let autoColorCount = drawnMinos(displayState.board, cell => cell.t === 2)
 	if (autoColorBool && drawMode && autoColorCount == 4) {
-		EditorState.solidifyBoard()
+		displayState.solidifyBoard()
 	}
 	drawCanvasCell(cellRow, cellCol);
-	
-	updateBook();
-	autoEncode();
-	requestAnimationFrame(renderBoard);
 	mouseHeld = true;
 })
 
@@ -60,10 +54,6 @@ document.getElementById('b').addEventListener('mousemove', (e) => {
 	if (!updateCanvas) return
 	
 	drawCanvasCell(cellRow, cellCol);
-	
-	updateBook();
-	autoEncode();
-	requestAnimationFrame(renderBoard);
 })
 
 function drawCanvasCell(cellRow, cellCol) {
@@ -78,10 +68,10 @@ function drawCanvasCell(cellRow, cellCol) {
 	}
 
 	function drawCanvasMinoMode() {
-		let currentMinoModeBoard = EditorState.minoModeBoard
+		let currentMinoModeBoard = displayState.minoModeBoard
 		let drawnCount = drawnMinos(currentMinoModeBoard, cell => cell.t === 1);
 
-		if (drawMode && drawnCount < 4 && EditorState.board[cellRow][cellCol].t == 0) { // draw if a) drawing, b) not exceeding 4 minos, and c) not drawing over existing minos
+		if (drawMode && drawnCount < 4 && displayState.board[cellRow][cellCol].t == 0) { // draw if a) drawing, b) not exceeding 4 minos, and c) not drawing over existing minos
 			//TODO: this probably calls for a combined board instead of a board for normal and glued cells
 			currentMinoModeBoard[cellRow][cellCol] = { t: 1, c: 'X' };
 		}
@@ -99,28 +89,26 @@ function drawCanvasCell(cellRow, cellCol) {
 				}
 			}
 		}
-
-		EditorState.setMinoModeBoard(currentMinoModeBoard)
+		displayState.setState({minoModeBoard: currentMinoModeBoard})
 	}
 
 	function drawCanvasNormalMode() {
 		let rowFill = document.getElementById('rowFillInput').checked;
-		let currentBoard = EditorState.board
-		if (rowFill) {
+		let currentBoard = displayState.board
+		if (rowFill) { //TODO: im bad at organising this flow
 			for (let col in currentBoard[cellRow]) {
-				currentBoard[cellRow][col] = (drawMode && EditorState.minoModeBoard[cellRow][col].t != 1 ? { t: 1, c: paintbucketColor() } : { t: 0, c: '' }); //so not draw if over a glued mino
+				currentBoard[cellRow][col] = (drawMode && displayState.minoModeBoard[cellRow][col].t != 1 ? { t: 1, c: paintbucketColor() } : { t: 0, c: '' }); //so not draw if over a glued mino
 			}
 			currentBoard[cellRow][cellCol] = { t: 0, c: '' };
 		} else {
-			EditorState.minoModeBoard[cellRow][cellCol]
-			currentBoard[cellRow][cellCol] = (drawMode && EditorState.minoModeBoard[cellRow][cellCol].t != 1 ? { t: 1, c: paintbucketColor() } : { t: 0, c: '' });
+			currentBoard[cellRow][cellCol] = (drawMode && displayState.minoModeBoard[cellRow][cellCol].t != 1 ? { t: 1, c: paintbucketColor() } : { t: 0, c: '' });
 		}
-		EditorState.setBoard(currentBoard)
+		displayState.setState({board: currentBoard})
 	}
 
 	function drawCanvasAutoColorMode() {
 		//auto color is basically mino mode and normal combined.
-		let currentBoard = EditorState.board
+		let currentBoard = displayState.board
 		if (drawMode) {
 			//recognise piece
 			let positions = [];
@@ -149,7 +137,7 @@ function drawCanvasCell(cellRow, cellCol) {
 		} else {
 			currentBoard[cellRow][cellCol] = { t: 0, c: '' };
 		}
-		EditorState.setBoard(currentBoard)
+		displayState.setState({board: currentBoard})
 	}
 }
 
@@ -158,17 +146,16 @@ document.getElementById('insertFumen').addEventListener('mouseup', (e) => e.stop
 document.getElementById('importFumen').addEventListener('mouseup', (e) => e.stopPropagation())
 document.getElementById('boardOutput').addEventListener('mouseup', (e) => e.stopPropagation())
 document.addEventListener('mouseup', () => {
+	console.log("up")
 	var minoMode = document.getElementById('minoModeInput').checked;
 	
 	if (minoMode) finishMinoMode();
 	
 	mouseHeld = false;
-	updateBook();
 	//autoEncode() //prevent overwriting text pasted into textboxes
-	requestAnimationFrame(renderBoard);
 	
 	function finishMinoMode() {
-		let minoModeBoard = EditorState.minoModeBoard
+		let minoModeBoard = displayState.minoModeBoard
 		var positions = [];
 		//get all drawn cells + their coords
 		for (let row in minoModeBoard) {
@@ -178,19 +165,19 @@ document.addEventListener('mouseup', () => {
 				}
 			}
 		}
-	
+		
 		if (positions.length != 4) return;
-	
+		
 		let operation = readPiece(positions, false)
-		EditorState.setOperation(operation)
-		if (operation === undefined) return;
-	
-		//coloring in
-		for (let position of positions) {
-			minoModeBoard[position[0]][position[1]] = { t: 1, c: operation.type };
+		
+		if (operation != undefined) {
+			//coloring in
+			for (let position of positions) {
+				minoModeBoard[position[0]][position[1]] = { t: 1, c: operation.type };
+			}
 		}
 		
-		EditorState.setMinoModeBoard(minoModeBoard)
+		displayState.setState({operation: operation, minoModeBoard: minoModeBoard})
 	}
 })
 

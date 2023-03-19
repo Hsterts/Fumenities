@@ -1,14 +1,7 @@
 import { boardSize, cellSize } from '../global-utils.js'
-import { renderBoard } from '../rendering/board-render.js';
-import { EditorState } from './EditorState.js';
 import { encode, fullEncode } from './fumen-editor-buttons.js';
 
 //BOARD
-
-// var bookPos = 0
-EditorState.setBookPos(0)
-updateBook()
-window.requestAnimationFrame(renderBoard)
 
 // CANVAS
 document.getElementById('b').height = boardSize[1] * cellSize
@@ -71,6 +64,7 @@ function retractSideBars() {
 }
 
 export function autoEncode() {
+	console.log("autoencode")
     if (document.getElementById('autoEncode').checked == false) return;
 
     let encodingType = document.getElementById('encodingType').value;
@@ -78,42 +72,3 @@ export function autoEncode() {
     if (encodingType == 'fullFumen') fullEncode();
     else if (encodingType == 'currentFumenPage') encode();
 }
-
-// Updates all of the board properties: board, minoBoard, operation, comments
-export function updateBook() { //temporary export, might not be necessary
-	//display -> storage
-	let currentBook = EditorState.book
-	currentBook[EditorState.bookPos] = { //TODO: maybe alter the board in the EditorState, then push into the book, instead of setting the book yourself?
-		board: JSON.stringify(EditorState.board),
-		minoBoard: JSON.stringify(EditorState.minoModeBoard),
-		operation: EditorState.operation,
-		comment: document.getElementById('commentBox').value,
-		flags: {lock: document.getElementById('lockFlagInput').checked},
-	}
-	EditorState.setBook(currentBook)
-	EditorState.addLog()
-
-	autoEncode()
-	window.requestAnimationFrame(renderBoard)
-}
-
-export function settoPage(newPagePos) {
-	// storage -> display 
-	//move from book to board, minoboard and operation //TODO: move to EditorState?
-	// Bound bookPos to existing pages
-	newPagePos = Math.max(Math.min(EditorState.book.length-1, newPagePos), 0)
-
-	EditorState.setBoard(JSON.parse(EditorState.book[newPagePos]['board']))
-	EditorState.setMinoModeBoard(JSON.parse(EditorState.book[newPagePos]['minoBoard']))
-	EditorState.setOperation(EditorState.book[newPagePos]['operation'])
-	setPositionDisplay(newPagePos, EditorState.book.length)
-	document.getElementById('commentBox').value = EditorState.book[newPagePos]['comment']
-	document.getElementById('lockFlagInput').checked = EditorState.book[newPagePos]['flags']['lock']
-
-	function setPositionDisplay(pageIndex, totalPageNum) {
-		document.getElementById('positionDisplay').value = pageIndex+1
-		document.getElementById('positionDisplayOver').value = '/' + totalPageNum
-	}
-}
-// import "./fumen-editor-buttons.js"
-// import "./fumen-editor-mouse.js"

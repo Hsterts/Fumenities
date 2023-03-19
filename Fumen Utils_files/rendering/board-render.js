@@ -1,5 +1,5 @@
 //sharing the same rendering process for both the editor board and the output images
-import { EditorState } from '../fumen-editor/EditorState.js'
+import { displayState } from '../fumen-editor/EditorState.js'
 import { boardSize, cellSize } from '../global-utils.js'
 
 export function getFumenMaxHeight(...fumenPages) {
@@ -34,10 +34,10 @@ export function getFumenMaxHeight(...fumenPages) {
 
 export function renderBoard() {  //renders board and minoModeBoard
 	var combinedBoardStats = {
-		board: JSON.parse(JSON.stringify(EditorState.board)), 
+		board: JSON.parse(JSON.stringify(displayState.board)), 
 		tileSize: cellSize, 
 		style: (document.getElementById('defaultRenderInput').checked ? 'fumen' : 'four'),
-		lockFlag: document.getElementById('lockFlagInput').checked,
+		lockFlag: displayState.flags.lock,
 		grid: {
 			fillStyle: '#000000',
 			strokeStyle: '#ffffff'
@@ -45,21 +45,20 @@ export function renderBoard() {  //renders board and minoModeBoard
 	}
 	
 	//combine board and minomodeBoard
-	let minoModeBoard = EditorState.minoModeBoard
+	let minoModeBoard = displayState.minoModeBoard
 	for (let row in minoModeBoard) {
 		for (let col in minoModeBoard[row]) {
 			if (minoModeBoard[row][col].t === 1) combinedBoardStats.board[row][col] = { t: 2, c: minoModeBoard[row][col].c }
 		}
 	}
 
-	var newCanvas = renderBoardOnCanvas(combinedBoardStats)
 	let context = document.getElementById('b').getContext('2d')
 	context.imageSmoothingEnabled = false // no anti-aliasing
-	context.drawImage(newCanvas, 0, 0)
+	context.drawImage(renderBoardOnCanvas(combinedBoardStats), 0, 0)
 }
 
-export function pageToBoard(page) {	
-	let fieldString = page.field.str()
+export function pageToBoard(fumenPage) {	
+	let fieldString = fumenPage.field.str()
 	let truncatedBoardColors = fieldString.split("\n").map(rowColor => rowColor.split(""))
 	truncatedBoardColors.pop() //remove garbage row
 	let ExtraRows = Math.max(0, truncatedBoardColors.length - 20)
@@ -71,7 +70,7 @@ export function pageToBoard(page) {
 	var newBoard = boardColors.map(rowColors => rowColors.map(cellColorToCell))
 
 	//add glued minos to board
-	const operation = page.operation;
+	const operation = fumenPage.operation;
 	if (operation != undefined) {
 		var type = operation.type
 		for (let position of operation.positions()) {
@@ -113,6 +112,7 @@ export function renderBoardOnCanvas(combinedBoardStats) {
 		canvasContext.fillRect(0, 0, boardSize[0] * tileSize, boardSize[1] * tileSize)
 	}	
 
+	console.log(combinedBoardStats.style)
 	if (combinedBoardStats.style == 'fumen') {
 		fumenRender()
 	} else if (combinedBoardStats.style == 'four') {
