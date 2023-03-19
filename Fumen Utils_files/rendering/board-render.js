@@ -112,7 +112,6 @@ export function renderBoardOnCanvas(combinedBoardStats) {
 		canvasContext.fillRect(0, 0, boardSize[0] * tileSize, boardSize[1] * tileSize)
 	}	
 
-	console.log(combinedBoardStats.style)
 	if (combinedBoardStats.style == 'fumen') {
 		fumenRender()
 	} else if (combinedBoardStats.style == 'four') {

@@ -38,7 +38,6 @@ export let displayState = { //move board, minoModeBoard, comment, operation, fla
     },
 
     display() {
-        console.log('go')
         //render board
         var combinedBoardStats = {
             board: JSON.parse(JSON.stringify(displayState.board)), 
@@ -65,7 +64,7 @@ export let displayState = { //move board, minoModeBoard, comment, operation, fla
 
         document.getElementById('commentBox').value = this.comment
         document.getElementById('lockFlagInput').checked = this.flags.lock
-        document.getElementById('positionDisplay').value = this.pagePos+1 //dispaly is one-indexed
+        document.getElementById('positionDisplay').value = bookState.bookPos+1 //dispaly is one-indexed
         document.getElementById('positionDisplayOver').value = '/' + bookState.book.length
 
         autoEncode()
@@ -94,16 +93,16 @@ export let bookState = {
     //and also update unpacked page if book is altered (and vice versa)?
     book: JSON.parse(JSON.stringify(emptyBook)),
 
-    displayBookPage(pagePos) {
+    displayBookPage(bookPos) {
         displayState.solidifyBoard(false) //solidify autoColor before moving to another page
-        this.pagePos = Math.max(Math.min(this.book.length-1, pagePos), 0)
-    
+        this.bookPos = Math.max(Math.min(this.book.length-1, bookPos), 0)
+        
         displayState.setState({
-            board: JSON.parse(this.book[this.pagePos]['board']), 
-            minoModeBoard: JSON.parse(this.book[this.pagePos]['minoBoard']),
-            comment: this.book[this.pagePos]['comment'],
-            operation: this.book[this.pagePos]['operation'],
-            flags: this.book[this.pagePos]['flags']['lock'],
+            board: JSON.parse(this.book[this.bookPos]['board']), 
+            minoModeBoard: JSON.parse(this.book[this.bookPos]['minoBoard']),
+            comment: this.book[this.bookPos]['comment'],
+            operation: this.book[this.bookPos]['operation'],
+            flags: this.book[this.bookPos]['flags'],
         }, false)
     },
 
@@ -140,7 +139,6 @@ export let historyState = {
         } else {
             this.redoLog.push(this.undoLog.pop())
             bookState.setBook(JSON.parse(this.undoLog[this.undoLog.length-1]), false)
-            this.displayBookPage(bookState.bookPos)
         }
     },
 
@@ -150,7 +148,6 @@ export let historyState = {
         } else {
             this.undoLog.push(this.redoLog.pop())
             bookState.setBook(JSON.parse(this.undoLog[this.undoLog.length-1]), false)
-            this.displayBookPage(bookState.bookPos)
         }
     },
 

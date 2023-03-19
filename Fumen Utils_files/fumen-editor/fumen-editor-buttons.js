@@ -183,15 +183,16 @@ function insertFollowingPage() {
 		}
 	}
 	
+	let currentBook = bookState.book
 	let newPage = {
 		board: JSON.stringify(board),
 		minoBoard: JSON.stringify(emptyBoard()),
-		comment: currentBook[currentBookPos]['comment'], //only works since we don't care about quiz mode
+		comment: displayState.comment, //only works since we don't care about quiz mode
 		operation: undefined,
 		flags: {lock: displayState.flags.lock},
 	}
 
-	currentBook.splice(currentBookPos+1, 0, newPage)
+	currentBook.splice(bookState.bookPos+1, 0, newPage)
 	bookState.setBook(currentBook)
 }
 
@@ -450,6 +451,7 @@ function updateAutoEncoding() {
 //additional setting bindings
 document.getElementById("lockFlagInput").addEventListener("click", updateLockFlag)
 function updateLockFlag() {
+	console.log(document.getElementById('lockFlagInput').checked)
 	displayState.setState({flags: {lock: document.getElementById('lockFlagInput').checked}})
 }
 
