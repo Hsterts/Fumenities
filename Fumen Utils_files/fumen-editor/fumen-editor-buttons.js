@@ -70,6 +70,8 @@ function setPaintBucket(index) {
 function toggleMinoMode() {
     document.getElementById('minoModeInput').checked = !document.getElementById('minoModeInput').checked
 	updateMinoMode()
+	updateAutoColor()
+	updateRowFillInput()
 }
 
 function toggleAutoEncoding() {

@@ -116,23 +116,25 @@ function drawCanvasCell(cellRow, cellCol) {
 				for (let col = 0; col < boardSize[0]; col++) {
 					if (currentBoard[row][col].t == 2) {
 						positions.push([row, col]);
+						console.log([row, col], currentBoard[row][col])
 					}
 				}
 			}
-
-			if (positions.length < 4) {
+			
+			if (positions.length < 4 && displayState.minoModeBoard[cellRow][cellCol].t != 1) {
 				currentBoard[cellRow][cellCol] = { t: 2, c: 'X' };
 				positions.push([cellRow, cellCol]);
+				console.log([cellRow, cellCol], currentBoard[cellRow][cellCol] )
 			}
+			console.log(positions)
 
 			if (positions.length === 4) {
 				let pieceMino = readPiece(positions, true);
-				if (pieceMino === undefined)
-					return; // remain gray
-
-				for (let position of positions) {
-					currentBoard[position[0]][position[1]].c = pieceMino.type;
-				}
+				if (pieceMino !== undefined) {
+					for (let position of positions) {
+						currentBoard[position[0]][position[1]].c = pieceMino.type;
+					}
+				}	
 			}
 		} else {
 			currentBoard[cellRow][cellCol] = { t: 0, c: '' };

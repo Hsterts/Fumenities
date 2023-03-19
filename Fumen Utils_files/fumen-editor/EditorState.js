@@ -94,7 +94,7 @@ export let bookState = {
     book: JSON.parse(JSON.stringify(emptyBook)),
 
     displayBookPage(bookPos) {
-        displayState.solidifyBoard(false) //solidify autoColor before moving to another page
+        displayState.solidifyBoard(false) //solidify autoColor before moving to another page, TODO: it doesn't really work since it isn't reflected back to book to avoid an infinite loop
         this.bookPos = Math.max(Math.min(this.book.length-1, bookPos), 0)
         
         displayState.setState({
