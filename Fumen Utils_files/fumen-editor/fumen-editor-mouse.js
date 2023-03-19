@@ -153,6 +153,10 @@ function drawCanvasCell(cellRow, cellCol) {
 	}
 }
 
+//bindings to prevent overwriting boardOutput from mouseup
+document.getElementById('insertFumen').addEventListener('mouseup', (e) => e.stopPropagation())
+document.getElementById('importFumen').addEventListener('mouseup', (e) => e.stopPropagation())
+document.getElementById('boardOutput').addEventListener('mouseup', (e) => e.stopPropagation())
 document.addEventListener('mouseup', () => {
 	var minoMode = document.getElementById('minoModeInput').checked;
 	
