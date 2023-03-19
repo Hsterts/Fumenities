@@ -1,6 +1,6 @@
-const { decoder } = require('tetris-fumen')
+const { Field, encoder, decoder } = require('tetris-fumen');
 import { getDelimiter, shape_table, emptyBoard, emptyRow } from "../global-utils.js"
-import { autoEncode, fullEncode, encode, updateBook, settoPage } from "./fumen-editor.js"
+import { autoEncode, updateBook, settoPage } from "./fumen-editor.js"
 import importImage from "./importImage.js"
 import { pageToBoard, renderBoard } from "../rendering/board-render.js"
 import { EditorState } from "./EditorState.js"
@@ -276,6 +276,17 @@ function shift(direction){
 	updateBook()
 }
 
+document.getElementById("undo").addEventListener("click", undo)
+function undo() {
+	EditorState.undo()
+	window.requestAnimationFrame(renderBoard)
+}
+
+document.getElementById("redo").addEventListener("click", redo)
+function redo() {
+	EditorState.redo()
+	window.requestAnimationFrame(renderBoard)
+}
 
 const reversed = {Z: 'S',L: 'J',O: 'O',S: 'Z',I: 'I',J: 'L',T: 'T',X: 'X'};
 document.getElementById("mirrorPage").addEventListener("click", mirror)
@@ -357,7 +368,7 @@ function increaseResetLevel() {
 		EditorState.resetBook()
 		document.getElementById('boardOutput').value = ''
 		document.getElementById('commentBox').value = ''
-		updateBook() // record initial state in logs, testing
+		updateBook()
 		autoEncode()
 		window.requestAnimationFrame(renderBoard)
 	}
@@ -439,8 +450,46 @@ function fullDecode() {
 };
 
 document.getElementById("exportPage").addEventListener("click", encode)
+//from io.js
+function toField(board) { //only reads color of minos, ignoring the type
+    let FieldString = ''
+	for (let row of board) {
+		for (let cell of row) {
+			FieldString += (cell.c == '' ? '_' : cell.c)
+		}
+	}
+    return Field.create(FieldString)
+}
+function encodeFumen(...book) {
+	var fullBook = []
+	for (let pageNum in book) {
+		let page = book[pageNum]
+		fullBook.push({
+			comment: page['comment'],
+			operation: page['operation'],
+			field: toField(JSON.parse(page['board'])),
+			flags: {
+				rise: false,
+				mirror: false,
+				colorize: true,
+				comment: page['comment'],
+				lock: page['flags']['lock'],
+				piece: undefined,
+			},
+			index: pageNum, //necessary?
+		});
+	}
+	return encoder.encode(fullBook)
+}
+export function encode() { //use current page instead of accessing book?
+	document.getElementById('boardOutput').value = encodeFumen(EditorState.book[EditorState.bookPos]);
+}
 
 document.getElementById("exportFumen").addEventListener("click", fullEncode)
+export function fullEncode() {
+	document.getElementById('boardOutput').value = encodeFumen(...EditorState.book);
+}
+
 
 document.getElementById("addToInput").addEventListener("click", addToInput)
 function addToInput() {
@@ -448,7 +497,7 @@ function addToInput() {
 }
 
 
-document.getElementById("encodingType").addEventListener("change", autoEncode) //TODO: bind elements to autoencode, instead of calling from the function
+document.getElementById("encodingType").addEventListener("change", autoEncode)
 document.getElementById("autoEncode").addEventListener("click", updateAutoEncoding)
 function updateAutoEncoding() {
 	var boardOutput = document.getElementById('boardOutput')
@@ -477,19 +526,6 @@ function updateToolTips() {
 document.getElementById("defaultRenderInput").addEventListener("click", updateStyle)
 function updateStyle() {
 	document.getElementById('3dToggle').classList.toggle('disabled', document.getElementById('defaultRenderInput').checked)
-	window.requestAnimationFrame(renderBoard)
-}
-
-
-document.getElementById("undo").addEventListener("click", undo)
-function undo() {
-	EditorState.undo()
-	window.requestAnimationFrame(renderBoard)
-}
-
-document.getElementById("redo").addEventListener("click", redo)
-function redo() {
-	EditorState.redo()
 	window.requestAnimationFrame(renderBoard)
 }
 

@@ -1,7 +1,7 @@
-const { Field, encoder } = require('tetris-fumen');
 import { boardSize, cellSize } from '../global-utils.js'
 import { renderBoard } from '../rendering/board-render.js';
 import { EditorState } from './EditorState.js';
+import { encode, fullEncode } from './fumen-editor-buttons.js';
 
 //BOARD
 
@@ -11,7 +11,6 @@ updateBook()
 window.requestAnimationFrame(renderBoard)
 
 // CANVAS
-// var ctx = document.getElementById('b').getContext('2d')
 document.getElementById('b').height = boardSize[1] * cellSize
 document.getElementById('b').width = boardSize[0] * cellSize
 document.getElementById('b').style.outline = '2px solid #ffffffcc'
@@ -78,47 +77,6 @@ export function autoEncode() {
 
     if (encodingType == 'fullFumen') fullEncode();
     else if (encodingType == 'currentFumenPage') encode();
-}
-
-//from io.js
-function toField(board) { //only reads color of minos, ignoring the type
-    let FieldString = ''
-	for (let row of board) {
-		for (let cell of row) {
-			FieldString += (cell.c == '' ? '_' : cell.c)
-		}
-	}
-    return Field.create(FieldString)
-}
-
-function encodeFumen(...book) {
-	var fullBook = []
-	for (let pageNum in book) {
-		let page = book[pageNum]
-		fullBook.push({
-			comment: page['comment'],
-			operation: page['operation'],
-			field: toField(JSON.parse(page['board'])),
-			flags: {
-				rise: false,
-				mirror: false,
-				colorize: true,
-				comment: page['comment'],
-				lock: page['flags']['lock'],
-				piece: undefined,
-			},
-			index: pageNum, //necessary?
-		});
-	}
-	return encoder.encode(fullBook)
-}
-
-export function encode() { //use current page instead of accessing book?
-	document.getElementById('boardOutput').value = encodeFumen(EditorState.book[EditorState.bookPos]);
-}
-
-export function fullEncode() {
-	document.getElementById('boardOutput').value = encodeFumen(...EditorState.book);
 }
 
 // Updates all of the board properties: board, minoBoard, operation, comments

@@ -160,7 +160,7 @@ document.addEventListener('mouseup', () => {
 	
 	mouseHeld = false;
 	updateBook();
-	//autoEncode() prevent overwriting text pasted into textboxes
+	//autoEncode() //prevent overwriting text pasted into textboxes
 	requestAnimationFrame(renderBoard);
 	
 	function finishMinoMode() {
