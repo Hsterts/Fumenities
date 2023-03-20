@@ -292,6 +292,12 @@ input[type='radio'] {
     margin-left: 15px;
 }
 
+.left-fumen-panel{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
 .right-fumen-panel{
     flex: 1;
     margin-top: 9px;
