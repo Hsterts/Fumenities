@@ -441,10 +441,10 @@ function updateAutoEncoding() {
 	var isAutoEncode = document.getElementById('autoEncode').checked
 	document.getElementById('autoEncodeOptions').classList.toggle('hide-element', !isAutoEncode)
 	if (isAutoEncode) {
-		boardOutput.style.height = 50
+		boardOutput.style.height = '50px'
 		autoEncode()
 	} else {
-		boardOutput.style.height = 79
+		boardOutput.style.height = '78px'
 	}
 }
 

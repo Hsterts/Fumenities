@@ -266,6 +266,7 @@ input[type='radio'] {
 .fumen-main{
     background: #43445366;
     padding: 20px 0px 20px 0px;
+    height: 100%;
 }
 
 #settings-body {
@@ -384,6 +385,7 @@ input[type='radio'] {
 #boardOutput{
     width: 168px;
     height: 79px;
+    resize: none;
 }
 
 .fumen-option {
