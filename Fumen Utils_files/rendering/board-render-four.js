@@ -8,7 +8,7 @@ function draw(fumenPage, numrows) {
 	
 	let gridColor = document.getElementById('gridColor').value
 	let strokeStyle = (document.getElementById('gridToggle').checked ? gridColor : '#00000000')
-	
+
 	var combinedBoardStats = {
 		board: pageToBoard(fumenPage), 
 		tileSize: tileSize, 

@@ -99,7 +99,7 @@ export function renderBoardOnCanvas(combinedBoardStats) {
 		let gridCtx = gridCvs.getContext('2d')
 		gridCtx.fillStyle = combinedBoardStats.grid.fillStyle
 		gridCtx.fillRect(0, 0, tileSize, tileSize)
-		if (combinedBoardStats.grid.strokeStyle == 7) { //only change opacity if it isn't specified, this keeps tranparent colors unchanged
+		if (combinedBoardStats.grid.strokeStyle.length == 7) { //only change opacity if it isn't specified, this keeps tranparent colors unchanged
 			gridCtx.strokeStyle = combinedBoardStats.grid.strokeStyle + '60'
 		} else {
 			gridCtx.strokeStyle = combinedBoardStats.grid.strokeStyle
