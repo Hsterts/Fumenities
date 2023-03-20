@@ -1,6 +1,6 @@
 const { Mino } = require('tetris-fumen')
 import { inRange, shape_table, cellSize, boardSize } from "../global-utils.js";
-import { displayState } from "./EditorState.js";
+import { bookState, displayState } from "./EditorState.js";
 
 function paintbucketColor() {
 	for (let colorOption of document.paintbucket) {
@@ -32,7 +32,7 @@ document.getElementById('b').addEventListener('mousedown', (e) => {
 	
 	let autoColorCount = drawnMinos(displayState.board, cell => cell.t === 2)
 	if (autoColorBool && drawMode && autoColorCount == 4) {
-		displayState.solidifyBoard()
+		bookState.solidifyBoard()
 	}
 	drawCanvasCell(cellRow, cellCol);
 	mouseHeld = true;
@@ -89,7 +89,7 @@ function drawCanvasCell(cellRow, cellCol) {
 				}
 			}
 		}
-		displayState.setState({minoModeBoard: currentMinoModeBoard})
+		bookState.updateCurrentPage({minoModeBoard: currentMinoModeBoard})
 	}
 
 	function drawCanvasNormalMode() {
@@ -103,7 +103,7 @@ function drawCanvasCell(cellRow, cellCol) {
 		} else {
 			currentBoard[cellRow][cellCol] = (drawMode && displayState.minoModeBoard[cellRow][cellCol].t != 1 ? { t: 1, c: paintbucketColor() } : { t: 0, c: '' });
 		}
-		displayState.setState({board: currentBoard})
+		bookState.updateCurrentPage({board: currentBoard})
 	}
 
 	function drawCanvasAutoColorMode() {
@@ -116,7 +116,6 @@ function drawCanvasCell(cellRow, cellCol) {
 				for (let col = 0; col < boardSize[0]; col++) {
 					if (currentBoard[row][col].t == 2) {
 						positions.push([row, col]);
-						console.log([row, col], currentBoard[row][col])
 					}
 				}
 			}
@@ -124,9 +123,7 @@ function drawCanvasCell(cellRow, cellCol) {
 			if (positions.length < 4 && displayState.minoModeBoard[cellRow][cellCol].t != 1) {
 				currentBoard[cellRow][cellCol] = { t: 2, c: 'X' };
 				positions.push([cellRow, cellCol]);
-				console.log([cellRow, cellCol], currentBoard[cellRow][cellCol] )
 			}
-			console.log(positions)
 
 			if (positions.length === 4) {
 				let pieceMino = readPiece(positions, true);
@@ -139,7 +136,7 @@ function drawCanvasCell(cellRow, cellCol) {
 		} else {
 			currentBoard[cellRow][cellCol] = { t: 0, c: '' };
 		}
-		displayState.setState({board: currentBoard})
+		bookState.updateCurrentPage({board: currentBoard})
 	}
 }
 
@@ -179,7 +176,7 @@ document.addEventListener('mouseup', () => {
 			}
 		}
 		
-		displayState.setState({operation: operation, minoModeBoard: minoModeBoard})
+		bookState.updateCurrentPage({operation: operation, minoModeBoard: minoModeBoard})
 	}
 })
 

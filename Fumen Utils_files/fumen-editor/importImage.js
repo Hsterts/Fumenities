@@ -1,5 +1,5 @@
 import { inRange, emptyBoard, boardSize } from "../global-utils.js";
-import { displayState } from "./EditorState.js";
+import { bookState } from "./EditorState.js";
 
 export default async function importImage(blob) {
     // Create an abstract canvas and get context
@@ -61,7 +61,7 @@ export default async function importImage(blob) {
             console.log(hsv, nearestColor(hsv[0], hsv[1], hsv[2])); // debugging purposes
             nDat.push(nearestColor(hsv[0], hsv[1], hsv[2]));
         }*/
-        displayState.setState({board: tempBoard})
+        bookState.updateCurrentPage({board: tempBoard})
     };
 
     var URLObj = window.URL || window.webkitURL;

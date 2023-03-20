@@ -93,7 +93,7 @@ function updateAutoColor() {
 	document.getElementById('autoColorInput').classList.toggle('disabled', !isAutoColorUsable)
 	
 	var autoColorBool = document.getElementById('autoColorInput').checked
-	if(!(isAutoColorUsable && autoColorBool)) displayState.solidifyBoard()
+	if(!(isAutoColorUsable && autoColorBool)) bookState.solidifyBoard()
 }
 
 function toggleRowFillInput() {
@@ -132,20 +132,23 @@ document.getElementById("minoModeInput").addEventListener("click", updateRowFill
 function updateMinoMode() {
     let minoMode = document.getElementById('minoModeInput').checked
     if (!minoMode && displayState.operation == undefined) { //clear minoModeBoard without a glued piece when exiting minoMode
-		displayState.setState({minoModeBoard: emptyBoard()})
+		bookState.updateCurrentPage({minoModeBoard: emptyBoard()})
 	}
 }
 
+document.getElementById("startPage").addEventListener("click", bookState.solidifyBoard)
 document.getElementById("startPage").addEventListener("click", startPage)
 function startPage() {
 	bookState.displayBookPage(0)
 }
 
+document.getElementById("prevPage").addEventListener("click", bookState.solidifyBoard)
 document.getElementById("prevPage").addEventListener("click", prevPage)
 function prevPage() {
 	bookState.displayBookPage(bookState.bookPos-1)
 }
 
+document.getElementById("positionDisplay").addEventListener("click", bookState.solidifyBoard)
 document.getElementById("positionDisplay").addEventListener("focusout", gotoPage)
 function gotoPage() {
 	bookState.displayBookPage(getCurrentPosition())
@@ -157,8 +160,7 @@ function gotoPage() {
 }
 
 function insertFollowingPage() {
-	displayState.solidifyBoard()
-	displayState.updateBook()
+	bookState.solidifyBoard()
 
 	//push minomode onto current board
 	let board = displayState.board
@@ -198,6 +200,7 @@ function insertFollowingPage() {
 	bookState.setBook(currentBook)
 }
 
+document.getElementById("nextPage").addEventListener("click", bookState.solidifyBoard)
 document.getElementById("nextPage").addEventListener("click", nextPage)
 function nextPage() {
 	if (bookState.bookPos == bookState.book.length-1) { // Create new page when at the last page
@@ -207,6 +210,7 @@ function nextPage() {
 	bookState.displayBookPage(bookState.bookPos + 1) // next page
 }
 
+document.getElementById("endPage").addEventListener("click", bookState.solidifyBoard)
 document.getElementById("endPage").addEventListener("click", endPage)
 function endPage(){
 	bookState.displayBookPage(bookState.book.length-1)
@@ -240,7 +244,7 @@ function shift(direction){
 				})
 			break;
 	}
-	displayState.setState({board: board})
+	bookState.updateCurrentPage({board: board})
 }
 
 document.getElementById("undo").addEventListener("click", undo)
@@ -253,31 +257,28 @@ function redo() {
 	historyState.redo()
 }
 
-const reversed = {Z: 'S',L: 'J',O: 'O',S: 'Z',I: 'I',J: 'L',T: 'T',X: 'X'};
 document.getElementById("mirrorPage").addEventListener("click", mirror)
-function mirror() {
-	let board = displayState.board
-	for (row = 0; row < board.length; row++) {
-		board[row].reverse();
-		for (i = 0; i < board[row].length; i++) {
-			if (board[row][i].t == 1) board[row][i].c = reversed[board[row][i].c];
+function flipBoard(board) {
+	const reversed = {Z: 'S',L: 'J',O: 'O',S: 'Z',I: 'I',J: 'L',T: 'T',X: 'X'};
+	
+	let newBoard = JSON.parse(JSON.stringify(board))
+	for (let row in newBoard) {
+		newBoard[row].reverse(); //reverse cells in row
+		for (let col in newBoard[row]) {
+			if (newBoard[row][col].t == 1) newBoard[row][col].c = reversed[newBoard[row][col].c]; //reverse colors in row
 		}
 	}
-	displayState.setState({board: board})
+	return newBoard
+}
+function mirror() {
+	bookState.updateCurrentPage({board: flipBoard(displayState.board)})
 }
 
 document.getElementById("mirrorFumen").addEventListener("click", fullMirror)
 function fullMirror() {
 	let currentBook = bookState.book
 	for (let page in currentBook) {
-		var tempBoard = JSON.parse(currentBook[page]['board']);
-		for (let row in tempBoard) {
-			tempBoard[row].reverse(); //reverse cells in row
-			for (let col in tempBoard[row]) {
-				if (tempBoard[row][col].t == 1) tempBoard[row][col].c = reversed[tempBoard[row][col].c]; //reverse colors in row
-			}
-		}
-		currentBook[page]['board'] = JSON.stringify(tempBoard);
+		currentBook[page]['board'] = flipBoard(currentBook[page]['board']);
 	}
 	bookState.setBook(currentBook)
 }
@@ -291,7 +292,7 @@ function dupliPage() {
 
 document.getElementById("clearPage").addEventListener("click", clearPage)
 function clearPage(){
-	displayState.setState({
+	bookState.updateCurrentPage({
 		board: emptyBoard(),
 		minoBoard: emptyBoard(),
 		comment: '',
@@ -376,9 +377,8 @@ async function importImageButton() {
 
 document.getElementById("insertFumen").addEventListener("click", decodeInsert)
 function decodeInsert() {
-    var bookInsert = decodeFumen()
-	let book = bookState.book
-	book.splice(bookState.bookPos, 0, ...bookInsert)
+    let book = bookState.book
+	book.splice(bookState.bookPos, 0, ...decodeFumen())
 	bookState.setBook(book)
 };
 
@@ -453,8 +453,7 @@ function updateAutoEncoding() {
 //additional setting bindings
 document.getElementById("lockFlagInput").addEventListener("click", updateLockFlag)
 function updateLockFlag() {
-	console.log(document.getElementById('lockFlagInput').checked)
-	displayState.setState({flags: {lock: document.getElementById('lockFlagInput').checked}})
+	bookState.updateCurrentPage({flags: {lock: document.getElementById('lockFlagInput').checked}})
 }
 
 document.getElementById("autoColorInput").addEventListener("click", updateAutoColor)
@@ -488,6 +487,6 @@ function updateStyle() {
 //automatic update bindings
 document.getElementById("commentBox").addEventListener("change", updateComment) //this guarentees that comments get automatically written to book
 function updateComment() {
-	displayState.setState({comment: document.getElementById("commentBox").value})
+	bookState.updateCurrentPage({comment: document.getElementById("commentBox").value})
 }
 

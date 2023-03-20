@@ -64,7 +64,6 @@ function retractSideBars() {
 }
 
 export function autoEncode() {
-	console.log("autoencode")
     if (document.getElementById('autoEncode').checked == false) return;
 
     let encodingType = document.getElementById('encodingType').value;

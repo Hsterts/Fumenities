@@ -25,7 +25,7 @@ function downloadByURL(DataURLs) {
             });
         })
     })
-    console.log(promises)
+    // console.log(promises)
     Promise.allSettled(promises).then(() => {
         zip.generateAsync({type:'blob'}).then(blob => {
             saveAs(blob, "output.zip");
