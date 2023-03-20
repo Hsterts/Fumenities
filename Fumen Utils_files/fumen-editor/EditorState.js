@@ -37,7 +37,7 @@ export let displayState = { //move board, minoModeBoard, comment, operation, fla
         }
         
         //combine board and minomodeBoard
-        let minoModeBoard = displayState.minoModeBoard
+        let minoModeBoard = this.minoModeBoard
         for (let row in minoModeBoard) {
             for (let col in minoModeBoard[row]) {
                 if (minoModeBoard[row][col].t === 1) combinedBoardStats.board[row][col] = { t: 2, c: minoModeBoard[row][col].c }
@@ -58,7 +58,7 @@ export let displayState = { //move board, minoModeBoard, comment, operation, fla
 }
 
 function emptyPage() {
-    return {board: JSON.stringify(emptyBoard()), minoBoard: JSON.stringify(emptyBoard()), comment: '', operation: undefined, flags: {lock: true}}
+    return {board: JSON.stringify(emptyBoard()), minoModeBoard: JSON.stringify(emptyBoard()), comment: '', operation: undefined, flags: {lock: true}}
 }
 const emptyBook = [emptyPage(),]
 
@@ -71,7 +71,7 @@ export let bookState = {
         
         displayState.setState({
             board: JSON.parse(this.book[this.bookPos]['board']), 
-            minoModeBoard: JSON.parse(this.book[this.bookPos]['minoBoard']),
+            minoModeBoard: JSON.parse(this.book[this.bookPos]['minoModeBoard']),
             comment: this.book[this.bookPos]['comment'],
             operation: this.book[this.bookPos]['operation'],
             flags: this.book[this.bookPos]['flags'],
@@ -97,6 +97,7 @@ export let bookState = {
     },
 
     updateCurrentPage(newDisplayState) {
+        console.log(newDisplayState.minoModeBoard?.[0]?.[0])
         this.book[this.bookPos]['board'] = JSON.stringify(newDisplayState.board) ?? this.book[this.bookPos]['board']
         this.book[this.bookPos]['minoModeBoard'] = JSON.stringify(newDisplayState.minoModeBoard) ?? this.book[this.bookPos]['minoModeBoard']
         this.book[this.bookPos]['comment'] = newDisplayState.comment ?? this.book[this.bookPos]['comment']

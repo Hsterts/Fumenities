@@ -190,7 +190,7 @@ function insertFollowingPage() {
 	let currentBook = bookState.book
 	let newPage = {
 		board: JSON.stringify(board),
-		minoBoard: JSON.stringify(emptyBoard()),
+		minoModeBoard: JSON.stringify(emptyBoard()),
 		comment: displayState.comment, //only works since we don't care about quiz mode
 		operation: undefined,
 		flags: {lock: displayState.flags.lock},
@@ -292,7 +292,7 @@ document.getElementById("clearPage").addEventListener("click", clearPage)
 function clearPage(){
 	bookState.updateCurrentPage({
 		board: emptyBoard(),
-		minoBoard: emptyBoard(),
+		minoModeBoard: emptyBoard(),
 		comment: '',
 		operation: undefined,
 		flags: {lock: true}
@@ -323,7 +323,7 @@ function decodeFumen() {
     var tempBook = pages.map(page => {
 		return {
 			board: JSON.stringify(pageToBoard(page)),
-			minoBoard: JSON.stringify(decodeOperation(page['operation'])),
+			minoModeBoard: JSON.stringify(decodeOperation(page['operation'])),
 			operation: page['operation'],
 			comment: page['comment'],
 			flags: page['flags'],
@@ -335,18 +335,18 @@ function decodeFumen() {
     function decodeOperation(operation){
         if (operation === undefined) return emptyBoard() //no operation
     
-        decodedMinoBoard = emptyBoard()
+        var decodedMinoModeBoard = emptyBoard()
         let pieceColor = operation.type
         let rotation = operation.rotation
         let x = operation.x
         let y = 19 - operation.y //fumen has inverted y axis
         
-        piecePositions = shape_table[pieceColor][rotation]
+        let piecePositions = shape_table[pieceColor][rotation]
         for (let piecePosition of piecePositions) {
-            decodedMinoBoard[y + piecePosition[0]][x + piecePosition[1]] = { t: 1, c: pieceColor }
+            decodedMinoModeBoard[y + piecePosition[0]][x + piecePosition[1]] = { t: 1, c: pieceColor }
         }
         
-        return decodedMinoBoard
+        return decodedMinoModeBoard
     }
 }
 
