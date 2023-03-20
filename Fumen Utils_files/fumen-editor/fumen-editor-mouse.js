@@ -145,7 +145,6 @@ document.getElementById('insertFumen').addEventListener('mouseup', (e) => e.stop
 document.getElementById('importFumen').addEventListener('mouseup', (e) => e.stopPropagation())
 document.getElementById('boardOutput').addEventListener('mouseup', (e) => e.stopPropagation())
 document.addEventListener('mouseup', () => {
-	console.log("up")
 	var minoMode = document.getElementById('minoModeInput').checked;
 	
 	if (minoMode) finishMinoMode();

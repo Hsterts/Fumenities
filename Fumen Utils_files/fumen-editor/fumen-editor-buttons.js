@@ -43,8 +43,8 @@ Mousetrap.bind({
 	
 	// Import image already binded to paste
 	'ins': decodeInsert,
-	'E p': encode,
 	'I f': fullDecode,
+	'E p': encode,
 	'E f': fullEncode,
 	'+': addToInput,
 
