@@ -1,5 +1,5 @@
 import { boardSize, cellSize } from '../global-utils.js'
-import { encode, fullEncode } from './fumen-editor-buttons.js';
+import { exportFumen, exportPage } from './fumen-editor-buttons.js';
 
 //BOARD
 
@@ -68,6 +68,6 @@ export function autoEncode() {
 
     let encodingType = document.getElementById('encodingType').value;
 
-    if (encodingType == 'fullFumen') fullEncode();
-    else if (encodingType == 'currentFumenPage') encode();
+    if (encodingType == 'fullFumen') exportFumen();
+    else if (encodingType == 'currentFumenPage') exportPage();
 }

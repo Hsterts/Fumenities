@@ -150,7 +150,6 @@ document.addEventListener('mouseup', () => {
 	if (minoMode) finishMinoMode();
 	
 	mouseHeld = false;
-	//autoEncode() //prevent overwriting text pasted into textboxes
 	
 	function finishMinoMode() {
 		let minoModeBoard = displayState.minoModeBoard

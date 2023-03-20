@@ -42,10 +42,10 @@ Mousetrap.bind({
 	'r': increaseResetLevel,
 	
 	// Import image already binded to paste
-	'ins': decodeInsert,
-	'I f': fullDecode,
-	'E p': encode,
-	'E f': fullEncode,
+	'ins': insertFumen,
+	'I f': importFumen,
+	'E p': exportPage,
+	'E f': exportFumen,
 	'+': addToInput,
 
 	'A e': toggleAutoEncoding,
@@ -286,8 +286,6 @@ function fullMirror() {
 document.getElementById("duplicatePage").addEventListener("click", dupliPage)
 function dupliPage() {
 	insertFollowingPage()
-	window.requestAnimationFrame(renderBoard)
-	autoEncode()
 }
 
 document.getElementById("clearPage").addEventListener("click", clearPage)
@@ -375,20 +373,20 @@ async function importImageButton() {
 	}
 }
 
-document.getElementById("insertFumen").addEventListener("click", decodeInsert)
-function decodeInsert() {
+document.getElementById("insertFumen").addEventListener("click", insertFumen)
+function insertFumen() {
     let book = bookState.book
 	book.splice(bookState.bookPos, 0, ...decodeFumen())
 	bookState.setBook(book)
 };
 
-document.getElementById("importFumen").addEventListener("click", fullDecode)
-function fullDecode() {
+document.getElementById("importFumen").addEventListener("click", importFumen)
+function importFumen() {
 	bookState.setBook(decodeFumen())
 	bookState.displayBookPage(0)
 };
 
-document.getElementById("exportPage").addEventListener("click", encode)
+document.getElementById("exportPage").addEventListener("click", exportPage)
 //from io.js
 function toField(board) { //only reads color of minos, ignoring the type
     let FieldString = ''
@@ -420,12 +418,12 @@ function encodeFumen(...book) {
 	}
 	return encoder.encode(fullBook)
 }
-export function encode() { //use current page instead of accessing book?
+export function exportPage() { //use current page instead of accessing book?
 	document.getElementById('boardOutput').value = encodeFumen(bookState.book[bookState.bookPos]);
 }
 
-document.getElementById("exportFumen").addEventListener("click", fullEncode)
-export function fullEncode() {
+document.getElementById("exportFumen").addEventListener("click", exportFumen)
+export function exportFumen() {
 	document.getElementById('boardOutput').value = encodeFumen(...bookState.book);
 }
 
