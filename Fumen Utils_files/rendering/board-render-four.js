@@ -94,6 +94,7 @@ export default function fumencanvas(fumens) {
 			var textBox = document.createElement('textarea')
 			textBox.value = fumen[0]['comment']; // only displays comment of first page, unless I find some way to loop text
 			textBox.classList.add('commentDisplay');
+			textBox.setAttribute('readonly', '')
 			
 			var commentBox = document.createElement('figcaption');
 			commentBox.style = "width:100%"

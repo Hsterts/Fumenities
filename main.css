@@ -110,15 +110,21 @@ textarea{
     resize: show;
     }
 
+figcaption{
+    width: 100%;
+    margin-top: 1px;
+}
+
 .commentDisplay{
     height: 24px;
     width: inherit;
     border: 0px !important;
     outline: solid #aaa6cf 1px;
-    margin: 1px 0 0 0;
+    margin: 0px;
     font-size: 14px;
-    padding: 2px;
+    padding: 0px;
     text-align: center;
+    resize: none;
 }
 
 input, select{
@@ -147,13 +153,22 @@ input[type="checkbox"]{
     }
 
 figure{
-    display: inline-block;
-    padding: 0px;
-    margin: 0px !important;
+    display: flex;
+    flex-flow: row wrap;
+    padding: 0 0.5px;
+    margin: 0.5px 0 !important;
+    width: min-content;
+    height: min-content;
 }
 
 .imageOutput{
     padding: 0px;
+}
+
+#imageOutputs{
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
 }
 
 .fourImageOutput {
