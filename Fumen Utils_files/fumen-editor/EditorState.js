@@ -7,7 +7,7 @@ import { renderBoardOnCanvas } from "../rendering/board-render.js"
 export let displayState = { //move board, minoModeBoard, comment, operation, flags here
     board: emptyBoard(),
 	minoModeBoard: emptyBoard(), //TODO: might be better to keep minoModeBoard as an array denoting the position of at most 4 cells
-    comment: '', //TODO: use this to store comments
+    comment: '',
 	operation: undefined, // {type: 'I', rotation: 'reverse', x: 4, y: 0}
 	flags: {lock: true},
 

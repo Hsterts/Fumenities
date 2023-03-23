@@ -301,7 +301,7 @@ function clearPage(){
 }
 
 document.getElementById("deletePage").addEventListener("click", deletePage)
-function deletePage(){ //TODO: move to EditorState?
+function deletePage() {
 	if (bookState.book.length == 1) {
 		clearPage()
 	} else {
