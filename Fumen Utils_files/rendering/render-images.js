@@ -55,11 +55,13 @@ export default function renderImages() {
 	fumenCodes = convertedFumens.map(convertedFumen => convertedFumen.code)
 
 	// console.log(fumens)
-
+   
+    let startTime = performance.now()
 	switch (document.getElementById('renderStyle').value){
 		case 'four': var resultURLs = fumencanvas(fumens); break;
 		case 'fumen': var resultURLs = fumenrender(fumens); break;
 	}
+	console.log("Finished in " + String(performance.now() - startTime) + "ms")
 
 	let downloadBool = document.getElementById('downloadOutput').checked;
 	if (downloadBool) downloadByURL(resultURLs)

@@ -72,7 +72,6 @@ function GIFDataURL(gif) {
 export default function fumencanvas(fumens) {
 	var container = document.getElementById('imageOutputs');
 	var resultURLs = [];
-	let startTime = performance.now()
 
 	for (let fumen of fumens) {
 		if (fumen.length == 1) {
@@ -106,7 +105,6 @@ export default function fumencanvas(fumens) {
 		container.appendChild(figure);
 		resultURLs.push(data_url);
 	}
-	console.log("Finished in " + String(performance.now() - startTime) + "ms")
 
 	return resultURLs
 }

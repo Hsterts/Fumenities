@@ -71,7 +71,6 @@ function fumen_drawFumens(fumenPages) {
 export default function fumenrender(fumens) {
 	var container = document.getElementById('imageOutputs');
 	var resultURLs = [];
-	let startTime = performance.now()
 
 	for (let fumen of fumens) {
 		if (fumen.length == 1) {
@@ -91,7 +90,6 @@ export default function fumenrender(fumens) {
 		container.appendChild(img);
 		resultURLs.push(data_url);
 	}
-	console.log("Finished in " + String(performance.now() - startTime) + "ms")
 
 	return resultURLs
 }
