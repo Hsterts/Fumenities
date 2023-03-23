@@ -85,9 +85,12 @@ export default function fumenrender(fumens) {
 		img.classList.add('imageOutput', 'fumenImageOutput')
 		img.src = data_url;
 
+		var figure = document.createElement('figure');
+		figure.appendChild(img);
+		
 		//fumen rendering doesn't show comments
-
-		container.appendChild(img);
+		
+		container.appendChild(figure);
 		resultURLs.push(data_url);
 	}
 
