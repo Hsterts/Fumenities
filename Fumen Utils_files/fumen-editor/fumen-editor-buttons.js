@@ -87,6 +87,7 @@ function toggleLock() {
 function toggleAutoColor() {
 	document.getElementById('autoColorInput').checked = !document.getElementById('autoColorInput').checked
 	updateAutoColor()
+	updateRowFillInput()
 }
 function updateAutoColor() {
 	var isAutoColorUsable = !document.getElementById('minoModeInput').checked
@@ -136,21 +137,21 @@ function updateMinoMode() {
 	}
 }
 
-document.getElementById("startPage").addEventListener("click", bookState.solidifyBoard)
 document.getElementById("startPage").addEventListener("click", startPage)
 function startPage() {
+	bookState.solidifyBoard()
 	bookState.displayBookPage(0)
 }
 
-document.getElementById("prevPage").addEventListener("click", bookState.solidifyBoard)
 document.getElementById("prevPage").addEventListener("click", prevPage)
 function prevPage() {
+	bookState.solidifyBoard()
 	bookState.displayBookPage(bookState.bookPos-1)
 }
 
-document.getElementById("positionDisplay").addEventListener("click", bookState.solidifyBoard)
 document.getElementById("positionDisplay").addEventListener("focusout", gotoPage)
 function gotoPage() {
+	bookState.solidifyBoard()
 	bookState.displayBookPage(getCurrentPosition())
 
 	function getCurrentPosition() {
@@ -160,8 +161,6 @@ function gotoPage() {
 }
 
 function insertFollowingPage() {
-	bookState.solidifyBoard()
-
 	//push minomode onto current board
 	let board = displayState.board
 	if (displayState.operation != undefined) {
@@ -200,9 +199,9 @@ function insertFollowingPage() {
 	bookState.setBook(currentBook)
 }
 
-document.getElementById("nextPage").addEventListener("click", bookState.solidifyBoard)
 document.getElementById("nextPage").addEventListener("click", nextPage)
 function nextPage() {
+	bookState.solidifyBoard()
 	if (bookState.bookPos == bookState.book.length-1) { // Create new page when at the last page
 		insertFollowingPage()
 	}
@@ -210,9 +209,9 @@ function nextPage() {
 	bookState.displayBookPage(bookState.bookPos + 1) // next page
 }
 
-document.getElementById("endPage").addEventListener("click", bookState.solidifyBoard)
 document.getElementById("endPage").addEventListener("click", endPage)
 function endPage(){
+	bookState.solidifyBoard()
 	bookState.displayBookPage(bookState.book.length-1)
 }
 
@@ -278,13 +277,14 @@ document.getElementById("mirrorFumen").addEventListener("click", fullMirror)
 function fullMirror() {
 	let currentBook = bookState.book
 	for (let page in currentBook) {
-		currentBook[page]['board'] = flipBoard(currentBook[page]['board']);
+		currentBook[page]['board'] = JSON.stringify(flipBoard(JSON.parse(currentBook[page]['board'])))
 	}
 	bookState.setBook(currentBook)
 }
 
 document.getElementById("duplicatePage").addEventListener("click", dupliPage)
 function dupliPage() {
+	bookState.solidifyBoard()
 	insertFollowingPage()
 }
 

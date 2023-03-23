@@ -20,6 +20,7 @@ export let displayState = { //move board, minoModeBoard, comment, operation, fla
         this.operation = operation ?? this.operation
         this.flags = flags ?? this.flags
         
+        // console.log(this.board)
         window.requestAnimationFrame(() => this.display())
     },
 
