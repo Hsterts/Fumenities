@@ -10,6 +10,7 @@ import renderImages from "../rendering/render-images.js"
 updateBGSelect()
 updateDownloadSettings()
 updateGrid()
+updateAvailableRenderOptions()
 
 //SHORTCUTS
 Mousetrap.bind({
@@ -43,7 +44,13 @@ document.getElementById("split-fumen").addEventListener("click", splitFumen)
 document.getElementById("remove-comments").addEventListener("click", removeComments)
 document.getElementById("render-images").addEventListener("click", renderImages)
 
-document.getElementById("renderStyle").addEventListener("click", renderImages)
+document.getElementById("renderStyle").addEventListener("input", renderImages)
+document.getElementById("renderStyle").addEventListener("input", updateAvailableRenderOptions)
+function updateAvailableRenderOptions() {
+	document.getElementById('gridToggle').classList.toggle('disabled', document.getElementById('renderStyle').value == 'fumen')
+	document.getElementById('displayMode').classList.toggle('disabled', document.getElementById('renderStyle').value == 'fumen')
+}
+
 document.getElementById("displayMode").addEventListener("click", renderImages)
 
 document.getElementById("transparency").addEventListener("click", updateBGSelect)
