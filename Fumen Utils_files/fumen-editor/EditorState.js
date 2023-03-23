@@ -97,7 +97,6 @@ export let bookState = {
     },
 
     updateCurrentPage(newDisplayState) {
-        console.log(newDisplayState.minoModeBoard?.[0]?.[0])
         this.book[this.bookPos]['board'] = JSON.stringify(newDisplayState.board) ?? this.book[this.bookPos]['board']
         this.book[this.bookPos]['minoModeBoard'] = JSON.stringify(newDisplayState.minoModeBoard) ?? this.book[this.bookPos]['minoModeBoard']
         this.book[this.bookPos]['comment'] = newDisplayState.comment ?? this.book[this.bookPos]['comment']
