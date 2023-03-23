@@ -2,7 +2,7 @@ const { Field, encoder, decoder } = require('tetris-fumen');
 import { getDelimiter, shape_table, emptyBoard, emptyRow } from "../global-utils.js"
 import { autoEncode } from "./fumen-editor.js"
 import importImage from "./importImage.js"
-import { pageToBoard, renderBoard } from "../rendering/board-render.js"
+import { pageToBoard } from "../rendering/board-render.js"
 import { bookState, displayState, historyState } from "./EditorState.js"
 
 //INITIALIZATION
@@ -278,6 +278,7 @@ function fullMirror() {
 	let currentBook = bookState.book
 	for (let page in currentBook) {
 		currentBook[page]['board'] = JSON.stringify(flipBoard(JSON.parse(currentBook[page]['board'])))
+		currentBook[page]['minoModeBoard'] = JSON.stringify(flipBoard(JSON.parse(currentBook[page]['minoModeBoard'])))
 	}
 	bookState.setBook(currentBook)
 }
@@ -448,15 +449,15 @@ function updateAutoEncoding() {
 	}
 }
 
-//additional setting bindings
+//additional settings bindings
 document.getElementById("lockFlagInput").addEventListener("click", updateLockFlag)
 function updateLockFlag() {
 	bookState.updateCurrentPage({flags: {lock: document.getElementById('lockFlagInput').checked}})
 }
 
 document.getElementById("autoColorInput").addEventListener("click", updateAutoColor)
-
 document.getElementById("autoColorInput").addEventListener("click", updateRowFillInput)
+
 document.getElementById("rowFillInput").addEventListener("click", updateRowFillInput)
 
 document.getElementById("tooltipSetting").addEventListener("click", updateToolTips)
@@ -476,11 +477,8 @@ function update3dSetting() {
 document.getElementById("defaultRenderInput").addEventListener("click", updateStyle)
 function updateStyle() {
 	document.getElementById('3dToggle').classList.toggle('disabled', document.getElementById('defaultRenderInput').checked)
-	window.requestAnimationFrame(renderBoard)
+	window.requestAnimationFrame(() => displayState.display())
 }
-
-
-
 
 //automatic update bindings
 document.getElementById("commentBox").addEventListener("change", updateComment) //this guarentees that comments get automatically written to book

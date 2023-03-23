@@ -32,31 +32,6 @@ export function getFumenMaxHeight(...fumenPages) {
 	}
 }
 
-export function renderBoard() {  //renders board and minoModeBoard
-	var combinedBoardStats = {
-		board: JSON.parse(JSON.stringify(displayState.board)), 
-		tileSize: cellSize, 
-		style: (document.getElementById('defaultRenderInput').checked ? 'fumen' : 'four'),
-		lockFlag: displayState.flags.lock,
-		grid: {
-			fillStyle: '#000000',
-			strokeStyle: '#ffffff'
-		},
-	}
-	
-	//combine board and minomodeBoard
-	let minoModeBoard = displayState.minoModeBoard
-	for (let row in minoModeBoard) {
-		for (let col in minoModeBoard[row]) {
-			if (minoModeBoard[row][col].t === 1) combinedBoardStats.board[row][col] = { t: 2, c: minoModeBoard[row][col].c }
-		}
-	}
-
-	let context = document.getElementById('b').getContext('2d')
-	context.imageSmoothingEnabled = false // no anti-aliasing
-	context.drawImage(renderBoardOnCanvas(combinedBoardStats), 0, 0)
-}
-
 export function pageToBoard(fumenPage) {	
 	let fieldString = fumenPage.field.str()
 	let truncatedBoardColors = fieldString.split("\n").map(rowColor => rowColor.split(""))
