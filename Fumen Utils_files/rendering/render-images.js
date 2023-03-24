@@ -7,7 +7,7 @@ function downloadByURL(DataURLs) {
     var zip = new JSZip();
     let promises = DataURLs.map((DataURL, i) => {
         return new Promise((resolve, reject) => {
-            let filetype = RegExp('image/(.+);').exec(DataURL)[1]
+            let filetype = /image\/(.+);/.exec(DataURL)[1]
             JSZipUtils.getBinaryContent(DataURL, (err, data) => { //async
                 if (err) {
                     reject(err)

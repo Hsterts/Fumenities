@@ -4,7 +4,7 @@ export function getDelimiter() {
 
 export const cellSize = 22
 export const boardSize = [10, 20]
-export const LineTerminator = RegExp("[\\s,;]+")
+export const LineTerminator = /[\s,;]+/
 
 //PIECE MAPS
 //table is a (row, col) pair sorted ascending by col then row, with right and down being the positive x and y axis. origin placed at the rotation axis of the piece

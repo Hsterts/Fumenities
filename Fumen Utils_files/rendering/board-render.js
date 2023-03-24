@@ -16,10 +16,10 @@ export function getFumenMaxHeight(...fumenPages) {
 	function highestPageHeight(fumenPage) {
 		var highestMino = (fumenPage.operation != undefined ? highestOperationHeight(fumenPage.operation) : 0)
 
-		let fieldString = fumenPage.field.str().replace(RegExp('\n', 'g'), '')
+		let fieldString = fumenPage.field.str().replace(/\n/g, '')
 		fieldString = fieldString.slice(0, -10) //ignore garbage line
 		// console.log(fieldString)
-		let longestEmptyFieldString = fieldString.match(RegExp('^_+'))
+		let longestEmptyFieldString = fieldString.match(/^_+/)
 		
 		if (longestEmptyFieldString === null) {
 			var highestFilledIndex = fieldString.length
