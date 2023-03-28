@@ -1,4 +1,5 @@
 const {decoder, encoder, Field} = require('tetris-fumen');
+import { getDelimiter, LineTerminator } from '../global-utils.js'
 
 const rowLen = 10;
 
@@ -201,22 +202,15 @@ function findRemainingPieces(field){
     return piecesFound;
 }
 
-function glueFumen(customInput=document.getElementById('input').value, removeLineClearBool=true){
-    var fumenCodes = [];
-	customInput = customInput.split("\t")
-
-    if(typeof customInput != 'object'){
-        throw new Error("Custom input for glueFumen must be an array")
-    }
-
-    for(let rawInput of customInput){
-        fumenCodes.push(...rawInput.split(/\s/));
-    }
-
+export default function glueFumen(){
+    var removeLineClearBool = true //always set to true
+    var input = document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@')
+	var fumenCodes = input.trim().split(LineTerminator)
+    
     var allPiecesArr = [];
     var allFumens = [];
     var fumenIssues = 0;
-    for(let code of fumenCodes){
+    for (let code of fumenCodes){
         let inputPages = decoder.decode(code);
         let thisGlueFumens = []; // holds the glue fumens for this fumenCode
         for(let pageNum = 0; pageNum < inputPages.length; pageNum++){
@@ -228,12 +222,12 @@ function glueFumen(customInput=document.getElementById('input').value, removeLin
 
             scanField(0, height - 1, field, [], allPiecesArr, removeLineClearBool);
             
-            if(allPiecesArr.length == 0){
+            if (allPiecesArr.length == 0){
                 console.log(code + " couldn't be glued");
                 fumenIssues++;
             }
             
-            for(let piecesArr of allPiecesArr){
+            for (let piecesArr of allPiecesArr){
                 let pages = [];
                 pages.push({
                     field: emptyField,
@@ -248,7 +242,7 @@ function glueFumen(customInput=document.getElementById('input').value, removeLin
                 thisGlueFumens.push(pieceFumen);
             }
 
-            if(allPiecesArr.length > 1){
+            if (allPiecesArr.length > 1){
                 // multiple outputs warning
                 allFumens.push("Warning: " + code + " led to " + allPiecesArr.length + " outputs: " + thisGlueFumens.join(" "));
             }
@@ -257,13 +251,10 @@ function glueFumen(customInput=document.getElementById('input').value, removeLin
         // add the glue fumens for this code to all the fumens
         allFumens.push(...thisGlueFumens)
     }
-    if(fumenCodes.length > allFumens.length){
+    if (fumenCodes.length > allFumens.length){
         console.log("Warning: " + fumenIssues + " fumens couldn't be glued");
     }
 
-	let output = allFumens.join(delimiter);
+	let output = allFumens.join(getDelimiter());
 	document.getElementById('output').value = output;
 }
-
-
-
