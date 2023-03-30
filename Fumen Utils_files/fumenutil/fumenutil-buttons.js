@@ -11,6 +11,7 @@ updateBGSelect()
 updateDownloadSettings()
 updateGrid()
 updateAvailableRenderOptions()
+updateImagesPerRow()
 
 //SHORTCUTS
 Mousetrap.bind({
@@ -26,6 +27,7 @@ Mousetrap.bind({
 	'shift+enter': moveOutputToInput,
 })
 
+//INPUT TAB
 document.getElementById("clear-input").addEventListener("click", increaseClearInputLevel)
 
 function increaseClearInputLevel() {
@@ -44,6 +46,7 @@ document.getElementById("split-fumen").addEventListener("click", splitFumen)
 document.getElementById("remove-comments").addEventListener("click", removeComments)
 document.getElementById("render-images").addEventListener("click", renderImages)
 
+//SETTINGS TAB
 document.getElementById("renderStyle").addEventListener("input", renderImages)
 document.getElementById("renderStyle").addEventListener("input", updateAvailableRenderOptions)
 function updateAvailableRenderOptions() {
@@ -68,6 +71,12 @@ function updateDownloadSettings() {
 	document.getElementById('downloadSettings').classList.toggle('hide-element', !document.getElementById('downloadOutput').checked)
 }
 
+document.getElementById("fixedOutputRows").addEventListener("click", updateImagesPerRow)
+function updateImagesPerRow() {
+	document.getElementById("outputRowsContainer").classList.toggle('hide-element', document.getElementById('fixedOutputRows').checked)
+}
+
+//OUTPUT TAB
 document.getElementById("CopyTextboxOutput").addEventListener("click", function() {navigator.clipboard.writeText(document.getElementById('output').value)})
 
 document.getElementById("moveOutputToInput").addEventListener("click", moveOutputToInput)

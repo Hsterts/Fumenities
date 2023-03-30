@@ -64,7 +64,18 @@ export default function renderImages() {
 	}
 	console.log("Finished in " + String(performance.now() - startTime) + "ms")
 
-    figures.forEach(figure => container.appendChild(figure))
+    if (!document.getElementById("fixedOutputRows").checked) {
+        let rowNum = document.getElementById("outputRows").valueAsNumber
+        for (let i=0; i<figures.length; i += rowNum) {
+            console.log(i, i+rowNum)
+            let row = document.createElement('div')
+            row.id = "rowOutput"
+            row.append(...figures.slice(i,i+rowNum))
+            container.appendChild(row)
+        }
+    } else {
+        container.append(...figures)
+    }
 
 	let downloadBool = document.getElementById('downloadOutput').checked;
 	if (downloadBool) downloadByURL(resultURLs)
