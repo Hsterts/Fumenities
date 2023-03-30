@@ -69,8 +69,8 @@ function fumen_drawFumens(fumenPages) {
 }
 
 export default function fumenrender(fumens) {
-	var container = document.getElementById('imageOutputs');
-	var resultURLs = [];
+	var figures = []
+	var resultURLs = []
 
 	for (let fumen of fumens) {
 		if (fumen.length == 1) {
@@ -90,9 +90,9 @@ export default function fumenrender(fumens) {
 		
 		//fumen rendering doesn't show comments
 		
-		container.appendChild(figure);
+		figures.push(figure);
 		resultURLs.push(data_url);
 	}
 
-	return resultURLs
+	return {figures, resultURLs}
 }

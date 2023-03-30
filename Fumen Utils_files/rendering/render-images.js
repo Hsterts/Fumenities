@@ -58,10 +58,13 @@ export default function renderImages() {
    
     let startTime = performance.now()
 	switch (document.getElementById('renderStyle').value){
-		case 'four': var resultURLs = fumencanvas(fumens); break;
-		case 'fumen': var resultURLs = fumenrender(fumens); break;
+		case 'four': var {figures, resultURLs} = fumencanvas(fumens); break;
+		case 'fumen': var {figures, resultURLs} = fumenrender(fumens); break;
+        default: console.log("Invalid rendering style.")
 	}
 	console.log("Finished in " + String(performance.now() - startTime) + "ms")
+
+    figures.forEach(figure => container.appendChild(figure))
 
 	let downloadBool = document.getElementById('downloadOutput').checked;
 	if (downloadBool) downloadByURL(resultURLs)
