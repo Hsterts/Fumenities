@@ -302,7 +302,7 @@ document.getElementById("grayoutFumen").addEventListener("click", grayoutFumen)
 function grayoutFumen() {
 	let newBook = bookState.book
 	for (let page in newBook) {
-		newBook[page]['board'] = JSON.stringify(grayoutBoard(JSON.parse(currentBook[page]['board'])))
+		newBook[page]['board'] = JSON.stringify(grayoutBoard(JSON.parse(newBook[page]['board'])))
 	}
 	bookState.setBook(newBook)
 }
