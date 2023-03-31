@@ -120,7 +120,7 @@
 						<label for = "gridToggle">Grid</label><br>
 
 							<div id = "gridColorPicker">
-							<input id = "gridColor" type = "color" value = "#ffffff" style = "width:100px;padding:0px;" onchange = "gridColor = document.getElementById('gridColor').value"></input>
+							<input id = "gridColor" type = "color" value = "#ffffff" style = "width:100px;padding:0px;"></input>
 							<label for = "gridColorPicker">Grid Color</label><br>
 							</div>
 
@@ -159,6 +159,15 @@
 							<option value = "	">Tabs</option>
 						</select>
 						<label for = "delim">Separator</label><br>
+
+						<input id = "fixedOutputRows" type = "checkbox" checked></input>
+						<label for = "fixedOutputRows">Flexible Output Rows</label><br>
+
+						<div id = "outputRowsContainer">
+							<input id = "outputRows" type = "number" value = 4></input>
+							<label for = "outputRows">images per row</label><br>
+						</div>
+
 					</div>
 				</div>
 			</details>
@@ -325,7 +334,15 @@
 								<div class = "tooltip">
 									<button id = "mirrorFumen" class = "fumen-option"><b><u>M</u>irror <u>F</u>umen</b></button>
 									<span class = "tooltiptext">Mirror all pages of the fumen. Shortcut: Shift+M, F</span>
-								</div>	
+								</div>
+								<div class = "tooltip">
+									<button id = "grayoutPage" class = "fumen-option"><b><u>G</u>rayout <u>P</u>age</b></button>
+									<span class = "tooltiptext">Turns all non-glued minos of the current page grey. Shortcut: Shift+G, P</span>
+								</div>
+								<div class = "tooltip">
+									<button id = "grayoutFumen" class = "fumen-option"><b><u>G</u>rayout <u>F</u>umen</b></button>
+									<span class = "tooltiptext">Turns all non-glued minos of the fumen grey. Shortcut: Shift+G, F</span>
+								</div>
 								<div class = "tooltip">
 									<button id = "duplicatePage" class = "fumen-option"><b><u>D</u>uplicate <u>P</u>age</b></button>
 									<span class = "tooltiptext">Duplicate the current page excluding mino mode. Shortcut: Shift+D, P</span>

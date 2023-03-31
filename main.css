@@ -171,6 +171,10 @@ figure{
     justify-content: center;
 }
 
+#rowOutput {
+    display: flex;
+}
+
 .fourImageOutput {
     background: rgba(181, 176, 252, 0.1);
     outline: solid #aaa6cf 1px;

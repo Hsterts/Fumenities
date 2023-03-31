@@ -36,6 +36,8 @@ Mousetrap.bind({
 	
 	'M p': mirror,
 	'M f': fullMirror,
+	'G p': grayoutPage,
+	'G f': grayoutFumen,
 	'D p': dupliPage,
 	'alt+backspace': clearPage,
 	'del': deletePage,
@@ -281,6 +283,28 @@ function fullMirror() {
 		currentBook[page]['minoModeBoard'] = JSON.stringify(flipBoard(JSON.parse(currentBook[page]['minoModeBoard'])))
 	}
 	bookState.setBook(currentBook)
+}
+
+document.getElementById("grayoutPage").addEventListener("click", grayoutPage)
+function grayoutBoard(board) {
+	let newBoard = JSON.parse(JSON.stringify(board))
+	for (let row in newBoard) {
+		for (let col in newBoard[row]) {
+			newBoard[row][col].c = (newBoard[row][col].c == "" ? "" : "X")
+		}
+	}
+	return newBoard
+}
+function grayoutPage() {
+	bookState.updateCurrentPage({board: grayoutBoard(displayState.board)})
+}
+document.getElementById("grayoutFumen").addEventListener("click", grayoutFumen)
+function grayoutFumen() {
+	let newBook = bookState.book
+	for (let page in newBook) {
+		newBook[page]['board'] = JSON.stringify(grayoutBoard(JSON.parse(newBook[page]['board'])))
+	}
+	bookState.setBook(newBook)
 }
 
 document.getElementById("duplicatePage").addEventListener("click", dupliPage)

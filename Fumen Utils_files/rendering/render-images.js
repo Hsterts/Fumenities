@@ -58,10 +58,24 @@ export default function renderImages() {
    
     let startTime = performance.now()
 	switch (document.getElementById('renderStyle').value){
-		case 'four': var resultURLs = fumencanvas(fumens); break;
-		case 'fumen': var resultURLs = fumenrender(fumens); break;
+		case 'four': var {figures, resultURLs} = fumencanvas(fumens); break;
+		case 'fumen': var {figures, resultURLs} = fumenrender(fumens); break;
+        default: console.log("Invalid rendering style.")
 	}
 	console.log("Finished in " + String(performance.now() - startTime) + "ms")
+
+    if (!document.getElementById("fixedOutputRows").checked) {
+        let rowNum = document.getElementById("outputRows").valueAsNumber
+        for (let i=0; i<figures.length; i += rowNum) {
+            console.log(i, i+rowNum)
+            let row = document.createElement('div')
+            row.id = "rowOutput"
+            row.append(...figures.slice(i,i+rowNum))
+            container.appendChild(row)
+        }
+    } else {
+        container.append(...figures)
+    }
 
 	let downloadBool = document.getElementById('downloadOutput').checked;
 	if (downloadBool) downloadByURL(resultURLs)
