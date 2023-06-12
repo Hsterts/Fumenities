@@ -14,26 +14,26 @@ updateAutoEncoding()
 
 //SHORTCUTS
 Mousetrap.bind({
-    '1': function() {setPaintBucket(0)},
-	'2': function() {setPaintBucket(1)},
-	'3': function() {setPaintBucket(2)},
-	'4': function() {setPaintBucket(3)},
-	'5': function() {setPaintBucket(4)},
-	'6': function() {setPaintBucket(5)},
-	'7': function() {setPaintBucket(6)},
-	'8': function() {setPaintBucket(7)},
+	'1': function () { setPaintBucket(0) },
+	'2': function () { setPaintBucket(1) },
+	'3': function () { setPaintBucket(2) },
+	'4': function () { setPaintBucket(3) },
+	'5': function () { setPaintBucket(4) },
+	'6': function () { setPaintBucket(5) },
+	'7': function () { setPaintBucket(6) },
+	'8': function () { setPaintBucket(7) },
 	'0': toggleMinoMode,
-	
+
 	'left': prevPage,
 	'mod+left': startPage,
 	'right': nextPage,
 	'mod+right': endPage,
-	
-	'shift+up': function() {shift('up')},
-	'shift+down': function() {shift('down')},
-	'shift+left': function() {shift('left')},
-	'shift+right': function() {shift('right')},
-	
+
+	'shift+up': function () { shift('up') },
+	'shift+down': function () { shift('down') },
+	'shift+left': function () { shift('left') },
+	'shift+right': function () { shift('right') },
+
 	'M p': mirror,
 	'M f': fullMirror,
 	'G p': grayoutPage,
@@ -42,7 +42,7 @@ Mousetrap.bind({
 	'alt+backspace': clearPage,
 	'del': deletePage,
 	'r': increaseResetLevel,
-	
+
 	// Import image already binded to paste
 	'ins': insertFumen,
 	'I f': importFumen,
@@ -51,15 +51,15 @@ Mousetrap.bind({
 	'+': addToInput,
 
 	'A e': toggleAutoEncoding,
-	
+
 	'l': toggleLock,
 	'A c': toggleAutoColor,
 	'R f': toggleRowFillInput,
-	
+
 	'T t': toggleToolTips,
 	'# d': toggle3dSetting,
 	'U d': toggleStyle,
-	
+
 	'mod+z': undo,
 	'mod+y': redo,
 })
@@ -70,7 +70,7 @@ function setPaintBucket(index) {
 }
 
 function toggleMinoMode() {
-    document.getElementById('minoModeInput').checked = !document.getElementById('minoModeInput').checked
+	document.getElementById('minoModeInput').checked = !document.getElementById('minoModeInput').checked
 	updateMinoMode()
 	updateAutoColor()
 	updateRowFillInput()
@@ -94,9 +94,9 @@ function toggleAutoColor() {
 function updateAutoColor() {
 	var isAutoColorUsable = !document.getElementById('minoModeInput').checked
 	document.getElementById('autoColorInput').classList.toggle('disabled', !isAutoColorUsable)
-	
+
 	var autoColorBool = document.getElementById('autoColorInput').checked
-	if(!(isAutoColorUsable && autoColorBool)) bookState.solidifyBoard()
+	if (!(isAutoColorUsable && autoColorBool)) bookState.solidifyBoard()
 }
 
 function toggleRowFillInput() {
@@ -110,7 +110,7 @@ function updateRowFillInput() {
 
 function toggleToolTips() {
 	document.getElementById('tooltipSetting').checked = !document.getElementById('tooltipSetting').checked
-	updateToolTips() 
+	updateToolTips()
 }
 
 function toggle3dSetting() {
@@ -133,9 +133,9 @@ document.getElementById("minoModeInput").addEventListener("click", updateMinoMod
 document.getElementById("minoModeInput").addEventListener("click", updateAutoColor)
 document.getElementById("minoModeInput").addEventListener("click", updateRowFillInput)
 function updateMinoMode() {
-    let minoMode = document.getElementById('minoModeInput').checked
-    if (!minoMode && displayState.operation == undefined) { //clear minoModeBoard without a glued piece when exiting minoMode
-		bookState.updateCurrentPage({minoModeBoard: emptyBoard()})
+	let minoMode = document.getElementById('minoModeInput').checked
+	if (!minoMode && displayState.operation == undefined) { //clear minoModeBoard without a glued piece when exiting minoMode
+		bookState.updateCurrentPage({ minoModeBoard: emptyBoard() })
 	}
 }
 
@@ -148,7 +148,7 @@ function startPage() {
 document.getElementById("prevPage").addEventListener("click", prevPage)
 function prevPage() {
 	bookState.solidifyBoard()
-	bookState.displayBookPage(bookState.bookPos-1)
+	bookState.displayBookPage(bookState.bookPos - 1)
 }
 
 document.getElementById("positionDisplay").addEventListener("focusout", gotoPage)
@@ -166,7 +166,7 @@ function insertFollowingPage() {
 	//push minomode onto current board
 	let board = displayState.board
 	if (displayState.operation != undefined) {
-		for (let row in board){
+		for (let row in board) {
 			for (let col in board[row]) {
 				let minoCell = displayState.minoModeBoard[row][col]
 				if (minoCell.t != 0) {
@@ -187,65 +187,65 @@ function insertFollowingPage() {
 			}
 		}
 	}
-	
+
 	let currentBook = bookState.book
 	let newPage = {
 		board: JSON.stringify(board),
 		minoModeBoard: JSON.stringify(emptyBoard()),
 		comment: displayState.comment, //only works since we don't care about quiz mode
 		operation: undefined,
-		flags: {lock: displayState.flags.lock},
+		flags: { lock: displayState.flags.lock },
 	}
 
-	currentBook.splice(bookState.bookPos+1, 0, newPage)
+	currentBook.splice(bookState.bookPos + 1, 0, newPage)
 	bookState.setBook(currentBook)
 }
 
 document.getElementById("nextPage").addEventListener("click", nextPage)
 function nextPage() {
 	bookState.solidifyBoard()
-	if (bookState.bookPos == bookState.book.length-1) { // Create new page when at the last page
+	if (bookState.bookPos == bookState.book.length - 1) { // Create new page when at the last page
 		insertFollowingPage()
 	}
-	
+
 	bookState.displayBookPage(bookState.bookPos + 1) // next page
 }
 
 document.getElementById("endPage").addEventListener("click", endPage)
-function endPage(){
+function endPage() {
 	bookState.solidifyBoard()
-	bookState.displayBookPage(bookState.book.length-1)
+	bookState.displayBookPage(bookState.book.length - 1)
 }
 
-document.getElementById("shiftLeft").addEventListener("click", function() {shift('left')} )
-document.getElementById("shiftUp").addEventListener("click", function() {shift('up')} )
-document.getElementById("shiftDown").addEventListener("click", function() {shift('down')} )
-document.getElementById("shiftRight").addEventListener("click", function() {shift('right')} )
-function shift(direction){
+document.getElementById("shiftLeft").addEventListener("click", function () { shift('left') })
+document.getElementById("shiftUp").addEventListener("click", function () { shift('up') })
+document.getElementById("shiftDown").addEventListener("click", function () { shift('down') })
+document.getElementById("shiftRight").addEventListener("click", function () { shift('right') })
+function shift(direction) {
 	let board = displayState.board
-	switch(direction) {
-		case 'left':		
-				board.map((y) => {
-					y.shift()
-					y.push({t: 0, c: ''})
-				})
+	switch (direction) {
+		case 'left':
+			board.map((y) => {
+				y.shift()
+				y.push({ t: 0, c: '' })
+			})
 			break;
 		case 'up':
-				board.shift()
-				board.push(emptyRow())
+			board.shift()
+			board.push(emptyRow())
 			break;
 		case 'down':
-				board.unshift(emptyRow())
-				board.pop()
+			board.unshift(emptyRow())
+			board.pop()
 			break;
 		case 'right':
-				board.map((y) => {
-					y.unshift({t: 0, c: ''})
-					y.pop()
-				})
+			board.map((y) => {
+				y.unshift({ t: 0, c: '' })
+				y.pop()
+			})
 			break;
 	}
-	bookState.updateCurrentPage({board: board})
+	bookState.updateCurrentPage({ board: board })
 }
 
 document.getElementById("undo").addEventListener("click", undo)
@@ -260,8 +260,8 @@ function redo() {
 
 document.getElementById("mirrorPage").addEventListener("click", mirror)
 function flipBoard(board) {
-	const reversed = {Z: 'S',L: 'J',O: 'O',S: 'Z',I: 'I',J: 'L',T: 'T',X: 'X'};
-	
+	const reversed = { Z: 'S', L: 'J', O: 'O', S: 'Z', I: 'I', J: 'L', T: 'T', X: 'X' };
+
 	let newBoard = JSON.parse(JSON.stringify(board))
 	for (let row in newBoard) {
 		newBoard[row].reverse(); //reverse cells in row
@@ -272,7 +272,7 @@ function flipBoard(board) {
 	return newBoard
 }
 function mirror() {
-	bookState.updateCurrentPage({board: flipBoard(displayState.board)})
+	bookState.updateCurrentPage({ board: flipBoard(displayState.board) })
 }
 
 document.getElementById("mirrorFumen").addEventListener("click", fullMirror)
@@ -296,7 +296,7 @@ function grayoutBoard(board) {
 	return newBoard
 }
 function grayoutPage() {
-	bookState.updateCurrentPage({board: grayoutBoard(displayState.board)})
+	bookState.updateCurrentPage({ board: grayoutBoard(displayState.board) })
 }
 document.getElementById("grayoutFumen").addEventListener("click", grayoutFumen)
 function grayoutFumen() {
@@ -314,13 +314,13 @@ function dupliPage() {
 }
 
 document.getElementById("clearPage").addEventListener("click", clearPage)
-function clearPage(){
+function clearPage() {
 	bookState.updateCurrentPage({
 		board: emptyBoard(),
 		minoModeBoard: emptyBoard(),
 		comment: '',
 		operation: undefined,
-		flags: {lock: true}
+		flags: { lock: true }
 	})
 }
 
@@ -330,7 +330,7 @@ function deletePage() {
 		clearPage()
 	} else {
 		let book = bookState.book
-		book.splice(bookState.bookPos,1)
+		book.splice(bookState.bookPos, 1)
 		bookState.setBook(book)
 	}
 }
@@ -344,8 +344,8 @@ function increaseResetLevel() {
 
 function decodeFumen() {
 	var fumen = document.getElementById('boardOutput').value;
-    var pages = decoder.decode(fumen);
-    var tempBook = pages.map(page => {
+	var pages = decoder.decode(fumen);
+	var tempBook = pages.map(page => {
 		return {
 			board: JSON.stringify(pageToBoard(page)),
 			minoModeBoard: JSON.stringify(decodeOperation(page['operation'])),
@@ -354,32 +354,32 @@ function decodeFumen() {
 			flags: page['flags'],
 		}
 	});
-	
+
 	return tempBook;
 
-    function decodeOperation(operation){
-        if (operation === undefined) return emptyBoard() //no operation
-    
-        var decodedMinoModeBoard = emptyBoard()
-        let pieceColor = operation.type
-        let rotation = operation.rotation
-        let x = operation.x
-        let y = 19 - operation.y //fumen has inverted y axis
-        
-        let piecePositions = shape_table[pieceColor][rotation]
-        for (let piecePosition of piecePositions) {
-            decodedMinoModeBoard[y + piecePosition[0]][x + piecePosition[1]] = { t: 1, c: pieceColor }
-        }
-        
-        return decodedMinoModeBoard
-    }
+	function decodeOperation(operation) {
+		if (operation === undefined) return emptyBoard() //no operation
+
+		var decodedMinoModeBoard = emptyBoard()
+		let pieceColor = operation.type
+		let rotation = operation.rotation
+		let x = operation.x
+		let y = 19 - operation.y //fumen has inverted y axis
+
+		let piecePositions = shape_table[pieceColor][rotation]
+		for (let piecePosition of piecePositions) {
+			decodedMinoModeBoard[y + piecePosition[0]][x + piecePosition[1]] = { t: 1, c: pieceColor }
+		}
+
+		return decodedMinoModeBoard
+	}
 }
 
 document.addEventListener('paste', (event) => {
-    let items = (event.clipboardData || event.originalEvent.clipboardData).items;
-    for (let item of items) {
-        if (item.kind == 'file') importImage(item.getAsFile());
-    }
+	let items = (event.clipboardData || event.originalEvent.clipboardData).items;
+	for (let item of items) {
+		if (item.kind == 'file') importImage(item.getAsFile());
+	}
 });
 
 document.getElementById("importImage").addEventListener("click", importImageButton)
@@ -390,7 +390,7 @@ async function importImageButton() {
 			for (const type of clipboardItem.types) {
 				const blob = await clipboardItem.getType(type);
 
-                importImage(blob);
+				importImage(blob);
 			}
 		}
 	} catch (err) {
@@ -400,7 +400,7 @@ async function importImageButton() {
 
 document.getElementById("insertFumen").addEventListener("click", insertFumen)
 function insertFumen() {
-    let book = bookState.book
+	let book = bookState.book
 	book.splice(bookState.bookPos, 0, ...decodeFumen())
 	bookState.setBook(book)
 };
@@ -414,13 +414,13 @@ function importFumen() {
 document.getElementById("exportPage").addEventListener("click", exportPage)
 //from io.js
 function toField(board) { //only reads color of minos, ignoring the type
-    let FieldString = ''
+	let FieldString = ''
 	for (let row of board) {
 		for (let cell of row) {
 			FieldString += (cell.c == '' ? '_' : cell.c)
 		}
 	}
-    return Field.create(FieldString)
+	return Field.create(FieldString)
 }
 function encodeFumen(...book) {
 	var fullBook = []
@@ -476,7 +476,7 @@ function updateAutoEncoding() {
 //additional settings bindings
 document.getElementById("lockFlagInput").addEventListener("click", updateLockFlag)
 function updateLockFlag() {
-	bookState.updateCurrentPage({flags: {lock: document.getElementById('lockFlagInput').checked}})
+	bookState.updateCurrentPage({ flags: { lock: document.getElementById('lockFlagInput').checked } })
 }
 
 document.getElementById("autoColorInput").addEventListener("click", updateAutoColor)
@@ -507,6 +507,6 @@ function updateStyle() {
 //automatic update bindings
 document.getElementById("commentBox").addEventListener("change", updateComment) //this guarentees that comments get automatically written to book
 function updateComment() {
-	bookState.updateCurrentPage({comment: document.getElementById("commentBox").value})
+	bookState.updateCurrentPage({ comment: document.getElementById("commentBox").value })
 }
 

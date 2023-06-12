@@ -1,138 +1,146 @@
 <!DOCTYPE html>
 <html>
-	<head>
+
+<head>
 	<title>Fumen Utilities</title>
-	<link href = "https://fonts.googleapis.com/icon?family=Material+Icons" rel = "stylesheet">
-	<link href = "main.css" rel = "stylesheet">
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link href="main.css" rel="stylesheet">
 	<link rel="icon" href="data:,"> <!--empty favicon-->
-	<meta name = "description" content = "Alternative Fumen editor with more features">
-	<meta name = "keywords" content = "Fumen">
-	<meta charset = "utf-8">
-	</head>
+	<meta name="description" content="Alternative Fumen editor with more features">
+	<meta name="keywords" content="Fumen">
+	<meta charset="utf-8">
+</head>
 
 <!--EXTERNAL SCRIPTS-->
-<script src = "./Fumen Utils_files/lib/tetris-fumen.js"></script>
-<script src = "./Fumen Utils_files/lib/jszip.min.js"></script>
-<script src = "./Fumen Utils_files/lib/jszip-utils.min.js"></script>
-<script src = "./Fumen Utils_files/lib/FileSaver.min.js"></script>
-<script src = "./Fumen Utils_files/lib/mousetrap.min.js"></script>
-<script src = "./Fumen Utils_files/lib/mousetrap-bind-dictionary.min.js"></script>
-<script src = "./Fumen Utils_files/lib/base64js/base64js.min.js"></script>
-<script src = "https://cdn.jsdelivr.net/npm/html2canvas@1.0.0-rc.5/dist/html2canvas.min.js"></script>
-<script type = "module" src = "./base.js"></script>
+<script src="./Fumen Utils_files/lib/tetris-fumen.js"></script>
+<script src="./Fumen Utils_files/lib/jszip.min.js"></script>
+<script src="./Fumen Utils_files/lib/jszip-utils.min.js"></script>
+<script src="./Fumen Utils_files/lib/FileSaver.min.js"></script>
+<script src="./Fumen Utils_files/lib/mousetrap.min.js"></script>
+<script src="./Fumen Utils_files/lib/mousetrap-bind-dictionary.min.js"></script>
+<script src="./Fumen Utils_files/lib/base64js/base64js.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.0.0-rc.5/dist/html2canvas.min.js"></script>
+<script type="module" src="./base.js"></script>
 
-	<body id = "main">		
-<!--Header-->
-		<header><b>Fumen Utilities</b> © Swng & hillo</header>
-		
-		<div id = "spbutton">
+<body id="main">
+	<!--Header-->
+	<header><b>Fumen Utilities</b> © Swng & hillo</header>
+
+	<div id="spbutton">
+		<div class="tooltip">
+			<button id="sidePanelButtonExpand" class="option panel-button" style="display:show;">
+				<span class="material-icons">menu_open</span>
+				<span class="tooltiptext">Shortcut: - (retract), = (expand)</span>
+			</button>
+		</div>
+	</div>
+
+	<hr class="large-hr">
+
+	<!--FumenUtil-->
+	<div id="fumenUtil">
+		<!--Input-->
+		<h3><b>Input</b></h3>
+		<div class="io">
+			<center><textarea id="input" name="input"></textarea><br></center>
+		</div>
+
+		<div class="fumenOperations">
 			<div class="tooltip">
-				<button id = "sidePanelButtonExpand" class = "option panel-button" style = "display:show;">
-					<span class = "material-icons">menu_open</span>
-					<span class="tooltiptext">Shortcut: - (retract), = (expand)</span>
-				</button>
+				<button id="clear-input" class="ibtn">Clear Input</button>
+				<span class="tooltiptext">Shortcut: Backspace, Cancel: Escape</span>
+			</div>
+			<div class="tooltip">
+				<button id="glue-fumen" class="ibtn"><u>G</u>lue</button>
+				<span class="tooltiptext">Shortcut: G</span>
+			</div>
+			<div class="tooltip">
+				<button id="unglue-fumen" class="ibtn"><u>U</u>nglue</button>
+				<span class="tooltiptext">Shortcut: U</span>
+			</div>
+			<div class="tooltip">
+				<button id="mirror-fumen" class="ibtn"><u>M</u>irror</button>
+				<span class="tooltiptext">Shortcut: M</span>
+			</div>
+			<div class="tooltip">
+				<button id="combine-fumen" class="ibtn"><u>C</u>ombine</button>
+				<span class="tooltiptext">Shortcut: C</span>
+			</div>
+			<div class="tooltip">
+				<button id="split-fumen" class="ibtn"><u>S</u>plit</button>
+				<span class="tooltiptext">Shortcut: S</span>
+			</div>
+			<div class="tooltip">
+				<button id="remove-comments" class="ibtn"><u>R</u>emove <u>C</u>omments</button>
+				<span class="tooltiptext">Shortcut: Shift+R, C</span>
+			</div>
+			<div class="tooltip">
+				<button id="render-images" class="ibtn">Output Image</button>
+				<span class="tooltiptext">Shortcut: Enter</span>
 			</div>
 		</div>
-		
-		<hr class = "large-hr">
 
-<!--FumenUtil-->
-		<div id = "fumenUtil">
-<!--Input-->			
-			<h3><b>Input</b></h3>
-			<div class="io">
-			<center><textarea id = "input" name = "input"></textarea><br></center>
-			</div>
-
-			<div class = "fumenOperations">
-				<div class="tooltip">
-					<button id="clear-input" class = "ibtn">Clear Input</button>
-					<span class="tooltiptext">Shortcut: Backspace, Cancel: Escape</span>
-				</div>
-				<div class="tooltip">
-					<button id="glue-fumen" class = "ibtn"><u>G</u>lue</button>
-					<span class="tooltiptext">Shortcut: G</span>
-				</div>
-				<div class="tooltip">
-					<button id="unglue-fumen" class = "ibtn"><u>U</u>nglue</button>
-					<span class="tooltiptext">Shortcut: U</span>
-				</div>
-				<div class="tooltip">
-					<button id="mirror-fumen" class = "ibtn"><u>M</u>irror</button>
-					<span class="tooltiptext">Shortcut: M</span>
-				</div>
-				<div class="tooltip">
-					<button id="combine-fumen" class = "ibtn"><u>C</u>ombine</button>
-					<span class="tooltiptext">Shortcut: C</span>
-				</div>
-				<div class="tooltip">
-					<button id="split-fumen" class = "ibtn"><u>S</u>plit</button>
-					<span class="tooltiptext">Shortcut: S</span>
-				</div>
-				<div class="tooltip">
-					<button id="remove-comments" class = "ibtn"><u>R</u>emove <u>C</u>omments</button>
-					<span class="tooltiptext">Shortcut: Shift+R, C</span>
-				</div>
-				<div class="tooltip">
-					<button id="render-images" class = "ibtn">Output Image</button>
-					<span class="tooltiptext">Shortcut: Enter</span>
-				</div>
-			</div>
-
-			<div class = "row" id = "settings">
-			<center><hr class = "small-hr"></center>
+		<div class="row" id="settings">
+			<center>
+				<hr class="small-hr">
+			</center>
 			<details>
 				<summary><span class="pseudoh3"><b>Settings</b></span></summary>
-				<div id = "settings-body">
-					<div id = 'settings-panel'><center><h3>Render Settings</h3></center>
-						<div id = "styleOptions">
-							<select id = "renderStyle">
-								<option value = "four">FOUR</option>
-								<option value = "fumen">Fumen</option>
+				<div id="settings-body">
+					<div id='settings-panel'>
+						<center>
+							<h3>Render Settings</h3>
+						</center>
+						<div id="styleOptions">
+							<select id="renderStyle">
+								<option value="four">FOUR</option>
+								<option value="fumen">Fumen</option>
 							</select>
-							<label for = "renderStyle">Render Style</label>
+							<label for="renderStyle">Render Style</label>
 						</div>
 
-						<input id = "cellSize" type = "number" value = 22></input>
-						<label for = "cellSize">Cell Size</label><br>
+						<input id="cellSize" type="number" value=22></input>
+						<label for="cellSize">Cell Size</label><br>
 
-						<input id = "width" type = "number" value = 10 min = 1 max = 10></input>
-						<label for = "width">Width</label><br>
+						<input id="width" type="number" value=10 min=1 max=10></input>
+						<label for="width">Width</label><br>
 
-						<input id = "height" type = "number" value = 4 min = 1 max = 20></input>
-						<label for = "height">Height</label>
+						<input id="height" type="number" value=4 min=1 max=20></input>
+						<label for="height">Height</label>
 
-							<label id = "autoheightlabel">
-							<input id = "autoheight" type = "checkbox" checked = "checked">
-							<span class = "checkmark"></span>Auto-Fit
-							</label><br>
+						<label id="autoheightlabel">
+							<input id="autoheight" type="checkbox" checked="checked">
+							<span class="checkmark"></span>Auto-Fit
+						</label><br>
 
-						<input id = "transparency" type = "checkbox" checked></input>
-						<label for = "transparency">Transparent Background</label><br>
-						
-							<div id = "bgselect">
-							<input id = "bg" type = "color" value = "#f3f3ed" style = "width:100px;padding:0px;"></input>
-							<label for = "transparency">BG Color</label><br>
-							</div>
+						<input id="transparency" type="checkbox" checked></input>
+						<label for="transparency">Transparent Background</label><br>
+
+						<div id="bgselect">
+							<input id="bg" type="color" value="#f3f3ed" style="width:100px;padding:0px;"></input>
+							<label for="transparency">BG Color</label><br>
+						</div>
 
 
-						<input id = "gridToggle" type = "checkbox"></input>
-						<label for = "gridToggle">Grid</label><br>
+						<input id="gridToggle" type="checkbox"></input>
+						<label for="gridToggle">Grid</label><br>
 
-							<div id = "gridColorPicker">
-							<input id = "gridColor" type = "color" value = "#ffffff" style = "width:100px;padding:0px;"></input>
-							<label for = "gridColorPicker">Grid Color</label><br>
-							</div>
+						<div id="gridColorPicker">
+							<input id="gridColor" type="color" value="#ffffff" style="width:100px;padding:0px;"></input>
+							<label for="gridColorPicker">Grid Color</label><br>
+						</div>
 
-						<input id = "displayMode" type = "checkbox"></input>
-						<label for = "displayMode">Display Comments</label><br>
-						<input id = "highlightLineClear" type = "checkbox"></input>
-						<label for = "highlightLineClear">Highlight Line Clears</label><br>
+						<input id="displayMode" type="checkbox"></input>
+						<label for="displayMode">Display Comments</label><br>
+						<input id="highlightLineClear" type="checkbox"></input>
+						<label for="highlightLineClear">Highlight Line Clears</label><br>
 					</div>
-					<div id = 'settings-panel'>
-						<center><h3>GIF Settings</h3></center>
-						<input id = "delay" type = "value" value = 500></input>
-						<label for = "delay">GIF Delay (ms)</label>
+					<div id='settings-panel'>
+						<center>
+							<h3>GIF Settings</h3>
+						</center>
+						<input id="delay" type="value" value=500></input>
+						<label for="delay">GIF Delay (ms)</label>
 						</br>
 						<input id = "startPage" type = "number" value = 1></input>
 						<label for = "startPage">Start Page</label>
@@ -140,326 +148,385 @@
 						<input id = "endPage" type = "number" value = 999></input>
 						<label for = "endPage">End Page</label>
 						<hr>
-						<center><h3>Download Settings</h3></center>
-						<input id = "downloadOutput" type = "checkbox"></input>
-						<label for = "downloadOutput">Download on Render?</label><br>
-						<div id = "downloadSettings">
-						<select id = "naming" name = "Name">
-							<option value = "index">Index (1, 2, ...)</option>
-							<option value = "fumen">Fumen Code</option>
-						</select>
-						<label for = "naming">Output Name</label>
+						<center>
+							<h3>Download Settings</h3>
+						</center>
+						<input id="downloadOutput" type="checkbox"></input>
+						<label for="downloadOutput">Download on Render?</label><br>
+						<div id="downloadSettings">
+							<select id="naming" name="Name">
+								<option value="index">Index (1, 2, ...)</option>
+								<option value="fumen">Fumen Code</option>
+							</select>
+							<label for="naming">Output Name</label>
 						</div>
 						<hr>
-						<center><h3>Output Settings</h3></center>
-						<select id = "delim" name = "delim">
-							<option value = &#13;>Newline</option>
-							<option value = ",">Comma</option>
-							<option value = " ">Space</option>
-							<option value = "	">Tabs</option>
+						<center>
+							<h3>Output Settings</h3>
+						</center>
+						<select id="delim" name="delim">
+							<option value=&#13;>Newline</option>
+							<option value=",">Comma</option>
+							<option value=" ">Space</option>
+							<option value="	">Tabs</option>
 						</select>
-						<label for = "delim">Separator</label><br>
+						<label for="delim">Separator</label><br>
 
-						<input id = "fixedOutputRows" type = "checkbox" checked></input>
-						<label for = "fixedOutputRows">Flexible Output Rows</label><br>
+						<input id="fixedOutputRows" type="checkbox" checked></input>
+						<label for="fixedOutputRows">Flexible Output Rows</label><br>
 
-						<div id = "outputRowsContainer">
-							<input id = "outputRows" type = "number" value = 4></input>
-							<label for = "outputRows">images per row</label><br>
+						<div id="outputRowsContainer">
+							<input id="outputRows" type="number" value=4></input>
+							<label for="outputRows">images per row</label><br>
 						</div>
 
 					</div>
 				</div>
 			</details>
-			<hr class = "small-hr">
-<!--Output-->
+			<hr class="small-hr">
+			<!--Output-->
 			<h3><b>Output</b></h3>
 			<div class="io">
-				<center><textarea id = "output" name = "output"></textarea><br></center>
+				<center><textarea id="output" name="output"></textarea><br></center>
 			</div>
 			<div class="fumenOperations">
-				<button id = "CopyTextboxOutput" class = "ibtn">Copy</button>
+				<button id="CopyTextboxOutput" class="ibtn">Copy</button>
 				<div class="tooltip">
-					<button id = "moveOutputToInput" class = "ibtn">Move Output to Input</button>
-					<span class="tooltiptext">Overwrites Input with Output if Output is non-empty. Shortcut: Shift+Enter</span>
+					<button id="moveOutputToInput" class="ibtn">Move Output to Input</button>
+					<span class="tooltiptext">Overwrites Input with Output if Output is non-empty. Shortcut:
+						Shift+Enter</span>
 				</div>
 			</div>
-			<hr class = "large-hr">
-			<center><div id = "imageOutputs"></div></center>
+			<hr class="large-hr">
+			<center>
+				<div id="imageOutputs"></div>
+			</center>
 			<div class="fumenOperations">
-				<button id = "CopyImageOutput" class = "ibtn">Copy Outputs As Image</button><br>
+				<button id="CopyImageOutput" class="ibtn">Copy Outputs As Image</button><br>
 			</div><br>
-				<!--Fumen Sidebar-->
-			<div id = "fumenSidebar" class="hide-element">
-				<div id = "settingsButton">
-					<button id = "toggleFumenSettings" class = "option option-left" style = "display:show;">
-						<span class = "material-icons" id = "openFumenSettings">keyboard_arrow_left</span>
-						<span class = "material-icons" id = "closeFumenSettings" style = "display: none;">keyboard_arrow_right</span>
+			<!--Fumen Sidebar-->
+			<div id="fumenSidebar" class="hide-element">
+				<div id="settingsButton">
+					<button id="toggleFumenSettings" class="option option-left" style="display:show;">
+						<span class="material-icons" id="openFumenSettings">keyboard_arrow_left</span>
+						<span class="material-icons" id="closeFumenSettings"
+							style="display: none;">keyboard_arrow_right</span>
 					</button>
 				</div>
 
-				<div id = "spbutton">
-						<button id = "sidePanelButtonRetract" class = "option panel-button">
-							<span class = "material-icons">close</span>
-						</button>
+				<div id="spbutton">
+					<button id="sidePanelButtonRetract" class="option panel-button">
+						<span class="material-icons">close</span>
+					</button>
 				</div>
-				<div class = "fumen-main">	
-					<div class = "fumen-header">
+				<div class="fumen-main">
+					<div class="fumen-header">
 						<!-- PAINT BUCKET CHOICES -->
-						<div class = "color-options top-panel">
+						<div class="color-options top-panel">
 							<div class="tooltip">
-								<form class = "paint-bucket" name = "paintbucket">
-									<label for = "T">
-										<input type = "radio" name = "paintbucket" class = "paintbucket" id = "T" value = "T" />
+								<form class="paint-bucket" name="paintbucket">
+									<label for="T">
+										<input type="radio" name="paintbucket" class="paintbucket" id="T" value="T" />
 										<span></span>
 									</label>
-									<label for = "I">
-										<input type = "radio" name = "paintbucket" class = "paintbucket" id = "I" value = "I" />
+									<label for="I">
+										<input type="radio" name="paintbucket" class="paintbucket" id="I" value="I" />
 										<span></span>
 									</label>
-									<label for = "L">
-										<input type = "radio" name = "paintbucket" class = "paintbucket" id = "L" value = "L" />
+									<label for="L">
+										<input type="radio" name="paintbucket" class="paintbucket" id="L" value="L" />
 										<span></span>
 									</label>
-									<label for = "J">
-										<input type = "radio" name = "paintbucket" class = "paintbucket" id = "J" value = "J" />
+									<label for="J">
+										<input type="radio" name="paintbucket" class="paintbucket" id="J" value="J" />
 										<span></span>
 									</label>
-									<label for = "S">
-										<input type = "radio" name = "paintbucket" class = "paintbucket" id = "S" value = "S" />
+									<label for="S">
+										<input type="radio" name="paintbucket" class="paintbucket" id="S" value="S" />
 										<span></span>
 									</label>
-									<label for = "Z">
-										<input type = "radio" name = "paintbucket" class = "paintbucket" id = "Z" value = "Z" />
+									<label for="Z">
+										<input type="radio" name="paintbucket" class="paintbucket" id="Z" value="Z" />
 										<span></span>
 									</label>
-									<label for = "O">
-										<input type = "radio" name = "paintbucket" class = "paintbucket" id = "O" value = "O" />
+									<label for="O">
+										<input type="radio" name="paintbucket" class="paintbucket" id="O" value="O" />
 										<span></span>
 									</label>
-									<label for = "X">
-										<input type = "radio" name = "paintbucket" class = "paintbucket" id = "X" value = "X" checked />
+									<label for="X">
+										<input type="radio" name="paintbucket" class="paintbucket" id="X" value="X"
+											checked />
 										<span></span>
 									</label>
 								</form>
-								<span class = "tooltiptext">Select the color of the mino. Shortcut: 1-8</span>
+								<span class="tooltiptext">Select the color of the mino. Shortcut: 1-8</span>
 							</div>
 						</div>
 						<!-- MINO MODE OPTION-->
-						<div class = "minoMode top-panel">
-							<div class = "tooltip">
-								<input id = "minoModeInput" type = "checkbox"><span class = "pepega">Mino Mode</span></input>
-								<span class = "tooltiptext">Draw four minos as a piece placement. Shortcut: 0</span>
+						<div class="minoMode top-panel">
+							<div class="tooltip">
+								<input id="minoModeInput" type="checkbox"><span class="pepega">Mino Mode</span></input>
+								<span class="tooltiptext">Draw four minos as a piece placement. Shortcut: 0</span>
 							</div>
 						</div>
 					</div>
 
-					<div class = "fumen-body">
-						<div class = "left-fumen-panel">
+					<div class="fumen-body">
+						<div class="left-fumen-panel">
 
 							<!--Pages & Buttons-->
-							<div class = "page">
-								<div class = "tooltip">
-									<div id = "startPage" class = "pager"><button class = "positionsub pageButton"><span class = "material-icons">first_page</span></button></div>
-									<span class = "tooltiptext">Go to the first page. Shortcut: Ctrl/Cmd+Left</span>
+							<div class="page">
+								<div class="tooltip">
+									<div id="startPage" class="pager"><button class="positionsub pageButton"><span
+												class="material-icons">first_page</span></button></div>
+									<span class="tooltiptext">Go to the first page. Shortcut: Ctrl/Cmd+Left</span>
 								</div>
-								<div class = "tooltip">
-									<div id = "prevPage" class = "pager"><button class = "positionsub pageButton"><span class = "material-icons">navigate_before</span></button></div>
-									<span class = "tooltiptext">Go to the previous page. Shortcut: Left</span>
+								<div class="tooltip">
+									<div id="prevPage" class="pager"><button class="positionsub pageButton"><span
+												class="material-icons">navigate_before</span></button></div>
+									<span class="tooltiptext">Go to the previous page. Shortcut: Left</span>
 								</div>
-								<div class = "tooltip">
-									<div id = "currentPage" class = "pager"><input id = "positionDisplay" inputmode = "numeric" value = "1"/></div>
-									<span class = "tooltiptext">The current page in the fumen.</span>
+								<div class="tooltip">
+									<div id="currentPage" class="pager"><input id="positionDisplay" inputmode="numeric"
+											value="1" /></div>
+									<span class="tooltiptext">The current page in the fumen.</span>
 								</div>
-								<div class = "tooltip">
-									<div id = "totalPage" class = "pager"><input id = "positionDisplayOver" value = "/1" disabled/></div>
-									<span class = "tooltiptext">The total number of pages in the fumen.</span>
+								<div class="tooltip">
+									<div id="totalPage" class="pager"><input id="positionDisplayOver" value="/1"
+											disabled /></div>
+									<span class="tooltiptext">The total number of pages in the fumen.</span>
 								</div>
-								<div class = "tooltip">
-									<div id = "nextPage" class = "pager"><button class = "positionadd pageButton"><span class = "material-icons">navigate_next</span></button></div>
-									<span class = "tooltiptext">Go to the next page. Shortcut: Right</span>
+								<div class="tooltip">
+									<div id="nextPage" class="pager"><button class="positionadd pageButton"><span
+												class="material-icons">navigate_next</span></button></div>
+									<span class="tooltiptext">Go to the next page. Shortcut: Right</span>
 								</div>
-								<div class = "tooltip">
-									<div id = "endPage" class = "pager"><button class = "positionadd pageButton"><span class = "material-icons">last_page</span></button></div>
-									<span class = "tooltiptext">Go to the last page. Shortcut: Ctrl/Cmd+Right</span>
+								<div class="tooltip">
+									<div id="endPage" class="pager"><button class="positionadd pageButton"><span
+												class="material-icons">last_page</span></button></div>
+									<span class="tooltiptext">Go to the last page. Shortcut: Ctrl/Cmd+Right</span>
 								</div>
 							</div>
 
 							<center>
 								<!--Board-->
-								<div id = "board" oncontextmenu = "return false"><canvas id = "b"></canvas></div>
-								
+								<div id="board" oncontextmenu="return false"><canvas id="b"></canvas></div>
+
 								<!--Comment Box-->
-								<textarea id = "commentBox"></textarea>
+								<textarea id="commentBox"></textarea>
 							</center>
 						</div>
-						
-						<div class = "right-fumen-panel">
+
+						<div class="right-fumen-panel">
 							<!--Fumen Options-->
-							<div class = "import-export">
+							<div class="import-export">
 								<!--Shifters-->
-								<center><div class = "pagePosition">
-									<div class="tooltip">
-										<div class = "square-button"><button  id = "shiftLeft" class = "pageButton"><span class = "material-icons">keyboard_arrow_left</span></button></div>
-										<span class="tooltiptext">Shifts the whole board 1 mino to the left. Shortcut: Shift+Left</span>
+								<center>
+									<div class="pagePosition">
+										<div class="tooltip">
+											<div class="square-button"><button id="shiftLeft" class="pageButton"><span
+														class="material-icons">keyboard_arrow_left</span></button></div>
+											<span class="tooltiptext">Shifts the whole board 1 mino to the left.
+												Shortcut: Shift+Left</span>
+										</div>
+										<div class="tooltip">
+											<div class="square-button"><button id="shiftUp" class="pageButton"><span
+														class="material-icons">keyboard_arrow_up</span></button></div>
+											<span class="tooltiptext">Shifts the whole board 1 mino upwards. Shortcut:
+												Shift+Up</span>
+										</div>
+										<div class="tooltip">
+											<div class="square-button"><button id="shiftDown" class="pageButton"><span
+														class="material-icons">keyboard_arrow_down</span></button></div>
+											<span class="tooltiptext">Shifts the whole board 1 mino downwards. Shortcut:
+												Shift+Down</span>
+										</div>
+										<div class="tooltip">
+											<div class="square-button"><button id="shiftRight" class="pageButton"><span
+														class="material-icons">keyboard_arrow_right</span></button>
+											</div>
+											<span class="tooltiptext">Shifts the whole board 1 mino to the right.
+												Shortcut: Shift+Right</span>
+										</div>
 									</div>
-									<div class="tooltip">
-										<div class = "square-button"><button id = "shiftUp" class = "pageButton"><span class = "material-icons">keyboard_arrow_up</span></button></div>
-										<span class="tooltiptext">Shifts the whole board 1 mino upwards. Shortcut: Shift+Up</span>
-									</div>
-									<div class="tooltip">
-										<div class = "square-button"><button id = "shiftDown" class = "pageButton"><span class = "material-icons">keyboard_arrow_down</span></button></div>
-										<span class="tooltiptext">Shifts the whole board 1 mino downwards. Shortcut: Shift+Down</span>
-									</div>
-									<div class="tooltip">
-										<div class = "square-button"><button id = "shiftRight" class = "pageButton"><span class = "material-icons">keyboard_arrow_right</span></button></div>
-										<span class="tooltiptext">Shifts the whole board 1 mino to the right. Shortcut: Shift+Right</span>
-									</div>
-								</div></center>
+								</center>
 								<!--History-->
-								<center><div class = "pagePosition">
-									<div class="tooltip">
-										<div class = "square-button"><button id = "undo" class = "pageButton"><span class = "material-icons">arrow_left</span></button></div>
-										<span class="tooltiptext">Undo most recent change. Shortcut: Ctrl/Cmd+Z</span>
+								<center>
+									<div class="pagePosition">
+										<div class="tooltip">
+											<div class="square-button"><button id="undo" class="pageButton"><span
+														class="material-icons">arrow_left</span></button></div>
+											<span class="tooltiptext">Undo most recent change. Shortcut:
+												Ctrl/Cmd+Z</span>
+										</div>
+										<div class="tooltip">
+											<div class="square-button"><button id="redo" class="pageButton"><span
+														class="material-icons">arrow_right</span></button></div>
+											<span class="tooltiptext">Redo most recent change. Shortcut:
+												Ctrl/Cmd+Y</span>
+										</div>
 									</div>
-									<div class="tooltip">
-										<div class = "square-button"><button id = "redo" class = "pageButton"><span class = "material-icons">arrow_right</span></button></div>
-										<span class="tooltiptext">Redo most recent change. Shortcut: Ctrl/Cmd+Y</span>
-									</div>
-								</div></center>
-								<div class = "tooltip">
-									<button id = "mirrorPage" class = "fumen-option"><b><u>M</u>irror <u>P</u>age</b></button>
-									<span class = "tooltiptext">Mirror the current page. Shortcut: Shift+M, P</span>
+								</center>
+								<div class="tooltip">
+									<button id="mirrorPage" class="fumen-option"><b><u>M</u>irror
+											<u>P</u>age</b></button>
+									<span class="tooltiptext">Mirror the current page. Shortcut: Shift+M, P</span>
 								</div>
-								<div class = "tooltip">
-									<button id = "mirrorFumen" class = "fumen-option"><b><u>M</u>irror <u>F</u>umen</b></button>
-									<span class = "tooltiptext">Mirror all pages of the fumen. Shortcut: Shift+M, F</span>
+								<div class="tooltip">
+									<button id="mirrorFumen" class="fumen-option"><b><u>M</u>irror
+											<u>F</u>umen</b></button>
+									<span class="tooltiptext">Mirror all pages of the fumen. Shortcut: Shift+M, F</span>
 								</div>
-								<div class = "tooltip">
-									<button id = "grayoutPage" class = "fumen-option"><b><u>G</u>rayout <u>P</u>age</b></button>
-									<span class = "tooltiptext">Turns all non-glued minos of the current page grey. Shortcut: Shift+G, P</span>
+								<div class="tooltip">
+									<button id="grayoutPage" class="fumen-option"><b><u>G</u>rayout
+											<u>P</u>age</b></button>
+									<span class="tooltiptext">Turns all non-glued minos of the current page grey.
+										Shortcut: Shift+G, P</span>
 								</div>
-								<div class = "tooltip">
-									<button id = "grayoutFumen" class = "fumen-option"><b><u>G</u>rayout <u>F</u>umen</b></button>
-									<span class = "tooltiptext">Turns all non-glued minos of the fumen grey. Shortcut: Shift+G, F</span>
+								<div class="tooltip">
+									<button id="grayoutFumen" class="fumen-option"><b><u>G</u>rayout
+											<u>F</u>umen</b></button>
+									<span class="tooltiptext">Turns all non-glued minos of the fumen grey. Shortcut:
+										Shift+G, F</span>
 								</div>
-								<div class = "tooltip">
-									<button id = "duplicatePage" class = "fumen-option"><b><u>D</u>uplicate <u>P</u>age</b></button>
-									<span class = "tooltiptext">Duplicate the current page excluding mino mode. Shortcut: Shift+D, P</span>
+								<div class="tooltip">
+									<button id="duplicatePage" class="fumen-option"><b><u>D</u>uplicate
+											<u>P</u>age</b></button>
+									<span class="tooltiptext">Duplicate the current page excluding mino mode. Shortcut:
+										Shift+D, P</span>
 								</div>
-								<div class = "tooltip">
-									<button id = "clearPage" class = "fumen-option"><b>Clear Page</b></button>
-									<span class = "tooltiptext">Clear the contents of the current page. Shortcut: Alt+Backspace</span>
+								<div class="tooltip">
+									<button id="clearPage" class="fumen-option"><b>Clear Page</b></button>
+									<span class="tooltiptext">Clear the contents of the current page. Shortcut:
+										Alt+Backspace</span>
 								</div>
-								<div class = "tooltip">
-									<button id = "deletePage" class = "fumen-option"><b><u>Del</u>ete Page</b></button>
-									<span class = "tooltiptext">Delete the current page. Shortcut: Delete</span>
+								<div class="tooltip">
+									<button id="deletePage" class="fumen-option"><b><u>Del</u>ete Page</b></button>
+									<span class="tooltiptext">Delete the current page. Shortcut: Delete</span>
 								</div>
-								<div class = "tooltip">
-									<button id = "reset" class="fumen-option"><b><u>R</u>eset</b></button>
-									<span class = "tooltiptext">Delete all data. Shortcut: R, Cancel: Escape</span>
-								</div><hr class="small-hr">
-								<div class = "tooltip">
-									<button id = "importImage" class = "fumen-option"><b>Import Image</b></button>
-									<span class = "tooltiptext">Parse and insert an image of a board from the clipboard into the current page. Shortcut: Ctrl/Cmd+V</span>
-								</div>
-								<div class = "tooltip">
-									<button id = "insertFumen" class = "fumen-option"><b><u>Ins</u>ert Fumen</b></button>
-									<span class = "tooltiptext">Insert the fumen into the current page. Shortcut: Insert</span>
-								</div>
-								<div class = "tooltip">
-									<button id = "importFumen" class = "fumen-option"><b><u>I</u>mport <u>F</u>umen</b></button>
-									<span class = "tooltiptext">Import and replace the current data. Shortcut: Shift+I, F</span>
-								</div>
-								<div class = "tooltip">
-									<button id = "exportPage" class = "fumen-option"><b><u>E</u>xport <u>P</u>age</b></button>
-									<span class = "tooltiptext">Export the current page. Shortcut: Shift+E, P</span>
-								</div>
-								<div class = "tooltip">
-									<button id = "exportFumen" class = "fumen-option"><b><u>E</u>xport <u>F</u>umen</b></button>
-									<span class = "tooltiptext">Export all pages. Shortcut: Shift+E, F</span>
-								</div>
-								<div class = "tooltip">
-									<button id = "addToInput" class = "fumen-option"><b>Add to Input</b></button>
-									<span class = "tooltiptext">Adds the output below to the input textbox. Shortcut: +</span>
+								<div class="tooltip">
+									<button id="reset" class="fumen-option"><b><u>R</u>eset</b></button>
+									<span class="tooltiptext">Delete all data. Shortcut: R, Cancel: Escape</span>
 								</div>
 								<hr class="small-hr">
-							<!--Auto-Encoding-->
-								<div class = "autoEncodingInputs">
+								<div class="tooltip">
+									<button id="importImage" class="fumen-option"><b>Import Image</b></button>
+									<span class="tooltiptext">Parse and insert an image of a board from the clipboard
+										into the current page. Shortcut: Ctrl/Cmd+V</span>
+								</div>
+								<div class="tooltip">
+									<button id="insertFumen" class="fumen-option"><b><u>Ins</u>ert Fumen</b></button>
+									<span class="tooltiptext">Insert the fumen into the current page. Shortcut:
+										Insert</span>
+								</div>
+								<div class="tooltip">
+									<button id="importFumen" class="fumen-option"><b><u>I</u>mport
+											<u>F</u>umen</b></button>
+									<span class="tooltiptext">Import and replace the current data. Shortcut: Shift+I,
+										F</span>
+								</div>
+								<div class="tooltip">
+									<button id="exportPage" class="fumen-option"><b><u>E</u>xport
+											<u>P</u>age</b></button>
+									<span class="tooltiptext">Export the current page. Shortcut: Shift+E, P</span>
+								</div>
+								<div class="tooltip">
+									<button id="exportFumen" class="fumen-option"><b><u>E</u>xport
+											<u>F</u>umen</b></button>
+									<span class="tooltiptext">Export all pages. Shortcut: Shift+E, F</span>
+								</div>
+								<div class="tooltip">
+									<button id="addToInput" class="fumen-option"><b>Add to Input</b></button>
+									<span class="tooltiptext">Adds the output below to the input textbox. Shortcut:
+										+</span>
+								</div>
+								<hr class="small-hr">
+								<!--Auto-Encoding-->
+								<div class="autoEncodingInputs">
 									<div class="tooltip">
-										<div class = "autoEncoding">
-											<input id = "autoEncode" type = "checkbox"></input>
-											<label for = "autoEncode"><b><u>A</u>uto-<u>E</u>ncode</b></label>
+										<div class="autoEncoding">
+											<input id="autoEncode" type="checkbox"></input>
+											<label for="autoEncode"><b><u>A</u>uto-<u>E</u>ncode</b></label>
 										</div>
-										<span class="tooltiptext">Automatically updates the output when you change the board. Shortcut: Shift+A, E</span>
+										<span class="tooltiptext">Automatically updates the output when you change the
+											board. Shortcut: Shift+A, E</span>
 									</div>
-									<div class = "autoEncoding" id = "autoEncodeOptions">
-										<select id = "encodingType" name = "encodingTypes" style = "width: 180px;">
-											<option value = "fullFumen">Full Fumen</option>
-											<option value = "currentFumenPage">Current Page</option>
+									<div class="autoEncoding" id="autoEncodeOptions">
+										<select id="encodingType" name="encodingTypes" style="width: 180px;">
+											<option value="fullFumen">Full Fumen</option>
+											<option value="currentFumenPage">Current Page</option>
 										</select>
 									</div>
 								</div>
 								<!--Output Box-->
-								<div><textarea id = "boardOutput"></textarea></div>
+								<div><textarea id="boardOutput"></textarea></div>
 							</div>
 						</div>
 					</div>
 				</div>
-<!--Settings Sidebar-->
-			<div id = "settingsSidebar" class="hide-element">
-				<hr style="visibility: hidden;">
-				<div class = "settingsBody">
-					<div class = "extrasettings">
-						<h3 class="settings-header">FUMEN SETTINGS</h3>
-						<hr class = "small-hr">
-						<div class = "tooltip">
-							<input id = "lockFlagInput" type = "checkbox" checked></input>
-							<label for = "lockFlagInput"><span class = "pepega"><u>L</u>ock</span></label>
-							<span class = "tooltiptext">Clears any full rows when creating the next page. Shortcut: L</span>
-						</div><br>
-						<div class = "tooltip">
-							<input id = "autoColorInput" type = "checkbox"></input>
-							<label for = "autoColorInput"><span class = "pepega"><u>A</u>uto-<u>C</u>olor</span></label>
-							<span class = "tooltiptext">Automatically colors in the correspinding piece color. Shortcut: Shift+A, C</span>
-						</div><br>
-						<div class = "tooltip">
-							<input id = "rowFillInput" type = "checkbox"></input>
-							<label for = "rowFillInput"><span class = "pepega"><u>R</u>ow-<u>F</u>ill</span></label>
-							<span class = "tooltiptext">Fills in the entire row except the clicked cell. Shortcut: Shift+R, F</span>
+				<!--Settings Sidebar-->
+				<div id="settingsSidebar" class="hide-element">
+					<hr style="visibility: hidden;">
+					<div class="settingsBody">
+						<div class="extrasettings">
+							<h3 class="settings-header">FUMEN SETTINGS</h3>
+							<hr class="small-hr">
+							<div class="tooltip">
+								<input id="lockFlagInput" type="checkbox" checked></input>
+								<label for="lockFlagInput"><span class="pepega"><u>L</u>ock</span></label>
+								<span class="tooltiptext">Clears any full rows when creating the next page. Shortcut:
+									L</span>
+							</div><br>
+							<div class="tooltip">
+								<input id="autoColorInput" type="checkbox"></input>
+								<label for="autoColorInput"><span class="pepega"><u>A</u>uto-<u>C</u>olor</span></label>
+								<span class="tooltiptext">Automatically colors in the correspinding piece color.
+									Shortcut: Shift+A, C</span>
+							</div><br>
+							<div class="tooltip">
+								<input id="rowFillInput" type="checkbox"></input>
+								<label for="rowFillInput"><span class="pepega"><u>R</u>ow-<u>F</u>ill</span></label>
+								<span class="tooltiptext">Fills in the entire row except the clicked cell. Shortcut:
+									Shift+R, F</span>
+							</div>
 						</div>
 					</div>
-				</div>
-				<hr style="visibility: hidden;">
-				<div class = "settingsBody">
-					<div class = "extrasettings">
-						<h3 class="settings-header">MISC. SETTINGS</h3>
-						<hr class = "small-hr">
-						<div class = "tooltip">
-							<div id = "tooltipToggle">
-								<input id = "tooltipSetting" type = "checkbox"></input>
-								<label for = "tooltipSetting"><span class = "pepega">Show <u>T</u>ool<u>t</u>ips</span></label>
+					<hr style="visibility: hidden;">
+					<div class="settingsBody">
+						<div class="extrasettings">
+							<h3 class="settings-header">MISC. SETTINGS</h3>
+							<hr class="small-hr">
+							<div class="tooltip">
+								<div id="tooltipToggle">
+									<input id="tooltipSetting" type="checkbox"></input>
+									<label for="tooltipSetting"><span class="pepega">Show
+											<u>T</u>ool<u>t</u>ips</span></label>
+								</div>
+								<span class="tooltiptext">Shows tooltips describing the function of the buttons.
+									Shortcut: Shift+T, T</span>
 							</div>
-							<span class = "tooltiptext">Shows tooltips describing the function of the buttons. Shortcut: Shift+T, T</span>
-						</div>
-						<div class = "tooltip">
-							<div id = "3dToggle">
-								<input id = "3dSetting" type = "checkbox" checked></input>
-								<label for = "3dSetting"><span class = "pepega">Show <u>3</u><u>D</u> Effect</span></label>
+							<div class="tooltip">
+								<div id="3dToggle">
+									<input id="3dSetting" type="checkbox" checked></input>
+									<label for="3dSetting"><span class="pepega">Show <u>3</u><u>D</u>
+											Effect</span></label>
+								</div>
+								<span class="tooltiptext">Adds a 3D effect on a FOUR-styled board. Shortcut: Shift+3,
+									D</span>
 							</div>
-							<span class = "tooltiptext">Adds a 3D effect on a FOUR-styled board. Shortcut: Shift+3, D</span>
-						</div>
-						<div class = "tooltip">
-							<div id = "defaultRenderToggle">
-								<input id = "defaultRenderInput" type = "checkbox"></input>
-								<label for = "defaultRenderInput"><span class = "pepega"><u>U</u>se <u>D</u>efault Style</span></label>
+							<div class="tooltip">
+								<div id="defaultRenderToggle">
+									<input id="defaultRenderInput" type="checkbox"></input>
+									<label for="defaultRenderInput"><span class="pepega"><u>U</u>se <u>D</u>efault
+											Style</span></label>
+								</div>
+								<span class="tooltiptext">Force board to use default fumen style. Shortcut: Shift+U,
+									D</span>
 							</div>
-							<span class = "tooltiptext">Force board to use default fumen style. Shortcut: Shift+U, D</span>
 						</div>
 					</div>
 				</div>
 			</div>
-		</div>
-	</body>
-	
+</body>
+
 </html>
