@@ -15,7 +15,7 @@ updateImagesPerRow()
 
 //SHORTCUTS
 Mousetrap.bind({
-    'backspace': increaseClearInputLevel,
+	'backspace': increaseClearInputLevel,
 	'g': glueFumen,
 	'u': unglueFumen,
 	'm': mirrorFumen,
@@ -23,7 +23,7 @@ Mousetrap.bind({
 	's': splitFumen,
 	'R c': removeComments,
 	'enter': renderImages,
-	
+
 	'shift+enter': moveOutputToInput,
 })
 
@@ -32,7 +32,7 @@ document.getElementById("clear-input").addEventListener("click", increaseClearIn
 
 function increaseClearInputLevel() {
 	let confirmedReset = document.getElementById('clear-input').classList.contains('confirm-delete-data')
-	if (confirmedReset)  {
+	if (confirmedReset) {
 		document.getElementById('input').value = ''
 	}
 	document.getElementById('clear-input').classList.toggle('confirm-delete-data')
@@ -77,7 +77,7 @@ function updateImagesPerRow() {
 }
 
 //OUTPUT TAB
-document.getElementById("CopyTextboxOutput").addEventListener("click", function() {navigator.clipboard.writeText(document.getElementById('output').value)})
+document.getElementById("CopyTextboxOutput").addEventListener("click", function () { navigator.clipboard.writeText(document.getElementById('output').value) })
 
 document.getElementById("moveOutputToInput").addEventListener("click", moveOutputToInput)
 function moveOutputToInput() {
@@ -91,17 +91,17 @@ function moveOutputToInput() {
 //IMAGE IMPORT
 document.getElementById("CopyImageOutput").addEventListener("click", takeshot)
 function takeshot() {
-    container = document.getElementById('imageOutputs')
-    html2canvas(container, {
-        backgroundColor: null,
-        width: container.clientWidth,
-        height: container.clientHeight,
-        scrollY: -window.scrollY
-    }).then(canvas => {
+	let container = document.getElementById('imageOutputs')
+	html2canvas(container, {
+		backgroundColor: null,
+		width: container.clientWidth,
+		height: container.clientHeight,
+		scrollY: -window.scrollY
+	}).then(canvas => {
 		canvas.toBlob(blob => {
 			try { navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]); }
 			catch (error) {
-				dataURL = canvas.toDataURL();
+				let dataURL = canvas.toDataURL();
 				console.log("Firefox doesn't support dropping images into clipboard, try pasting this DataURL into a new tab and copy pasting the image: ", dataURL);
 				navigator.clipboard.writeText(dataURL);
 			}
