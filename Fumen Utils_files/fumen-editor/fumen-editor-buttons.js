@@ -178,14 +178,9 @@ function insertFollowingPage() {
 
 	//Line clears if flag lock is on
 	if (displayState.flags.lock === true) {
-		//going top down guarentees all line clears are performed
-		for (let row in board) {
-			let isFilled = (cell) => cell.t != 0
-			if (board[row].every(isFilled)) {
-				board.splice(row, 1)
-				board.unshift(emptyRow())
-			}
-		}
+		let isFilled = (cell) => cell.t != 0
+		let filteredBoard = board.filter((row) => !row.every(isFilled))
+		board = [...Array.from({ length: board.length - filteredBoard.length }, () => emptyRow()), ...filteredBoard]
 	}
 
 	let currentBook = bookState.book
