@@ -54,9 +54,9 @@ function GIFDataURL(gif) {
 }
 
 function fumen_drawFumens(fumenPages) {
-	let start = document.getElementById('startPage').valueAsNumber-1 || 0
+	let start = document.getElementById('startRenderPage').valueAsNumber - 1 || 0
 	start = Math.min(fumenPages.length, Math.max(0, start))
-	let end = document.getElementById('endPage').valueAsNumber-1 || 0
+	let end = document.getElementById('endRenderPage').valueAsNumber - 1 || 0
 	end = Math.min(fumenPages.length, Math.max(0, end))
 
 	var drawnFumenPages = fumenPages.slice(start, end + 1) //slice excludes right bound
