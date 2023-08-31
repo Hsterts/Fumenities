@@ -11,7 +11,7 @@ document.getElementById('b').style.outline = '2px solid #ffffffcc'
 
 //SHORTCUTS
 Mousetrap.bind({
-	'esc': function() { decreaseResetLevel(); decreaseseClearInputLevel();},
+	'esc': function () { decreaseResetLevel(); decreaseseClearInputLevel(); },
 	'=': expandSidebars,
 	'-': retractSideBars,
 })
@@ -37,8 +37,8 @@ function expandSidebars() {
 		settingsButton.style.right = '459px'
 		settingsButton.style.borderBottomLeftRadius = '0px'
 		settingsButton.style.borderBottomRightRadius = '10px'
-	    openLogo.style.display = 'none'
-	    closeLogo.style.display = 'block'
+		openLogo.style.display = 'none'
+		closeLogo.style.display = 'block'
 	}
 	settingsSidebar.classList.toggle('hide-element', !fumenSidebarVisible)
 	fumenSidebar.classList.remove('hide-element')
@@ -56,18 +56,18 @@ function retractSideBars() {
 		settingsButton.style.right = '500px'
 		settingsButton.style.borderBottomRightRadius = '0px'
 		settingsButton.style.borderBottomLeftRadius = '10px'
-	    openLogo.style.display = 'block'
-	    closeLogo.style.display = 'none'
+		openLogo.style.display = 'block'
+		closeLogo.style.display = 'none'
 	}
 	fumenSidebar.classList.toggle('hide-element', !settingsSidebarVisible)
 	settingsSidebar.classList.add('hide-element')
 }
 
 export function autoEncode() {
-    if (document.getElementById('autoEncode').checked == false) return;
+	if (document.getElementById('autoEncode').checked == false) return;
 
-    let encodingType = document.getElementById('encodingType').value;
+	let encodingType = document.getElementById('encodingType').value;
 
-    if (encodingType == 'fullFumen') exportFumen();
-    else if (encodingType == 'currentFumenPage') exportPage();
+	if (encodingType == 'fullFumen') exportFumen();
+	else if (encodingType == 'currentFumenPage') exportPage();
 }

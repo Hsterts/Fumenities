@@ -2,9 +2,9 @@ const { decoder, encoder } = require('tetris-fumen');
 import { getDelimiter, LineTerminator } from '../global-utils.js'
 
 export default function removeComments() {
-    var input = document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@')
+    var input = document.getElementById('input').value.replace(/[Ddm]115@/gm, 'v115@')
     var fumenCodes = input.trim().split(LineTerminator)
-    
+
     var results = fumenCodes.map(fumenCode => {
         try {
             let pages = decoder.decode(fumenCode);
@@ -14,7 +14,7 @@ export default function removeComments() {
                 page.quiz = false
                 pages[index] = page
             })
-            
+
             return encoder.encode(pages)
         } catch (error) { console.log(fumenCode, error); }
     })
