@@ -71,10 +71,10 @@ function clearedOffset(rowsCleared, yIndex) {
 }
 
 export default function unglueFumen() {
-    var input = document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@')
+    var input = document.getElementById('input').value.replace(/[Ddm]115@/gm, 'v115@')
     var fumenCodes = input.trim().split(LineTerminator);
     var results = []
-    
+
     for (let code of fumenCodes) {
         try {
             let inputPages = decoder.decode(code);
@@ -102,7 +102,7 @@ export default function unglueFumen() {
                     yIndex = clearedOffset(rowsCleared, yIndex);
                     if (yIndex >= 0) { // sanity check
                         let currentRow = toUnglueBoard.slice(yIndex * 10, yIndex * 10 + 10)
-                        
+
                         let rowCleared = currentRow.every(mino => mino != 0);
                         if (rowCleared) {
                             temp.push(yIndex);
@@ -116,7 +116,7 @@ export default function unglueFumen() {
                         rowsCleared.sort();
                     }
                 }
-            
+
             }
 
             let outputPages = [inputPages[0]]; // lazily generating output fumen by destructively modifying the input
@@ -124,7 +124,7 @@ export default function unglueFumen() {
             outputPages[0]["_field"]["field"]["pieces"] = toUnglueBoard;
 
             results.push(encoder.encode(outputPages));
-            
+
         } catch (error) { console.log(code, error); }
     }
 

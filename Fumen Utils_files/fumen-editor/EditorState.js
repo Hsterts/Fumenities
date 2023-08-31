@@ -6,20 +6,20 @@ import { renderBoardOnCanvas } from "../rendering/board-render.js"
 
 export let displayState = { //move board, minoModeBoard, comment, operation, flags here
     board: emptyBoard(),
-	minoModeBoard: emptyBoard(), //TODO: might be better to keep minoModeBoard as an array denoting the position of at most 4 cells
+    minoModeBoard: emptyBoard(), //TODO: might be better to keep minoModeBoard as an array denoting the position of at most 4 cells
     comment: '',
-	operation: undefined, // {type: 'I', rotation: 'reverse', x: 4, y: 0}
-	flags: {lock: true},
+    operation: undefined, // {type: 'I', rotation: 'reverse', x: 4, y: 0}
+    flags: { lock: true },
 
     setState(newState) { //automatically renders and updates book
-        let {board, minoModeBoard, comment, operation, flags} = newState
+        let { board, minoModeBoard, comment, operation, flags } = newState
         //only update if property is defined
         this.board = board ?? this.board
         this.minoModeBoard = minoModeBoard ?? this.minoModeBoard
         this.comment = comment ?? this.comment
         this.operation = operation ?? this.operation
         this.flags = flags ?? this.flags
-        
+
         // console.log(this.board)
         window.requestAnimationFrame(() => this.display())
     },
@@ -27,8 +27,8 @@ export let displayState = { //move board, minoModeBoard, comment, operation, fla
     display() {
         //render board
         var combinedBoardStats = {
-            board: JSON.parse(JSON.stringify(displayState.board)), 
-            tileSize: cellSize, 
+            board: JSON.parse(JSON.stringify(displayState.board)),
+            tileSize: cellSize,
             style: (document.getElementById('defaultRenderInput').checked ? 'fumen' : 'four'),
             lockFlag: displayState.flags.lock,
             grid: {
@@ -36,7 +36,7 @@ export let displayState = { //move board, minoModeBoard, comment, operation, fla
                 strokeStyle: '#ffffff'
             },
         }
-        
+
         //combine board and minomodeBoard
         let minoModeBoard = this.minoModeBoard
         for (let row in minoModeBoard) {
@@ -44,14 +44,14 @@ export let displayState = { //move board, minoModeBoard, comment, operation, fla
                 if (minoModeBoard[row][col].t === 1) combinedBoardStats.board[row][col] = { t: 2, c: minoModeBoard[row][col].c }
             }
         }
-    
+
         let context = document.getElementById('b').getContext('2d')
         context.imageSmoothingEnabled = false // no anti-aliasing
         context.drawImage(renderBoardOnCanvas(combinedBoardStats), 0, 0)
 
         document.getElementById('commentBox').value = this.comment
         document.getElementById('lockFlagInput').checked = this.flags.lock
-        document.getElementById('positionDisplay').value = bookState.bookPos+1 //display is one-indexed
+        document.getElementById('positionDisplay').value = bookState.bookPos + 1 //display is one-indexed
         document.getElementById('positionDisplayOver').value = '/' + bookState.book.length
 
         autoEncode()
@@ -59,19 +59,19 @@ export let displayState = { //move board, minoModeBoard, comment, operation, fla
 }
 
 function emptyPage() {
-    return {board: JSON.stringify(emptyBoard()), minoModeBoard: JSON.stringify(emptyBoard()), comment: '', operation: undefined, flags: {lock: true}}
+    return { board: JSON.stringify(emptyBoard()), minoModeBoard: JSON.stringify(emptyBoard()), comment: '', operation: undefined, flags: { lock: true } }
 }
 const emptyBook = [emptyPage(),]
 
 export let bookState = {
-    bookPos: 0, 
+    bookPos: 0,
     book: JSON.parse(JSON.stringify(emptyBook)),
 
     displayBookPage(bookPos) {
-        this.bookPos = Math.max(Math.min(this.book.length-1, bookPos), 0)
-        
+        this.bookPos = Math.max(Math.min(this.book.length - 1, bookPos), 0)
+
         displayState.setState({
-            board: JSON.parse(this.book[this.bookPos]['board']), 
+            board: JSON.parse(this.book[this.bookPos]['board']),
             minoModeBoard: JSON.parse(this.book[this.bookPos]['minoModeBoard']),
             comment: this.book[this.bookPos]['comment'],
             operation: this.book[this.bookPos]['operation'],
@@ -82,16 +82,16 @@ export let bookState = {
     solidifyBoard() { //turns autoColor cells into normal cells
         let board = JSON.parse(this.book[this.bookPos]['board'])
         for (let row in board) {
-			for (let col in board[row]) {
-				if (board[row][col].t === 2){
-					board[row][col].t = 1 //solidify any minos
-				}
-			}
-		}
-        this.updateCurrentPage({board: board})
+            for (let col in board[row]) {
+                if (board[row][col].t === 2) {
+                    board[row][col].t = 1 //solidify any minos
+                }
+            }
+        }
+        this.updateCurrentPage({ board: board })
     },
 
-    setBook(book, propagate=true) { //automatically displays pages
+    setBook(book, propagate = true) { //automatically displays pages
         this.book = book
         this.displayBookPage(this.bookPos)
         if (propagate) historyState.addLog(this.book)
@@ -116,12 +116,12 @@ export let bookState = {
 
 export let historyState = {
     undoLog: [], //TODO: undo + redo -> Log + pointer?
-	redoLog: [],
+    redoLog: [],
 
     addLog(book) {
         this.undoLog.push(JSON.stringify(book))
         //Limit undos to 100 entries
-        if(this.undoLog.length > 100){
+        if (this.undoLog.length > 100) {
             this.undoLog.shift()
         }
 
@@ -134,16 +134,16 @@ export let historyState = {
             console.log('No previous actions logged')
         } else {
             this.redoLog.push(this.undoLog.pop())
-            bookState.setBook(JSON.parse(this.undoLog[this.undoLog.length-1]), false)
+            bookState.setBook(JSON.parse(this.undoLog[this.undoLog.length - 1]), false)
         }
     },
 
     redo() {
-        if (this.redoLog.length == 0){
+        if (this.redoLog.length == 0) {
             console.log('No following actions logged')
         } else {
             this.undoLog.push(this.redoLog.pop())
-            bookState.setBook(JSON.parse(this.undoLog[this.undoLog.length-1]), false)
+            bookState.setBook(JSON.parse(this.undoLog[this.undoLog.length - 1]), false)
         }
     },
 

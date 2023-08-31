@@ -2,9 +2,9 @@ const { decoder, encoder } = require('tetris-fumen');
 import { getDelimiter, LineTerminator } from '../global-utils.js'
 
 export default function splitFumen() {
-    var input = document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@')
+    var input = document.getElementById('input').value.replace(/[Ddm]115@/gm, 'v115@')
     var fumenCodes = input.trim().split(LineTerminator);
-    
+
     let results = fumenCodes.flatMap(fumenCode => {
         try {
             let inputPages = decoder.decode(fumenCode);

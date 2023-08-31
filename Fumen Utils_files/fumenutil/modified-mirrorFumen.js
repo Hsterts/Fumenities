@@ -41,7 +41,7 @@ var reverseMappingRotation = {
 }
 
 export default function mirrorFumen() {
-    var input = document.getElementById('input').value.replace(/[Ddm]115@/gm,'v115@')
+    var input = document.getElementById('input').value.replace(/[Ddm]115@/gm, 'v115@')
     var fumenCodes = input.trim().split(LineTerminator);
     var results = [];
 
