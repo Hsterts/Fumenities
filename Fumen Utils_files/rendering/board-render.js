@@ -1,6 +1,20 @@
 //sharing the same rendering process for both the editor board and the output images
-import { displayState } from '../fumen-editor/EditorState.js'
-import { boardSize, cellSize } from '../global-utils.js'
+import { boardSize } from '../global-utils.js'
+import { GIFEncoder as gifenc, quantize, applyPalette } from 'https://unpkg.com/gifenc@1.0.3/dist/gifenc.esm.js';
+
+export function GenerateGIF(canvases) {
+	let transparent = document.getElementById('transparency').checked
+	let delay = parseFloat(document.getElementById('delay').value)
+	const gif = new gifenc();
+	canvases.forEach(canvas => {
+		const { data, width, height } = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height)
+		const palette = quantize(data, 256, { format: 'rgba4444' });
+		const index = applyPalette(data, palette, { format: 'rgba4444' });
+		gif.writeFrame(index, width, height, { palette, transparent, delay }); //assumes that the first element in palette is [0,0,0,0].
+	})
+	gif.finish();
+	return gif;
+}
 
 export function getFumenMaxHeight(...fumenPages) {
 	if (!document.getElementById('autoheight').checked) return parseFloat(document.getElementById('height').value)

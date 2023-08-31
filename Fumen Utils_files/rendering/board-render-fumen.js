@@ -1,6 +1,5 @@
 import { boardSize } from "../global-utils.js";
-import { pageToBoard, renderBoardOnCanvas, getFumenMaxHeight } from "./board-render.js"
-import { GIFEncoder as gifenc, quantize, applyPalette } from 'https://unpkg.com/gifenc@1.0.3/dist/gifenc.esm.js';
+import { pageToBoard, renderBoardOnCanvas, getFumenMaxHeight, GenerateGIF } from "./board-render.js"
 
 function fumen_draw(fumenPage, numrows) {
 	var tileSize = Math.max(1, document.getElementById('cellSize').valueAsNumber || 0)
@@ -32,20 +31,6 @@ function fumen_draw(fumenPage, numrows) {
 	canvasContext.strokeRect(0.5, 0.5, canvas.width - 1, canvas.height - 1)
 
 	return canvas
-}
-
-function GenerateGIF(canvases) {
-	let transparent = document.getElementById('transparency').checked
-	let delay = 500 // fixed 500ms delay for fumen
-	const gif = new gifenc();
-	canvases.forEach(canvas => {
-		const { data, width, height } = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height)
-		const palette = quantize(data, 256, { format: 'rgba4444' });
-		const index = applyPalette(data, palette, { format: 'rgba4444' });
-		gif.writeFrame(index, width, height, { palette, transparent, delay }); //assumes that the first element in palette is [0,0,0,0].
-	})
-	gif.finish();
-	return gif;
 }
 
 function GIFDataURL(gif) {
