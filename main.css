@@ -110,13 +110,21 @@ textarea{
     resize: show;
     }
 
+figcaption{
+    width: 100%;
+    margin-top: 1px;
+}
+
 .commentDisplay{
     height: 24px;
     width: inherit;
-    margin: 2px 0 0 0;
+    border: 0px !important;
+    outline: solid #aaa6cf 1px;
+    margin: 0px;
     font-size: 14px;
-    padding: 2px;
+    padding: 0px;
     text-align: center;
+    resize: none;
 }
 
 input, select{
@@ -145,14 +153,35 @@ input[type="checkbox"]{
     }
 
 figure{
-    display: inline-block;
-    padding: 0px;
-    margin: 0px !important;
+    display: flex;
+    flex-flow: row wrap;
+    padding: 0 0.5px;
+    margin: 0.5px 0 !important;
+    width: min-content;
+    height: min-content;
 }
 
 .imageOutput{
+    padding: 0px;
+}
+
+#imageOutputs{
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+}
+
+#rowOutput {
+    display: flex;
+}
+
+.fourImageOutput {
     background: rgba(181, 176, 252, 0.1);
     outline: solid #aaa6cf 1px;
+}
+
+.fumenImageOutput {
+    outline: solid #585b5b 1px;
 }
 
 .fumenOperations{
@@ -239,7 +268,7 @@ input[type='radio'] {
     height: 40px;
 }
 
-.minomode{
+.minoMode{
     color: white;
     padding: 6px;
     margin: 2px;
@@ -256,6 +285,7 @@ input[type='radio'] {
 .fumen-main{
     background: #43445366;
     padding: 20px 0px 20px 0px;
+    height: 100%;
 }
 
 #settings-body {
@@ -281,13 +311,19 @@ input[type='radio'] {
     margin-left: 15px;
 }
 
+.left-fumen-panel{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
 .right-fumen-panel{
     flex: 1;
     margin-top: 9px;
     text-align: left;
     display: grid;
     justify-content: space-between;
-    height: 500px;
+    height: auto;
 }
 
 .bottom-right-fumen-panel{
@@ -299,7 +335,7 @@ input[type='radio'] {
     width: 220px;
     height: 440px;
     margin-top: 2px;
-    padding-left: 18px;
+    padding-left: 15px;
     padding-right: 15px;
 }
 
@@ -372,8 +408,9 @@ input[type='radio'] {
 }
 
 #boardOutput{
-    width:180px;
-    height:79px;
+    width: 168px;
+    height: 79px;
+    resize: none;
 }
 
 .fumen-option {
@@ -420,12 +457,12 @@ input[type='radio'] {
 }
 
 #commentBox{
-    width:225px;
-    height:25px;
+    width: 220px;
+    height: 25px;
     resize: none;
-    padding: 2px;
+    padding: 1px;
     font-size: 14px;
-    margin-left: 6px;
+    margin-top: 4px;
 }
 
 .page{
@@ -450,15 +487,15 @@ input[type='radio'] {
     justify-content: center;
     text-align: center;
     background-color: #23212c66;
-    height: 525px;
+    height: auto;
 }
 
-.pager {
+.pager { /* redundant? */
     display: inline-block;
     vertical-align: middle;
 }
 
-.shifter{
+.square-button{
     display: inline-block;
     vertical-align: middle;
 }
