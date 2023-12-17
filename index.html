@@ -190,7 +190,10 @@
 				<center><textarea id="output" name="output"></textarea><br></center>
 			</div>
 			<div class="fumenOperations">
-				<button id="CopyTextboxOutput" class="ibtn">Copy</button>
+				<div class="tooltip">
+					<button id="CopyTextboxOutput" class="ibtn">Copy</button>
+					<span class="tooltiptext">Copies Output into clipboard.</span>
+				</div>
 				<div class="tooltip">
 					<button id="moveOutputToInput" class="ibtn">Move Output to Input</button>
 					<span class="tooltiptext">Overwrites Input with Output if Output is non-empty. Shortcut:
@@ -326,26 +329,30 @@
 										<div class="tooltip">
 											<div class="square-button"><button id="shiftLeft" class="pageButton"><span
 														class="material-icons">keyboard_arrow_left</span></button></div>
-											<span class="tooltiptext">Shifts the whole board 1 mino to the left.
+											<span class="tooltiptext">Shifts the whole board in the page 1 mino to the
+												left.
 												Shortcut: Shift+Left</span>
 										</div>
 										<div class="tooltip">
 											<div class="square-button"><button id="shiftUp" class="pageButton"><span
 														class="material-icons">keyboard_arrow_up</span></button></div>
-											<span class="tooltiptext">Shifts the whole board 1 mino upwards. Shortcut:
+											<span class="tooltiptext">Shifts the whole board in the page 1 mino upwards.
+												Shortcut:
 												Shift+Up</span>
 										</div>
 										<div class="tooltip">
 											<div class="square-button"><button id="shiftDown" class="pageButton"><span
 														class="material-icons">keyboard_arrow_down</span></button></div>
-											<span class="tooltiptext">Shifts the whole board 1 mino downwards. Shortcut:
+											<span class="tooltiptext">Shifts the whole board in the page 1 mino
+												downwards. Shortcut:
 												Shift+Down</span>
 										</div>
 										<div class="tooltip">
 											<div class="square-button"><button id="shiftRight" class="pageButton"><span
 														class="material-icons">keyboard_arrow_right</span></button>
 											</div>
-											<span class="tooltiptext">Shifts the whole board 1 mino to the right.
+											<span class="tooltiptext">Shifts the whole board in the page 1 mino to the
+												right.
 												Shortcut: Shift+Right</span>
 										</div>
 									</div>
@@ -480,7 +487,8 @@
 							<div class="tooltip">
 								<input id="autoColorInput" type="checkbox"></input>
 								<label for="autoColorInput"><span class="pepega"><u>A</u>uto-<u>C</u>olor</span></label>
-								<span class="tooltiptext">Automatically colors in the correspinding piece color.
+								<span class="tooltiptext">Automatically colors in the correspinding piece color. Accepts
+									split tetrominos.
 									Shortcut: Shift+A, C</span>
 							</div><br>
 							<div class="tooltip">
