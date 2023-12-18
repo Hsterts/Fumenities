@@ -132,11 +132,17 @@ for (let fumenOption of document.getElementsByClassName('fumen-option')) {
 document.getElementById("minoModeInput").addEventListener("click", updateMinoMode)
 document.getElementById("minoModeInput").addEventListener("click", updateAutoColor)
 document.getElementById("minoModeInput").addEventListener("click", updateRowFillInput)
+document.getElementById("minoModeInput").addEventListener("click", updatePaintBucket)
 function updateMinoMode() {
 	let minoMode = document.getElementById('minoModeInput').checked
 	if (!minoMode && displayState.operation == undefined) { //clear minoModeBoard without a glued piece when exiting minoMode
 		bookState.updateCurrentPage({ minoModeBoard: emptyBoard() })
 	}
+}
+
+function updatePaintBucket() {
+	let minoMode = document.getElementById('minoModeInput').checked || document.getElementById('autoColorInput').checked
+	document.getElementsByClassName('paint-bucket')[0].classList.toggle('disabled', minoMode)
 }
 
 document.getElementById("startPage").addEventListener("click", startPage)
@@ -476,6 +482,7 @@ function updateLockFlag() {
 
 document.getElementById("autoColorInput").addEventListener("click", updateAutoColor)
 document.getElementById("autoColorInput").addEventListener("click", updateRowFillInput)
+document.getElementById("autoColorInput").addEventListener("click", updatePaintBucket)
 
 document.getElementById("rowFillInput").addEventListener("click", updateRowFillInput)
 
