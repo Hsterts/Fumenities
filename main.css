@@ -9,7 +9,7 @@
     margin: auto;
     margin-top: 20px;
     width: 85vw;
-    max-width: 900px;
+    max-width: 1800px;
 }
 
 #header-div {
@@ -97,6 +97,11 @@ details[open] summary::after{
     height: 1px;
     width: 95%;
     border: none;
+}
+
+#main-content {
+    display: grid;
+    grid-template-columns: auto auto;
 }
 
 /* FUMEN UTIL */
@@ -288,7 +293,6 @@ input[type='radio'] {
 }
 
 .fumen-main{
-    background: #43445366;
     padding: 20px 0px 20px 0px;
     height: 100%;
 }
