@@ -12,9 +12,14 @@
     max-width: 900px;
 }
 
+#header-div {
+    display: flex;
+}
+
 header {
     font-family: Montserrat, Sans-Serif;
     font-size: 32px;
+    flex-grow: 1;
 }
 
 header b{

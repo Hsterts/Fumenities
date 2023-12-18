@@ -24,7 +24,18 @@
 
 <body id="main">
 	<!--Header-->
-	<header><b>Fumen Utilities</b> © Swng & hillo</header>
+	<div id="header-div">
+		<header><b>Fumen Utilities</b> © Swng & hillo</header>
+		<div class="tooltip">
+			<div id="tooltipToggle">
+				<input id="tooltipSetting" type="checkbox" checked></input>
+				<label for="tooltipSetting"><span class="pepega">Show
+						<u>T</u>ool<u>t</u>ips</span></label>
+			</div>
+			<span class="tooltiptext">Shows tooltips describing the function of the buttons.
+				Shortcut: Shift+T, T</span>
+		</div>
+	</div>
 
 	<hr class="large-hr">
 
@@ -68,6 +79,11 @@
 			<div class="tooltip">
 				<button id="render-images" class="ibtn">Output Image</button>
 				<span class="tooltiptext">Shortcut: Enter</span>
+			</div>
+			<div class="tooltip">
+				<button id="addToInput" class="ibtn">Add to Input</button>
+				<span class="tooltiptext">Adds the fumen in the editor into Input. Shortcut:
+					+</span>
 			</div>
 		</div>
 
@@ -416,11 +432,6 @@
 									<u>F</u>umen</b></button>
 							<span class="tooltiptext">Export all pages. Shortcut: Shift+E, F</span>
 						</div>
-						<div class="tooltip">
-							<button id="addToInput" class="fumen-option"><b>Add to Input</b></button>
-							<span class="tooltiptext">Adds the output below to the input textbox. Shortcut:
-								+</span>
-						</div>
 						<hr class="small-hr">
 						<!--Auto-Encoding-->
 						<div class="autoEncodingInputs">
@@ -478,15 +489,6 @@
 				<div class="extrasettings">
 					<h3 class="settings-header">MISC. SETTINGS</h3>
 					<hr class="small-hr">
-					<div class="tooltip">
-						<div id="tooltipToggle">
-							<input id="tooltipSetting" type="checkbox" checked></input>
-							<label for="tooltipSetting"><span class="pepega">Show
-									<u>T</u>ool<u>t</u>ips</span></label>
-						</div>
-						<span class="tooltiptext">Shows tooltips describing the function of the buttons.
-							Shortcut: Shift+T, T</span>
-					</div>
 					<div class="tooltip">
 						<div id="3dToggle">
 							<input id="3dSetting" type="checkbox" checked></input>
