@@ -349,21 +349,11 @@ input[type='radio'] {
     outline: solid rgb(203, 199, 255) 1px;
 }
 
-.option-left{
-    position: fixed;
-    right: 500px;
-}
-
 #fumenSidebar{
     font-family: Montserrat, Sans-Serif;
-    background: #30313fcc;
     text-align: center;
     height: 100%;
     width: 500px;
-    position: fixed;
-    top: 0;
-    right: 0;
-    padding-top: 40px;
 }
 
 #settingsSidebar{
@@ -378,8 +368,8 @@ input[type='radio'] {
     width: 250px;
     position: fixed;
     top: 0;
-    right: 500px;
-    padding-top: 120px;
+    right: 0px;
+    padding-top: 30px;
 }
 
 .settingsBody{
