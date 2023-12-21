@@ -12,6 +12,11 @@ window.requestAnimationFrame(() => displayState.display()) // render board
 
 //SHORTCUTS
 Mousetrap.bind({
+	'N': function () { setEditorMode('normal') },
+	'M m': function () { setEditorMode('minoMode') },
+	'A c': function () { setEditorMode('autoColor') },
+	'R f': function () { setEditorMode('rowFill') },
+
 	'1': function () { setPaintBucket(0) },
 	'2': function () { setPaintBucket(1) },
 	'3': function () { setPaintBucket(2) },
@@ -20,9 +25,6 @@ Mousetrap.bind({
 	'6': function () { setPaintBucket(5) },
 	'7': function () { setPaintBucket(6) },
 	'8': function () { setPaintBucket(7) },
-	'0': toggleMinoMode,
-	'A c': toggleAutoColor,
-	'R f': toggleRowFillInput,
 
 	'left': prevPage,
 	'mod+left': startPage,
@@ -67,8 +69,9 @@ function setPaintBucket(index) {
 	document.paintbucket[index].checked = true;
 }
 
-function toggleMinoMode() {
-	document.getElementById('minoModeInput').checked = !document.getElementById('minoModeInput').checked
+function setEditorMode(value) {
+	document.getElementById('editorMode').value = value;
+	updateEditorMode()
 }
 
 function toggleAutoEncoding() {
@@ -79,14 +82,6 @@ function toggleAutoEncoding() {
 function toggleLock() {
 	document.getElementById('lockFlagInput').checked = !document.getElementById('lockFlagInput').checked
 	updateLockFlag()
-}
-
-function toggleAutoColor() {
-	document.getElementById('autoColorInput').checked = !document.getElementById('autoColorInput').checked
-}
-
-function toggleRowFillInput() {
-	document.getElementById('rowFillInput').checked = !document.getElementById('rowFillInput').checked
 }
 
 function toggleToolTips() {
@@ -110,7 +105,6 @@ for (let fumenOption of document.getElementsByClassName('fumen-option')) {
 }
 
 //html bindings
-let editorMode = document.getElementById("editorMode").value;
 
 // avoid having to use check the string value directly in other modules, a limitation from not having enums.
 export function isModeNormal(mode) {
@@ -130,29 +124,23 @@ export function isModeMinoMode(mode) {
 }
 
 document.getElementById("editorMode").addEventListener("change", updateEditorMode)
+let editorMode = document.getElementById("editorMode").value; // used by function below to keep track of previous mode before switching
 function updateEditorMode() {
-	console.log(document.getElementById("editorMode").value);
+	// console.log(document.getElementById("editorMode").value);
 	// cleaning up when exiting a mode
-	// ignoring cosmetic changes of the toggles for now
 	switch (editorMode) {
-		case 'normal':
-			// no cleanup necessary
-			break;
 		case 'autoColor':
-			document.getElementById("autoColorInput").checked = false;
 			bookState.solidifyBoard()
 			break;
-		case 'rowFill':
-			// no cleanup necessary
-			document.getElementById("rowFillInput").checked = false;
-			break;
 		case 'minoMode':
-			document.getElementById("minoModeInput").checked = false;
 			// clear minoModeBoard without a glued piece when exiting minoMode
 			if (displayState.operation == undefined) bookState.updateCurrentPage({ minoModeBoard: emptyBoard() })
 			break;
 		default:
-			console.error("Unknown editor mode: " + editorMode);
+			console.error("Unknown editor mode: " + editorMode); i
+		// no cleanup necessary
+		case 'normal':
+		case 'rowFill':
 			break;
 	}
 
