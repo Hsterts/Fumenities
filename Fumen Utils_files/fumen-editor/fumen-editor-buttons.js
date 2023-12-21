@@ -6,11 +6,9 @@ import { pageToBoard } from "../rendering/board-render.js"
 import { bookState, displayState, historyState } from "./EditorState.js"
 
 //INITIALIZATION
-updateMinoMode()
-updateAutoColor()
-updateRowFillInput()
 updateToolTips()
 updateAutoEncoding()
+window.requestAnimationFrame(() => displayState.display()) // render board
 
 //SHORTCUTS
 Mousetrap.bind({
@@ -23,6 +21,8 @@ Mousetrap.bind({
 	'7': function () { setPaintBucket(6) },
 	'8': function () { setPaintBucket(7) },
 	'0': toggleMinoMode,
+	'A c': toggleAutoColor,
+	'R f': toggleRowFillInput,
 
 	'left': prevPage,
 	'mod+left': startPage,
@@ -53,8 +53,6 @@ Mousetrap.bind({
 	'A e': toggleAutoEncoding,
 
 	'l': toggleLock,
-	'A c': toggleAutoColor,
-	'R f': toggleRowFillInput,
 
 	'T t': toggleToolTips,
 	'# d': toggle3dSetting,
@@ -71,9 +69,6 @@ function setPaintBucket(index) {
 
 function toggleMinoMode() {
 	document.getElementById('minoModeInput').checked = !document.getElementById('minoModeInput').checked
-	updateMinoMode()
-	updateAutoColor()
-	updateRowFillInput()
 }
 
 function toggleAutoEncoding() {
@@ -88,24 +83,10 @@ function toggleLock() {
 
 function toggleAutoColor() {
 	document.getElementById('autoColorInput').checked = !document.getElementById('autoColorInput').checked
-	updateAutoColor()
-	updateRowFillInput()
-}
-function updateAutoColor() {
-	var isAutoColorUsable = !document.getElementById('minoModeInput').checked
-	document.getElementById('autoColorInput').classList.toggle('disabled', !isAutoColorUsable)
-
-	var autoColorBool = document.getElementById('autoColorInput').checked
-	if (!(isAutoColorUsable && autoColorBool)) bookState.solidifyBoard()
 }
 
 function toggleRowFillInput() {
 	document.getElementById('rowFillInput').checked = !document.getElementById('rowFillInput').checked
-	updateRowFillInput()
-}
-function updateRowFillInput() {
-	var isRowFillUsable = !document.getElementById('minoModeInput').checked && !document.getElementById('autoColorInput').checked
-	document.getElementById('rowFillInput').classList.toggle('disabled', !isRowFillUsable)
 }
 
 function toggleToolTips() {
@@ -129,20 +110,57 @@ for (let fumenOption of document.getElementsByClassName('fumen-option')) {
 }
 
 //html bindings
-document.getElementById("minoModeInput").addEventListener("click", updateMinoMode)
-document.getElementById("minoModeInput").addEventListener("click", updateAutoColor)
-document.getElementById("minoModeInput").addEventListener("click", updateRowFillInput)
-document.getElementById("minoModeInput").addEventListener("click", updatePaintBucket)
-function updateMinoMode() {
-	let minoMode = document.getElementById('minoModeInput').checked
-	if (!minoMode && displayState.operation == undefined) { //clear minoModeBoard without a glued piece when exiting minoMode
-		bookState.updateCurrentPage({ minoModeBoard: emptyBoard() })
-	}
+let editorMode = document.getElementById("editorMode").value;
+
+// avoid having to use check the string value directly in other modules, a limitation from not having enums.
+export function isModeNormal(mode) {
+	return mode == 'normal'
 }
 
-function updatePaintBucket() {
-	let minoMode = document.getElementById('minoModeInput').checked || document.getElementById('autoColorInput').checked
-	document.getElementsByClassName('paint-bucket')[0].classList.toggle('disabled', minoMode)
+export function isModeAutoColor(mode) {
+	return mode == 'autoColor'
+}
+
+export function isModeRowFill(mode) {
+	return mode == 'rowFill'
+}
+
+export function isModeMinoMode(mode) {
+	return mode == 'minoMode'
+}
+
+document.getElementById("editorMode").addEventListener("change", updateEditorMode)
+function updateEditorMode() {
+	console.log(document.getElementById("editorMode").value);
+	// cleaning up when exiting a mode
+	// ignoring cosmetic changes of the toggles for now
+	switch (editorMode) {
+		case 'normal':
+			// no cleanup necessary
+			break;
+		case 'autoColor':
+			document.getElementById("autoColorInput").checked = false;
+			bookState.solidifyBoard()
+			break;
+		case 'rowFill':
+			// no cleanup necessary
+			document.getElementById("rowFillInput").checked = false;
+			break;
+		case 'minoMode':
+			document.getElementById("minoModeInput").checked = false;
+			// clear minoModeBoard without a glued piece when exiting minoMode
+			if (displayState.operation == undefined) bookState.updateCurrentPage({ minoModeBoard: emptyBoard() })
+			break;
+		default:
+			console.error("Unknown editor mode: " + editorMode);
+			break;
+	}
+
+	// update to new mode
+	editorMode = document.getElementById("editorMode").value;
+
+	let disablePaintBucket = isModeMinoMode(editorMode) || isModeAutoColor(editorMode);
+	document.getElementsByClassName("paint-bucket")[0].classList.toggle('disabled', disablePaintBucket);
 }
 
 document.getElementById("startPage").addEventListener("click", startPage)
@@ -479,12 +497,6 @@ document.getElementById("lockFlagInput").addEventListener("click", updateLockFla
 function updateLockFlag() {
 	bookState.updateCurrentPage({ flags: { lock: document.getElementById('lockFlagInput').checked } })
 }
-
-document.getElementById("autoColorInput").addEventListener("click", updateAutoColor)
-document.getElementById("autoColorInput").addEventListener("click", updateRowFillInput)
-document.getElementById("autoColorInput").addEventListener("click", updatePaintBucket)
-
-document.getElementById("rowFillInput").addEventListener("click", updateRowFillInput)
 
 document.getElementById("tooltipSetting").addEventListener("click", updateToolTips)
 function updateToolTips() {

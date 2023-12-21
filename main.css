@@ -272,6 +272,10 @@ input[type='radio'] {
     color: black;
 }
 
+#editorMode {
+    align-self: center;
+}
+
 /* SIDEBAR */
 .fumen-header{
     display: flex;

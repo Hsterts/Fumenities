@@ -1,6 +1,7 @@
 const { Mino } = require('tetris-fumen')
 import { inRange, shape_table, cellSize, boardSize } from "../global-utils.js";
 import { bookState, displayState } from "./EditorState.js";
+import { isModeAutoColor, isModeMinoMode, isModeRowFill } from "./fumen-editor-buttons.js";
 
 function paintbucketColor() {
 	for (let colorOption of document.paintbucket) {
@@ -22,7 +23,7 @@ function drawnMinos(someBoard, cellMatch) {
 var mouseHeld = false;
 var drawMode = true; // 0 for erasing, 1 for painting a cell
 document.getElementById('b').addEventListener('mousedown', (e) => {
-	var autoColorBool = document.getElementById('autoColorInput').checked;
+	let mode = document.getElementById('editorMode').value;
 	let rect = document.getElementById('b').getBoundingClientRect();
 	let cellRow = Math.floor((e.clientY - rect.top) / cellSize);
 	let cellCol = Math.floor((e.clientX - rect.left) / cellSize);
@@ -31,7 +32,7 @@ document.getElementById('b').addEventListener('mousedown', (e) => {
 	drawMode = !(e.button !== 0 || displayState.board[cellRow][cellCol].c === paintbucketColor() || displayState.minoModeBoard[cellRow][cellCol].t === 1);
 
 	let autoColorCount = drawnMinos(displayState.board, cell => cell.t === 2)
-	if (autoColorBool && drawMode && autoColorCount == 4) {
+	if (isModeAutoColor(mode) && drawMode && autoColorCount == 4) {
 		bookState.solidifyBoard()
 	}
 	drawCanvasCell(cellRow, cellCol);
@@ -57,14 +58,13 @@ document.getElementById('b').addEventListener('mousemove', (e) => {
 })
 
 function drawCanvasCell(cellRow, cellCol) {
-	var minoMode = document.getElementById('minoModeInput').checked;
-	var autoColorBool = document.getElementById('autoColorInput').checked;
-	if (minoMode) {
+	let mode = document.getElementById('editorMode').value;
+	if (isModeMinoMode(mode)) {
 		drawCanvasMinoMode();
-	} else if (autoColorBool) {
+	} else if (isModeAutoColor(mode)) {
 		drawCanvasAutoColorMode();
 	} else {
-		drawCanvasNormalMode();
+		drawCanvasNormalMode(isModeRowFill(mode));
 	}
 
 	function drawCanvasMinoMode() {
@@ -92,8 +92,7 @@ function drawCanvasCell(cellRow, cellCol) {
 		bookState.updateCurrentPage({ minoModeBoard: currentMinoModeBoard })
 	}
 
-	function drawCanvasNormalMode() {
-		let rowFill = document.getElementById('rowFillInput').checked;
+	function drawCanvasNormalMode(rowFill) {
 		let currentBoard = displayState.board
 		if (rowFill) { //TODO: im bad at organising this flow
 			for (let col in currentBoard[cellRow]) {
@@ -145,9 +144,8 @@ document.getElementById('insertFumen').addEventListener('mouseup', (e) => e.stop
 document.getElementById('importFumen').addEventListener('mouseup', (e) => e.stopPropagation())
 document.getElementById('boardOutput').addEventListener('mouseup', (e) => e.stopPropagation())
 document.addEventListener('mouseup', () => {
-	var minoMode = document.getElementById('minoModeInput').checked;
-
-	if (minoMode) finishMinoMode();
+	let mode = document.getElementById('editorMode').value;
+	if (isModeMinoMode(mode)) finishMinoMode();
 
 	mouseHeld = false;
 
