@@ -217,12 +217,23 @@
 		<div id="fumenSidebar">
 			<div class="fumen-main">
 				<div class="fumen-header">
-					<select id="editorMode" class="top-panel">
-						<option value="normal">Normal (N)</option>
-						<option value="autoColor">Auto-Color (A c)</option>
-						<option value="rowFill">Row-Fill (R f)</option>
-						<option value="minoMode">Mino Mode (M m)</option>
-					</select>
+					<!-- EDITOR MODE OPTION -->
+					<div class="tooltip" style="display:flex">
+						<select id="editorMode" class="top-panel">
+							<option value="normal">Normal (N)</option>
+							<option value="autoColor">Auto-Color (A c)</option>
+							<option value="rowFill">Row-Fill (R f)</option>
+							<option value="minoMode">Mino Mode (M m)</option>
+						</select>
+						<span class="tooltiptext">
+							The current editor mode. (Shortcut in parentheses) <br>
+							Normal: Color in on left click on a blank cell and removes otherwise.<br>
+							Auto-Color: Automatically detects and colors split and non-split tetrominos.<br>
+							Row-Fill: Fills in the entire row except the clicked cell and removes entire row on right
+							click.<br>
+							Mino Mode: Detects a mino and adds it as a piece placement in the fumen.<br>
+						</span>
+					</div>
 					<!-- PAINT BUCKET CHOICES -->
 					<div class="color-options top-panel">
 						<div class="tooltip">
@@ -262,13 +273,6 @@
 								</label>
 							</form>
 							<span class="tooltiptext">Select the color of the mino. Shortcut: 1-8</span>
-						</div>
-					</div>
-					<!-- MINO MODE OPTION-->
-					<div class="minoMode top-panel">
-						<div class="tooltip">
-							<input id="minoModeInput" type="checkbox"><span class="pepega">Mino Mode</span></input>
-							<span class="tooltiptext">Draw four minos as a piece placement. Shortcut: 0</span>
 						</div>
 					</div>
 				</div>
@@ -478,19 +482,6 @@
 							<span class="tooltiptext">Clears any full rows when creating the next page. Shortcut:
 								L</span>
 						</div><br>
-						<div class="tooltip">
-							<input id="autoColorInput" type="checkbox"></input>
-							<label for="autoColorInput"><span class="pepega"><u>A</u>uto-<u>C</u>olor</span></label>
-							<span class="tooltiptext">Automatically colors in the correspinding piece color. Accepts
-								split tetrominos.
-								Shortcut: Shift+A, C</span>
-						</div><br>
-						<div class="tooltip">
-							<input id="rowFillInput" type="checkbox"></input>
-							<label for="rowFillInput"><span class="pepega"><u>R</u>ow-<u>F</u>ill</span></label>
-							<span class="tooltiptext">Fills in the entire row except the clicked cell. Shortcut:
-								Shift+R, F</span>
-						</div>
 					</div>
 				</div>
 				<hr style="visibility: hidden;">
