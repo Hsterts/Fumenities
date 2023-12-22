@@ -13,7 +13,7 @@ document.getElementById('b').style.outline = '2px solid #ffffffcc'
 Mousetrap.bind({
 	'esc': function () { decreaseResetLevel(); decreaseseClearInputLevel(); },
 	'=': expandSidebars,
-	'-': retractSideBars,
+	'-': retractSidebars,
 })
 
 //mousetrap-exclusive bindings
@@ -25,42 +25,42 @@ function decreaseseClearInputLevel() {
 	document.getElementById('clear-input').classList.remove('confirm-delete-data')
 }
 
-function expandSidebars() {
-	var fumenSidebar = document.getElementById('fumenSidebar')
-	var settingsSidebar = document.getElementById('settingsSidebar')
-	let fumenSidebarVisible = !fumenSidebar.classList.contains('hide-element')
-	if (fumenSidebarVisible) { //make arrow state agree with current state
-		let settingsButton = document.getElementsByClassName('option-left')[0]
-		let openLogo = document.getElementById('openFumenSettings')
-		let closeLogo = document.getElementById('closeFumenSettings')
-		settingsSidebar.classList.remove('hide-element')
-		settingsButton.style.right = '459px'
-		settingsButton.style.borderBottomLeftRadius = '0px'
-		settingsButton.style.borderBottomRightRadius = '10px'
-		openLogo.style.display = 'none'
-		closeLogo.style.display = 'block'
+document.getElementById("toggleFumenSettings").addEventListener("click", toggleFumenSettings)
+function toggleFumenSettings() {
+	var fumenSettings = document.getElementById('settingsSidebar')
+	if (fumenSettings.classList.contains('hide-element')) {
+		expandSidebars()
+	} else {
+		retractSidebars()
 	}
-	settingsSidebar.classList.toggle('hide-element', !fumenSidebarVisible)
-	fumenSidebar.classList.remove('hide-element')
 }
 
-function retractSideBars() {
-	var fumenSidebar = document.getElementById('fumenSidebar')
-	var settingsSidebar = document.getElementById('settingsSidebar')
-	let settingsSidebarVisible = !settingsSidebar.classList.contains('hide-element')
-	if (settingsSidebarVisible) {//make arrow state agree with current state
-		let settingsButton = document.getElementsByClassName('option-left')[0]
-		let openLogo = document.getElementById('openFumenSettings')
-		let closeLogo = document.getElementById('closeFumenSettings')
-		settingsSidebar.classList.add('hide-element')
-		settingsButton.style.right = '500px'
-		settingsButton.style.borderBottomRightRadius = '0px'
-		settingsButton.style.borderBottomLeftRadius = '10px'
-		openLogo.style.display = 'block'
-		closeLogo.style.display = 'none'
-	}
-	fumenSidebar.classList.toggle('hide-element', !settingsSidebarVisible)
-	settingsSidebar.classList.add('hide-element')
+function expandSidebars() {
+	var fumenSettings = document.getElementById('settingsSidebar')
+	var settingsButton = document.getElementsByClassName('option-left')[0]
+	var openLogo = document.getElementById('openFumenSettings')
+	var closeLogo = document.getElementById('closeFumenSettings')
+
+	fumenSettings.classList.remove('hide-element')
+	settingsButton.style.right = '209px'
+	settingsButton.style.borderBottomLeftRadius = '0px'
+	settingsButton.style.borderBottomRightRadius = '10px'
+	openLogo.style.display = 'none'
+	closeLogo.style.display = 'block'
+}
+
+function retractSidebars() {
+	var fumenSettings = document.getElementById('settingsSidebar')
+	var settingsButton = document.getElementsByClassName('option-left')[0]
+	var openLogo = document.getElementById('openFumenSettings')
+	var closeLogo = document.getElementById('closeFumenSettings')
+
+	fumenSettings.classList.add('hide-element')
+	settingsButton.style.right = '0px'
+	settingsButton.style.borderBottomRightRadius = '0px'
+	settingsButton.style.borderBottomLeftRadius = '10px'
+	openLogo.style.display = 'block'
+	closeLogo.style.display = 'none'
 }
 
 export function autoEncode() {
