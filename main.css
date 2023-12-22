@@ -9,12 +9,17 @@
     margin: auto;
     margin-top: 20px;
     width: 85vw;
-    max-width: 900px;
+    max-width: 1800px;
+}
+
+#header-div {
+    display: flex;
 }
 
 header {
     font-family: Montserrat, Sans-Serif;
     font-size: 32px;
+    flex-grow: 1;
 }
 
 header b{
@@ -92,6 +97,11 @@ details[open] summary::after{
     height: 1px;
     width: 95%;
     border: none;
+}
+
+#main-content {
+    display: grid;
+    grid-template-columns: auto auto;
 }
 
 /* FUMEN UTIL */
@@ -228,7 +238,7 @@ input[type='radio'] {
     margin-bottom: 0px;
 }
 
-.paint-bucket input[class='paintbucket'] + *::before {
+.paint-bucket input[class='paintbucket'] + span {
     content: '';
     display: inline-block;
     width: 1.2rem;
@@ -239,24 +249,32 @@ input[type='radio'] {
     padding: 2px;
 }
 
-.paint-bucket input[class='paintbucket']:hover + *::before {
+.paint-bucket input[class='paintbucket']:hover + span {
     border-color: rgb(227, 217, 255);
     filter: brightness(75%);
 }
 
-.paint-bucket input[class='paintbucket']:checked + *::before {
+.paint-bucket input[class='paintbucket']:checked + span {
     border-color: rgb(227, 217, 255);
     filter: brightness(100%);
 }
 
-.paint-bucket input[id='X'] + *::before {background: #c5c5c5;}
-.paint-bucket input[id='I'] + *::before {background: #41afde;}
-.paint-bucket input[id='J'] + *::before {background: #1983bf;}
-.paint-bucket input[id='S'] + *::before {background: #66c65c;}
-.paint-bucket input[id='O'] + *::before {background: #f7d33e;}
-.paint-bucket input[id='Z'] + *::before {background: #ef624d;}
-.paint-bucket input[id='L'] + *::before {background: #ef9535;}
-.paint-bucket input[id='T'] + *::before {background: #b451ac;}
+.paint-bucket input[id='X'] + span {background: #c5c5c5;}
+.paint-bucket input[id='I'] + span {background: #41afde;}
+.paint-bucket input[id='J'] + span {background: #1983bf;}
+.paint-bucket input[id='S'] + span {background: #66c65c;}
+.paint-bucket input[id='O'] + span {background: #f7d33e;}
+.paint-bucket input[id='Z'] + span {background: #ef624d;}
+.paint-bucket input[id='L'] + span {background: #ef9535;}
+.paint-bucket input[id='T'] + span {background: #b451ac;}
+
+.paint-bucket label > span > span {
+    color: black;
+}
+
+#editorMode {
+    align-self: center;
+}
 
 /* SIDEBAR */
 .fumen-header{
@@ -268,22 +286,11 @@ input[type='radio'] {
     height: 40px;
 }
 
-.minoMode{
-    color: white;
-    padding: 6px;
-    margin: 2px;
-    border-radius: 3px;
-    height: 30px;
-    width: 130px;
-    padding-bottom: 0px;
-}
-
 .pepega{
     vertical-align: middle;
 }
 
 .fumen-main{
-    background: #43445366;
     padding: 20px 0px 20px 0px;
     height: 100%;
 }
@@ -349,21 +356,11 @@ input[type='radio'] {
     outline: solid rgb(203, 199, 255) 1px;
 }
 
-.option-left{
-    position: fixed;
-    right: 500px;
-}
-
 #fumenSidebar{
     font-family: Montserrat, Sans-Serif;
-    background: #30313fcc;
     text-align: center;
     height: 100%;
     width: 500px;
-    position: fixed;
-    top: 0;
-    right: 0;
-    padding-top: 40px;
 }
 
 #settingsSidebar{
@@ -378,8 +375,8 @@ input[type='radio'] {
     width: 250px;
     position: fixed;
     top: 0;
-    right: 500px;
-    padding-top: 120px;
+    right: 0px;
+    padding-top: 30px;
 }
 
 .settingsBody{
@@ -387,7 +384,6 @@ input[type='radio'] {
     font-weight: 600;
     margin: auto;
     width: 220px;
-    height: 150px;
     padding: 10px 5px 10px 5px;
     background: #000000A0;
     border-radius: 2px;
