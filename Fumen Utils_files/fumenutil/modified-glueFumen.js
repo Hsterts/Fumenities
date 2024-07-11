@@ -55,6 +55,17 @@ function height(field) {
 function isInside(field, x, y) {
     return (0 <= x && x < WIDTH) && (0 <= y && y < height(field));
 }
+function isFloating(field, minoPositions) {
+    // if there's a 'X' under any of the minos
+    for (var _i = 0, minoPositions_1 = minoPositions; _i < minoPositions_1.length; _i++) {
+        var pos = minoPositions_1[_i];
+        // on floor
+        if (pos.y == 0 || field.at(pos.x, pos.y - 1) == 'X') {
+            return false;
+        }
+    }
+    return true;
+}
 function centerMino(minoPositions) {
     return minoPositions[0];
 }
@@ -274,7 +285,7 @@ function glue(x0, y0, field, piecesArr, allPiecesArr, totalLinesCleared, visuali
                     var newPiecesArr = __spreadArray([], piecesArr, true);
                     var minoPositions = getMinoPositions(field, x, y, piece, rotationStates[state], (visualize) ? visualizeArr : null);
                     // if there's less than minos
-                    if (minoPositions.length < TETROMINO) {
+                    if (minoPositions.length < TETROMINO || isFloating(field, minoPositions)) {
                         continue;
                     }
                     // place piece
