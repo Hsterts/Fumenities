@@ -51,7 +51,7 @@ var pieceMappings = {
 function height(field) {
     for (var y = HEIGHT - 1; y >= 0; y--) {
         for (var x = 0; x < WIDTH; x++) {
-            if ("TILJSZO".includes(field.at(x, y))) {
+            if ("TILJSZOX".includes(field.at(x, y))) {
                 return y + 1;
             }
         }
