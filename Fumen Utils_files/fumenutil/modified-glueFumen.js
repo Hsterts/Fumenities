@@ -48,26 +48,15 @@ var pieceMappings = {
         [[0, 0], [1, 0], [0, 1], [1, 1]]
     ]
 };
-function tryheight(field) {
+function height(field) {
     for (var y = HEIGHT - 1; y >= 0; y--) {
         for (var x = 0; x < WIDTH; x++) {
-            if (field.at(x, y).match(/[TILJSZO]/)) {
+            if ("TILJSZO".includes(field.at(x, y))) {
                 return y + 1;
             }
         }
     }
     return 0;
-}
-function height(field) {
-    // accounting for newlines and no trailing newline and garbage line
-    var result = ((field.str().length + 1) / (WIDTH + 1) - 1);
-    var testheight = tryheight(field);
-    if (result > 0) {
-        console.assert(result == testheight, field.str());
-    } else {
-        console.assert(testheight == 0, `Empty field ${testheight}`);
-    }
-    return result;
 }
 function isInside(height, x, y) {
     return (0 <= x && x < WIDTH) && (0 <= y && y < height);
