@@ -52,8 +52,8 @@ function height(field) {
     // accounting for newlines and no trailing newline and garbage line
     return ((field.str().length + 1) / (WIDTH + 1) - 1);
 }
-function isInside(field, x, y) {
-    return (0 <= x && x < WIDTH) && (0 <= y && y < height(field));
+function isInside(height, x, y) {
+    return (0 <= x && x < WIDTH) && (0 <= y && y < height);
 }
 function isFloating(field, minoPositions) {
     // if there's a 'X' under any of the minos
@@ -218,7 +218,7 @@ function makeEmptyField(field) {
     }
     return emptyField;
 }
-function getMinoPositions(field, x, y, piece, rotationState, visualizeArr) {
+function getMinoPositions(field, fieldHeight, x, y, piece, rotationState, visualizeArr) {
     if (visualizeArr === void 0) { visualizeArr = null; }
     var minoPositions = [];
     // empty the field of all colored minos
@@ -232,7 +232,7 @@ function getMinoPositions(field, x, y, piece, rotationState, visualizeArr) {
         var pos = rotationState_1[_i];
         var px = x + pos[0];
         var py = y + pos[1];
-        if (isInside(field, px, py)) {
+        if (isInside(fieldHeight, px, py)) {
             // add piece mino to field to visualize what it tried
             if (visualizeField !== null) {
                 visualizeField.set(px, py, piece);
@@ -283,7 +283,7 @@ function glue(x0, y0, field, piecesArr, allPiecesArr, totalLinesCleared, visuali
                 var rotationStates = pieceMappings[piece];
                 for (var state = 0; state < rotationStates.length; state++) {
                     var newPiecesArr = __spreadArray([], piecesArr, true);
-                    var minoPositions = getMinoPositions(field, x, y, piece, rotationStates[state], (visualize) ? visualizeArr : null);
+                    var minoPositions = getMinoPositions(field, fieldHeight, x, y, piece, rotationStates[state], (visualize) ? visualizeArr : null);
                     // if there's less than minos
                     if (minoPositions.length < TETROMINO || isFloating(field, minoPositions)) {
                         continue;
