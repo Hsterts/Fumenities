@@ -153,20 +153,54 @@ function placePiece(field, minoPositions, piece) {
     }
 }
 function removeLineClears(field) {
-    var lines = field.str().split("\n").slice(0, -1);
+    // line clearing is done internally by tetris-fumen in PlayField
+    // but here we want to only clear rows that are all `X`s
+
+    // to avoid serializing the field, we directly alter the field
+    var newField = field.copy();
+    var currentRow = 0;
+    var sourceRow = 0;
     var linesCleared = [];
-    // go through each line to check if just gray minos
-    for (var i = lines.length - 1; i >= 0; i--) {
-        if (lines[i] === "X".repeat(WIDTH)) {
-            lines.splice(i, 1); // remove line
-            linesCleared.push(lines.length - i); // add relative line num that was cleared
+
+    while (sourceRow < HEIGHT) {
+        var greyRow = true;
+        for (var x = 0; x < WIDTH; x++) {
+            if (field.at(x, sourceRow) !== "X") {
+                greyRow = false;
+                break;
+            }
+        }
+
+        if (greyRow) {
+            // ignore this source row, use the row above as source instead
+
+            // record cleared line, since all rows below are filled, 
+            // currentRow is exactly the relative line number of the cleared row
+            linesCleared.push(currentRow);
+            sourceRow++;
+        } else {
+            // only need to copy from sourceRow when the rows are different
+            if (currentRow != sourceRow) {
+                // copy from source to current
+                for (var x = 0; x < WIDTH; x++) {
+                    newField.set(x, currentRow, newField.at(x, sourceRow))
+                }
+            }
+            // move to the next row above
+            currentRow++;
+            sourceRow++;
         }
     }
-    // create new field with the cleared field
-    var newField = tetris_fumen_1.Field.create(lines.join(""));
+    // blank out remaining rows
+    for (var y = currentRow + 1; y < HEIGHT; y++) {
+        for (var x = 0; x < WIDTH; x++) {
+            newField.set(x, y, "_");
+        }
+    }
+
     return {
         field: newField,
-        linesCleared: linesCleared // relative line clear positions ex: [0, 0] (first two lines)
+        linesCleared: linesCleared // relative line clear positions ex: [0, 0] (bottommost two lines)
     };
 }
 // encode operations for faster comparisons
@@ -309,6 +343,7 @@ function glue(x0, y0, field, piecesArr, allPiecesArr, totalLinesCleared, visuali
                     // check if a line clear occurred
                     var startx = Math.max(x - 1, 0);
                     var starty = Math.max(y - 1, 0);
+                    // merge new relative position line numbers to previous absolute position line numbers
                     var newTotalLinesCleared = __spreadArray([], totalLinesCleared, true);
                     if (thisLinesCleared.length > 0) {
                         // start position to 0 otherwise it's where we left off scanning the field
