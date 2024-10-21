@@ -201,12 +201,11 @@ function decodeOp(ct) {
     };
 }
 function anyColoredMinos(field) {
-    var lines = field.str().split("\n").slice(0, -1);
-    for (var _i = 0, lines_1 = lines; _i < lines_1.length; _i++) {
-        var line = lines_1[_i];
-        var pieces = line.match(/[TILJSZO]/g);
-        if (pieces != null) {
-            return true;
+    for (var y = 0; y < HEIGHT; y++) {
+        for (var x = 0; x < WIDTH; x++) {
+            if ("TILJSZO".includes(field.at(x, y))) {
+                return true;
+            }
         }
     }
     return false;
