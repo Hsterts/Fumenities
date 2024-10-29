@@ -9,12 +9,17 @@
     margin: auto;
     margin-top: 20px;
     width: 85vw;
-    max-width: 900px;
+    max-width: 1800px;
+}
+
+#header-div {
+    display: flex;
 }
 
 header {
     font-family: Montserrat, Sans-Serif;
     font-size: 32px;
+    flex-grow: 1;
 }
 
 header b{
@@ -94,6 +99,11 @@ details[open] summary::after{
     border: none;
 }
 
+#main-content {
+    display: grid;
+    grid-template-columns: auto auto;
+}
+
 /* FUMEN UTIL */
 
 textarea{
@@ -110,13 +120,21 @@ textarea{
     resize: show;
     }
 
+figcaption{
+    width: 100%;
+    margin-top: 1px;
+}
+
 .commentDisplay{
     height: 24px;
     width: inherit;
-    margin: 2px 0 0 0;
+    border: 0px !important;
+    outline: solid #aaa6cf 1px;
+    margin: 0px;
     font-size: 14px;
-    padding: 2px;
+    padding: 0px;
     text-align: center;
+    resize: none;
 }
 
 input, select{
@@ -145,14 +163,35 @@ input[type="checkbox"]{
     }
 
 figure{
-    display: inline-block;
-    padding: 0px;
-    margin: 0px !important;
+    display: flex;
+    flex-flow: row wrap;
+    padding: 0 0.5px;
+    margin: 0.5px 0 !important;
+    width: min-content;
+    height: min-content;
 }
 
 .imageOutput{
+    padding: 0px;
+}
+
+#imageOutputs{
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+}
+
+#rowOutput {
+    display: flex;
+}
+
+.fourImageOutput {
     background: rgba(181, 176, 252, 0.1);
     outline: solid #aaa6cf 1px;
+}
+
+.fumenImageOutput {
+    outline: solid #585b5b 1px;
 }
 
 .fumenOperations{
@@ -199,7 +238,7 @@ input[type='radio'] {
     margin-bottom: 0px;
 }
 
-.paint-bucket input[class='paintbucket'] + *::before {
+.paint-bucket input[class='paintbucket'] + span {
     content: '';
     display: inline-block;
     width: 1.2rem;
@@ -210,24 +249,32 @@ input[type='radio'] {
     padding: 2px;
 }
 
-.paint-bucket input[class='paintbucket']:hover + *::before {
+.paint-bucket input[class='paintbucket']:hover + span {
     border-color: rgb(227, 217, 255);
     filter: brightness(75%);
 }
 
-.paint-bucket input[class='paintbucket']:checked + *::before {
+.paint-bucket input[class='paintbucket']:checked + span {
     border-color: rgb(227, 217, 255);
     filter: brightness(100%);
 }
 
-.paint-bucket input[id='X'] + *::before {background: #c5c5c5;}
-.paint-bucket input[id='I'] + *::before {background: #41afde;}
-.paint-bucket input[id='J'] + *::before {background: #1983bf;}
-.paint-bucket input[id='S'] + *::before {background: #66c65c;}
-.paint-bucket input[id='O'] + *::before {background: #f7d33e;}
-.paint-bucket input[id='Z'] + *::before {background: #ef624d;}
-.paint-bucket input[id='L'] + *::before {background: #ef9535;}
-.paint-bucket input[id='T'] + *::before {background: #b451ac;}
+.paint-bucket input[id='X'] + span {background: #c5c5c5;}
+.paint-bucket input[id='I'] + span {background: #41afde;}
+.paint-bucket input[id='J'] + span {background: #1983bf;}
+.paint-bucket input[id='S'] + span {background: #66c65c;}
+.paint-bucket input[id='O'] + span {background: #f7d33e;}
+.paint-bucket input[id='Z'] + span {background: #ef624d;}
+.paint-bucket input[id='L'] + span {background: #ef9535;}
+.paint-bucket input[id='T'] + span {background: #b451ac;}
+
+.paint-bucket label > span > span {
+    color: black;
+}
+
+#editorMode {
+    align-self: center;
+}
 
 /* SIDEBAR */
 .fumen-header{
@@ -239,23 +286,13 @@ input[type='radio'] {
     height: 40px;
 }
 
-.minomode{
-    color: white;
-    padding: 6px;
-    margin: 2px;
-    border-radius: 3px;
-    height: 30px;
-    width: 130px;
-    padding-bottom: 0px;
-}
-
 .pepega{
     vertical-align: middle;
 }
 
 .fumen-main{
-    background: #43445366;
     padding: 20px 0px 20px 0px;
+    height: 100%;
 }
 
 #settings-body {
@@ -281,13 +318,19 @@ input[type='radio'] {
     margin-left: 15px;
 }
 
+.left-fumen-panel{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
 .right-fumen-panel{
     flex: 1;
     margin-top: 9px;
     text-align: left;
     display: grid;
     justify-content: space-between;
-    height: 500px;
+    height: auto;
 }
 
 .bottom-right-fumen-panel{
@@ -299,7 +342,7 @@ input[type='radio'] {
     width: 220px;
     height: 440px;
     margin-top: 2px;
-    padding-left: 18px;
+    padding-left: 15px;
     padding-right: 15px;
 }
 
@@ -313,21 +356,11 @@ input[type='radio'] {
     outline: solid rgb(203, 199, 255) 1px;
 }
 
-.option-left{
-    position: fixed;
-    right: 500px;
-}
-
 #fumenSidebar{
     font-family: Montserrat, Sans-Serif;
-    background: #30313fcc;
     text-align: center;
     height: 100%;
     width: 500px;
-    position: fixed;
-    top: 0;
-    right: 0;
-    padding-top: 40px;
 }
 
 #settingsSidebar{
@@ -342,8 +375,8 @@ input[type='radio'] {
     width: 250px;
     position: fixed;
     top: 0;
-    right: 500px;
-    padding-top: 120px;
+    right: 0px;
+    padding-top: 30px;
 }
 
 .settingsBody{
@@ -351,7 +384,6 @@ input[type='radio'] {
     font-weight: 600;
     margin: auto;
     width: 220px;
-    height: 150px;
     padding: 10px 5px 10px 5px;
     background: #000000A0;
     border-radius: 2px;
@@ -372,8 +404,9 @@ input[type='radio'] {
 }
 
 #boardOutput{
-    width:180px;
-    height:79px;
+    width: 168px;
+    height: 79px;
+    resize: none;
 }
 
 .fumen-option {
@@ -420,12 +453,12 @@ input[type='radio'] {
 }
 
 #commentBox{
-    width:225px;
-    height:25px;
+    width: 220px;
+    height: 25px;
     resize: none;
-    padding: 2px;
+    padding: 1px;
     font-size: 14px;
-    margin-left: 6px;
+    margin-top: 4px;
 }
 
 .page{
@@ -450,15 +483,15 @@ input[type='radio'] {
     justify-content: center;
     text-align: center;
     background-color: #23212c66;
-    height: 525px;
+    height: auto;
 }
 
-.pager {
+.pager { /* redundant? */
     display: inline-block;
     vertical-align: middle;
 }
 
-.shifter{
+.square-button{
     display: inline-block;
     vertical-align: middle;
 }

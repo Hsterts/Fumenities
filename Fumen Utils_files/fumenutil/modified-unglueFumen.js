@@ -1,6 +1,7 @@
-// const { decoder, encoder} = require('tetris-fumen');
+const { decoder, encoder } = require('tetris-fumen');
+import { LineTerminator, getDelimiter } from '../global-utils.js'
 
-gluePieces = {
+var gluePieces = {
     T: [
         [[0, 0], [0, -1], [0, 1], [1, 0]],
         [[0, 0], [0, 1], [1, 0], [-1, 0]],
@@ -45,14 +46,14 @@ gluePieces = {
     ]
 }
 
-rotationMapping = {
+var rotationMapping = {
     "spawn": 0,
     "right": 1,
     "reverse": 2,
     "left": 3
 }
 
-colorMapping = {
+var colorMapping = {
     "S": 7,
     "J": 6,
     "T": 5,
@@ -69,44 +70,40 @@ function clearedOffset(rowsCleared, yIndex) {
     return yIndex;
 }
 
-function unglueFumen(input) {
-    var fumenCodes = [];
-    results = []
-    for (let rawInput of input.split("\t")) {
-        fumenCodes.push(...rawInput.split(/\s/));
-    }
-    
+export default function unglueFumen() {
+    var input = document.getElementById('input').value.replace(/[Ddm]115@/gm, 'v115@')
+    var fumenCodes = input.trim().split(LineTerminator);
+    var results = []
+
     for (let code of fumenCodes) {
         try {
             let inputPages = decoder.decode(code);
             console.log(inputPages);
-            toUnglueBoard = inputPages[0]["_field"]["field"]["pieces"];
-            rowsCleared = [];
+            let toUnglueBoard = inputPages[0]["_field"]["field"]["pieces"];
+            let rowsCleared = [];
 
-            for (let pageNum = 0; pageNum < inputPages.length; pageNum++) {
-                op = inputPages[pageNum]["operation"];
-                piece = gluePieces[op["type"]][rotationMapping[op["rotation"]]];
+            for (let inputPage of inputPages) {
+                let op = inputPage["operation"];
+                let piece = gluePieces[op["type"]][rotationMapping[op["rotation"]]];
 
                 for (let mino of piece) {
-                    yIndex = op.y + mino[0];
+                    let yIndex = op.y + mino[0];
                     yIndex = clearedOffset(rowsCleared, yIndex);
-                    xIndex = op.x + mino[1];
-                    index = yIndex * 10 + xIndex;
+                    let xIndex = op.x + mino[1];
+                    let index = yIndex * 10 + xIndex;
                     if (toUnglueBoard[index] != 0) { console.log("error"); } // some intersect with the toUnglueBoard
                     toUnglueBoard[index] = colorMapping[op["type"]];
                 }
 
-                temp = [];
+                let temp = [];
 
                 for (let y = -2; y < 3; y++) { // rows in which the piece might have been
-                    yIndex = op.y + y;
+                    let yIndex = op.y + y;
                     yIndex = clearedOffset(rowsCleared, yIndex);
                     if (yIndex >= 0) { // sanity check
-                        rowCleared = true;
-                        for (let x = 0; x < 10; x++) {
-                            index = yIndex * 10 + x;
-                            rowCleared = rowCleared && (toUnglueBoard[index] != 0);
-                        }
+                        let currentRow = toUnglueBoard.slice(yIndex * 10, yIndex * 10 + 10)
+
+                        let rowCleared = currentRow.every(mino => mino != 0);
                         if (rowCleared) {
                             temp.push(yIndex);
                         }
@@ -119,7 +116,7 @@ function unglueFumen(input) {
                         rowsCleared.sort();
                     }
                 }
-            
+
             }
 
             let outputPages = [inputPages[0]]; // lazily generating output fumen by destructively modifying the input
@@ -127,10 +124,10 @@ function unglueFumen(input) {
             outputPages[0]["_field"]["field"]["pieces"] = toUnglueBoard;
 
             results.push(encoder.encode(outputPages));
-            
+
         } catch (error) { console.log(code, error); }
     }
 
     console.log(results.join(' '));
-    document.getElementById("output").value = results.join(delimiter);
+    document.getElementById("output").value = results.join(getDelimiter());
 }
