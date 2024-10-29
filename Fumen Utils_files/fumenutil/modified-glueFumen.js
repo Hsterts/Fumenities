@@ -245,7 +245,7 @@ function makeEmptyField(field) {
     for (var y = 0; y < fieldHeight; y++) {
         for (var x = 0; x < WIDTH; x++) {
             var piece = emptyField.at(x, y);
-            if (piece.match(/[TILJSZO]/)) {
+            if ("TILJSZO".includes(piece)) {
                 emptyField.set(x, y, "_");
             }
         }
@@ -310,7 +310,7 @@ function glue(x0, y0, field, piecesArr, allPiecesArr, totalLinesCleared, visuali
         for (var x = (y == y0) ? x0 : 0; x < WIDTH; x++) {
             // if it is a piece
             var piece = field.at(x, y);
-            if (piece.match(/[TILJSZO]/)) {
+            if ("TILJSZO".includes(piece)) {
                 // checking if one of the rotations works
                 var rotationStates = pieceMappings[piece];
                 for (var state = 0; state < rotationStates.length; state++) {
