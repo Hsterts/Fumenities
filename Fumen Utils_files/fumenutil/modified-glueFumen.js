@@ -286,7 +286,7 @@ function duplicateGlue(subArr, arrays) {
     // check if duplicate
     var duplicate = false;
     // new array without y but keep absolute y
-    var absSubArr = subArr.map(function (x) { return x >> 5; });
+    var absSubArr = subArr.map(x => x >> 5);
     var arrSet = new Set(absSubArr);
     for (const arr of arrays) {
         // check if the two arrays are the same length
@@ -295,8 +295,8 @@ function duplicateGlue(subArr, arrays) {
             break;
         }
         // check if two arrays are permutations
-        var absArr = arr.map(function (x) { return x >> 5; });
-        if (absArr.every(function (x) { return arrSet.has(x); })) {
+        var absArr = arr.map(x => x >> 5);
+        if (absArr.every(x => arrSet.has(x))) {
             duplicate = true;
             break;
         }
