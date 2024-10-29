@@ -379,6 +379,55 @@ function glue(x0, y0, field, piecesArr, allPiecesArr, totalLinesCleared, visuali
         allPiecesArr.push(piecesArr);
     }
 }
+function glueFumenInner(inputPages, visualize, visualizeArr) {
+    var start = performance.now();
+    var thisGlueFumens = []; // holds the glue fumens for this fumenCode
+    // glue each page
+    for (var _b = 0, inputPages_1 = inputPages; _b < inputPages_1.length; _b++) {
+        var page = inputPages_1[_b];
+        var field = page.field;
+        var emptyField = makeEmptyField(field);
+        var allPiecesArr = [];
+        // try to glue this field and put into all pieces arr
+        glue(0, 0, field, [], allPiecesArr, [], visualizeArr, visualize);
+        // couldn't glue
+        if (allPiecesArr.length == 0) {
+            console.log(code + " couldn't be glued");
+            fumenIssues++;
+        }
+        // each sequence of pieces
+        for (var _c = 0, allPiecesArr_1 = allPiecesArr; _c < allPiecesArr_1.length; _c++) {
+            var piecesArr = allPiecesArr_1[_c];
+            var pages = [];
+            pages.push({
+                field: emptyField,
+                operation: decodeOp(piecesArr[0])
+            });
+            for (var i = 1; i < piecesArr.length; i++) {
+                pages.push({
+                    operation: decodeOp(piecesArr[i])
+                });
+            }
+            // add the final glue fumens to visualization
+            if (visualize)
+                visualizeArr.push.apply(visualizeArr, pages);
+            // the glued fumen for this inputted page
+            var pieceFumen = tetris_fumen_1.encoder.encode(pages);
+            thisGlueFumens.push(pieceFumen);
+        }
+        // multiple fumens from one page
+        if (allPiecesArr.length > 1) {
+            // multiple outputs warning
+            console.log("Warning: " + code + " led to " + allPiecesArr.length + " outputs");
+        }
+    }
+
+    var end = performance.now();
+    console.log(`decoding one code took ${end - start}`);
+
+    return thisGlueFumens;
+}
+
 export default function glueFumen() {
     var visualize = false;
 
@@ -389,50 +438,12 @@ export default function glueFumen() {
     var allFumens = [];
     var visualizeArr = [];
     var fumenIssues = 0;
+
     // for each fumen
     for (var _a = 0, inputFumenCodes_1 = inputFumenCodes; _a < inputFumenCodes_1.length; _a++) {
         var code = inputFumenCodes_1[_a];
         var inputPages = tetris_fumen_1.decoder.decode(code);
-        var thisGlueFumens = []; // holds the glue fumens for this fumenCode
-        // glue each page
-        for (var _b = 0, inputPages_1 = inputPages; _b < inputPages_1.length; _b++) {
-            var page = inputPages_1[_b];
-            var field = page.field;
-            var emptyField = makeEmptyField(field);
-            var allPiecesArr = [];
-            // try to glue this field and put into all pieces arr
-            glue(0, 0, field, [], allPiecesArr, [], visualizeArr, visualize);
-            // couldn't glue
-            if (allPiecesArr.length == 0) {
-                console.log(code + " couldn't be glued");
-                fumenIssues++;
-            }
-            // each sequence of pieces
-            for (var _c = 0, allPiecesArr_1 = allPiecesArr; _c < allPiecesArr_1.length; _c++) {
-                var piecesArr = allPiecesArr_1[_c];
-                var pages = [];
-                pages.push({
-                    field: emptyField,
-                    operation: decodeOp(piecesArr[0])
-                });
-                for (var i = 1; i < piecesArr.length; i++) {
-                    pages.push({
-                        operation: decodeOp(piecesArr[i])
-                    });
-                }
-                // add the final glue fumens to visualization
-                if (visualize)
-                    visualizeArr.push.apply(visualizeArr, pages);
-                // the glued fumen for this inputted page
-                var pieceFumen = tetris_fumen_1.encoder.encode(pages);
-                thisGlueFumens.push(pieceFumen);
-            }
-            // multiple fumens from one page
-            if (allPiecesArr.length > 1) {
-                // multiple outputs warning
-                console.log("Warning: " + code + " led to " + allPiecesArr.length + " outputs");
-            }
-        }
+        var thisGlueFumens = glueFumenInner(inputPages, visualize, visualizeArr);
         // add the glue fumens for this code to all the fumens
         allFumens.push.apply(allFumens, thisGlueFumens);
     }
