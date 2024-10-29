@@ -63,14 +63,10 @@ function isInside(height, x, y) {
 }
 function isFloating(field, minoPositions) {
     // if there's a 'X' under any of the minos
-    for (var _i = 0, minoPositions_1 = minoPositions; _i < minoPositions_1.length; _i++) {
-        var pos = minoPositions_1[_i];
-        // on floor
-        if (pos.y == 0 || field.at(pos.x, pos.y - 1) == 'X') {
-            return false;
-        }
-    }
-    return true;
+    return minoPositions.every(pos =>
+        // not on floor
+        pos.y != 0 && field.at(pos.x, pos.y - 1) != 'X'
+    );
 }
 function centerMino(minoPositions) {
     return minoPositions[0];
@@ -147,8 +143,7 @@ function parseRotation(rotation) {
 }
 function placePiece(field, minoPositions, piece) {
     if (piece === void 0) { piece = 'X'; }
-    for (var _i = 0, minoPositions_1 = minoPositions; _i < minoPositions_1.length; _i++) {
-        var pos = minoPositions_1[_i];
+    for (const pos of minoPositions) {
         field.set(pos.x, pos.y, piece);
     }
 }
@@ -267,8 +262,7 @@ function getMinoPositions(field, fieldHeight, x, y, piece, rotationState, visual
         visualizeField = makeEmptyField(field);
     }
     // for each position of a mino from rotation state
-    for (var _i = 0, rotationState_1 = rotationState; _i < rotationState_1.length; _i++) {
-        var pos = rotationState_1[_i];
+    for (const pos of rotationState) {
         var px = x + pos[0];
         var py = y + pos[1];
         if (isInside(fieldHeight, px, py)) {
@@ -294,8 +288,7 @@ function duplicateGlue(subArr, arrays) {
     // new array without y but keep absolute y
     var absSubArr = subArr.map(function (x) { return x >> 5; });
     var arrSet = new Set(absSubArr);
-    for (var _i = 0, arrays_1 = arrays; _i < arrays_1.length; _i++) {
-        var arr = arrays_1[_i];
+    for (const arr of arrays) {
         // check if the two arrays are the same length
         if (subArr.length !== arr.length) {
             duplicate = false;
@@ -350,13 +343,13 @@ function glue(x0, y0, field, piecesArr, allPiecesArr, totalLinesCleared, visuali
                         startx = 0;
                         starty = 0;
                         // determine the absolute position of the line numbers
-                        for (var _i = 0, thisLinesCleared_1 = thisLinesCleared; _i < thisLinesCleared_1.length; _i++) {
-                            var lineNum = thisLinesCleared_1[_i];
+                        for (const lineNum of thisLinesCleared) {
+                            var lineNumCopy = lineNum;
                             var i = void 0;
                             for (i = 0; i < newTotalLinesCleared.length && newTotalLinesCleared[i] <= lineNum; i++) {
-                                lineNum++;
+                                lineNumCopy++;
                             }
-                            newTotalLinesCleared.splice(i, 0, lineNum);
+                            newTotalLinesCleared.splice(i, 0, lineNumCopy);
                         }
                     }
                     // a rotation that works
@@ -383,8 +376,7 @@ function glueFumenInner(inputPages, visualize, visualizeArr) {
     var start = performance.now();
     var thisGlueFumens = []; // holds the glue fumens for this fumenCode
     // glue each page
-    for (var _b = 0, inputPages_1 = inputPages; _b < inputPages_1.length; _b++) {
-        var page = inputPages_1[_b];
+    for (const page of inputPages) {
         var field = page.field;
         var emptyField = makeEmptyField(field);
         var allPiecesArr = [];
@@ -396,8 +388,7 @@ function glueFumenInner(inputPages, visualize, visualizeArr) {
             fumenIssues++;
         }
         // each sequence of pieces
-        for (var _c = 0, allPiecesArr_1 = allPiecesArr; _c < allPiecesArr_1.length; _c++) {
-            var piecesArr = allPiecesArr_1[_c];
+        for (const piecesArr of allPiecesArr) {
             var pages = [];
             pages.push({
                 field: emptyField,
@@ -440,8 +431,7 @@ export default function glueFumen() {
     var fumenIssues = 0;
 
     // for each fumen
-    for (var _a = 0, inputFumenCodes_1 = inputFumenCodes; _a < inputFumenCodes_1.length; _a++) {
-        var code = inputFumenCodes_1[_a];
+    for (const code of inputFumenCodes) {
         var inputPages = tetris_fumen_1.decoder.decode(code);
         var thisGlueFumens = glueFumenInner(inputPages, visualize, visualizeArr);
         // add the glue fumens for this code to all the fumens
