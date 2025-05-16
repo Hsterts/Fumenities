@@ -305,9 +305,9 @@ function getNewStart(field, height, x, y, minoPositions) {
         // starting as far down to possibly get this line below to clear
         return { x: 0, y: Math.max(y - 4, 0) };
     }
-    // get top right most mino
+    // get right most mino in current y
     var rightMostPos = minoPositions.reduce(function (maxPos, currentPos) {
-        return currentPos.x > maxPos.x || (currentPos.x == maxPos.x && currentPos.y > maxPos.y) ? currentPos : maxPos;
+        return currentPos.x > maxPos.x && y == currentPos.y ? currentPos : maxPos;
     }, minoPositions[0]); // Initialize with the first pair
     var testMinoPositions = [];
     if (x > 0 && y > 0 && field.at(x - 1, y - 1) == 'J' && field.at(x, y + 1) == 'J') {
@@ -322,7 +322,7 @@ function getNewStart(field, height, x, y, minoPositions) {
             return { x: rightMostPos.x + 1, y: rightMostPos.y - 1 }; // if L hanging from right
         }
     }
-    if (x >= 2 && "LS".includes(field.at(x, y + 1))) {
+    if (x >= 2 && y > 0 && "LS".includes(field.at(x - 2, y)) && "LS".includes(field.at(x, y + 1))) {
         switch (field.at(x - 2, y)) {
             case 'L':
                 testMinoPositions = getMinoPositions(field, height, x - 2, y, 'L', pieceMappings['L'][2]);
@@ -334,7 +334,7 @@ function getNewStart(field, height, x, y, minoPositions) {
         if (testMinoPositions.length == TETROMINO)
             return { x: x - 2, y: y }; // if L or S hanging from the left
     }
-    if (x >= 1 && "TLZ".includes(field.at(x, y + 1))) {
+    if (x >= 1 && y > 0 && "TLZ".includes(field.at(x - 1, y)) && "TLZ".includes(field.at(x, y + 1))) {
         switch (field.at(x - 1, y)) {
             case 'L':
                 testMinoPositions = getMinoPositions(field, height, x - 1, y, 'L', pieceMappings['L'][2]);
@@ -351,13 +351,11 @@ function getNewStart(field, height, x, y, minoPositions) {
         if (testMinoPositions.length == TETROMINO)
             return { x: x - 1, y: y }; // if T, L (facing down), Z hanging from left
     }
-    // get the right most mino on current y value
-    var rightMostXCurrY = Math.max.apply(Math, minoPositions.filter(function (s) { return s.y == y; }).map(function (s) { return s.x; }));
     // at the end of the line
-    if (rightMostXCurrY == 9) {
+    if (rightMostPos.x == 9) {
         return { x: 0, y: y + 1 };
     }
-    return { x: rightMostXCurrY + 1, y: y };
+    return { x: rightMostPos.x + 1, y: y };
 }
 function getMinoPositions(field, height, x, y, piece, rotationState) {
     var minoPositions = [];
@@ -464,7 +462,6 @@ function glue(x0, y0, field, height, piecesArr, allPiecesArr, totalLinesCleared)
     }
 }
 function glueFumenInner(inputPages, code) {
-    var start = performance.now();
     var thisGlueFumens = []; // holds the glue fumens for this fumenCode
     // glue each page
     for (const page of inputPages) {
@@ -503,9 +500,6 @@ function glueFumenInner(inputPages, code) {
             console.log("Warning: " + code + " led to " + allPiecesArr.length + " outputs");
         }
     }
-
-    var end = performance.now();
-    console.log(`decoding one code took ${end - start}`);
 
     return thisGlueFumens;
 }
